@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rideon Spinning Studio — Pedalea Rápido. Llega Lejos.</title>
+  <meta name="description" content="Estudio de spinning en Chihuahua. Reserva tu clase y tu bicicleta en segundos." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ============== NAVBAR ============== -->
+  <nav class="navbar" id="navbar">
+    <div class="container nav-inner">
+      <a href="#" class="logo">
+        <img src="logo.jpg" alt="Rideon Spinning Studio" class="logo-img" />
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#clases">Clases</a></li>
+        <li><a href="#horarios">Horarios</a></li>
+        <li><a href="#instructores">Instructores</a></li>
+        <li><a href="#precios">Precios</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+      </ul>
+
+      <a href="#reservar" class="btn btn-primary">Reservar ahora</a>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ============== HERO ============== -->
+  <header class="hero">
+    <div class="hero-bg">
+      <!-- Imagen de fondo via CSS. Si quieres reemplazar, cambia --hero-image en styles.css -->
+      <div class="hero-overlay"></div>
+      <!-- Trail del conejo: SVG decorativo cruzando el hero -->
+      <svg class="rabbit-trail" viewBox="0 0 1440 200" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M-50 150 Q 300 80 600 130 T 1500 60" stroke="var(--teal-primary)" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="8 12"/>
+      </svg>
+    </div>
+
+    <div class="container hero-content">
+      <div class="hero-text">
+        <span class="hero-eyebrow">// SPINNING STUDIO · CHIHUAHUA</span>
+        <h1 class="hero-title">
+          <span class="title-line">Pedalea <span class="text-red"> <br/> Rápido</span></span>
+          <span class="title-line">Llega <span class="text-red">Lejos</span></span>
+        </h1>
+        <p class="hero-sub">
+          Clases de spinning de alta intensidad en una sala diseñada para empujarte al siguiente nivel. Reserva tu bici, elige tu lugar y prepárate para sudar.
+        </p>
+
+        <div class="hero-ctas">
+          <a href="#horarios" class="btn btn-primary btn-lg">
+            Reservar Clase
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+          <button class="btn btn-ghost btn-lg" type="button">
+            <span class="play-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            </span>
+            Ver Video
+          </button>
+        </div>
+
+        <div class="hero-proof">
+          <div class="avatars">
+            <span class="avatar" style="background: linear-gradient(135deg,#FF6B6B,#E10600)"></span>
+            <span class="avatar" style="background: linear-gradient(135deg,#4ECDC4,#1A535C)"></span>
+            <span class="avatar" style="background: linear-gradient(135deg,#FFE66D,#FF6B00)"></span>
+          </div>
+          <div class="proof-text">
+            <strong data-counter="12450">0</strong> km pedaleados
+            <span>esta semana por nuestra comunidad</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <!-- Placeholder del visual del hero. Sustituye por tu foto/imagen real -->
+        <div class="hero-card">
+          <div class="hero-card-bg"></div>
+          <div class="hero-card-content">
+            <span class="badge badge-live">● PRÓXIMA CLASE</span>
+            <h3>Sunset Sprint</h3>
+            <p>Con Lucia Frescas · 60 min · 18:00</p>
+            <div class="bike-preview">
+              <div class="bike-row">
+                <span class="bike taken"></span>
+                <span class="bike taken"></span>
+                <span class="bike free"></span>
+                <span class="bike free"></span>
+                <span class="bike taken"></span>
+              </div>
+              <div class="bike-row">
+                <span class="bike taken"></span>
+                <span class="bike selected"></span>
+                <span class="bike free"></span>
+                <span class="bike taken"></span>
+                <span class="bike free"></span>
+              </div>
+              <div class="bike-row">
+                <span class="bike free"></span>
+                <span class="bike taken"></span>
+                <span class="bike taken"></span>
+                <span class="bike free"></span>
+                <span class="bike free"></span>
+              </div>
+            </div>
+            <div class="hero-card-footer">
+              <span>Bike #07 · Fila 2</span>
+              <strong>$220 MXN</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slash diagonal teal de transición -->
+    <div class="hero-slash" aria-hidden="true">
+      <svg viewBox="0 0 1440 100" preserveAspectRatio="none">
+        <polygon points="0,100 1440,0 1440,100" fill="#FFFFFF"/>
+        <polygon points="0,100 1440,30 1440,40 0,100" fill="var(--teal-primary)" opacity="0.9"/>
+      </svg>
+    </div>
+  </header>
+
+  <!-- ============== LAUNCH ANNOUNCEMENT ============== -->
+  <section class="launch">
+    <div class="container launch-inner">
+      <span class="launch-pin">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        Llega a Chihuahua
+      </span>
+
+      <h2 class="launch-pre">Una nueva forma<br/>de entrenar</h2>
+
+      <h3 class="launch-brand">
+        <span class="brand-line">Rideon</span>
+        <span class="brand-sub">Spinning Studio</span>
+      </h3>
+
+      <p class="launch-tag">
+        Donde la <em>energía</em>, la <em>música</em> y el <em>rendimiento</em><br/>
+        se convierten en una experiencia.
+      </p>
+
+      <div class="launch-cta">
+        <a href="#horarios" class="btn btn-primary btn-lg">Reservar mi primera clase</a>
+      </div>
+    </div>
+
+    <!-- Marquee scroll infinito en la base -->
+    <div class="launch-marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span>Ride Fast</span><span class="dot-sep">●</span>
+        <span>Ride Together</span><span class="dot-sep">●</span>
+        <span>Rideon</span><span class="dot-sep">●</span>
+        <span>Pedalea Rápido. Llega Lejos.</span><span class="dot-sep">●</span>
+        <span>Ride Fast</span><span class="dot-sep">●</span>
+        <span>Ride Together</span><span class="dot-sep">●</span>
+        <span>Rideon</span><span class="dot-sep">●</span>
+        <span>Pedalea Rápido. Llega Lejos.</span><span class="dot-sep">●</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== HOW IT WORKS ============== -->
+  <section class="how" id="clases">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Cómo funciona</span>
+        <h2>Reserva tu clase en <span class="text-red">3 pasos</span></h2>
+        <p>Sin filas, sin llamadas, sin complicaciones. Todo desde tu celular.</p>
+      </div>
+
+      <div class="how-grid">
+        <article class="how-card">
+          <span class="how-num">01</span>
+          <div class="how-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          </div>
+          <h3>Elige tu horario</h3>
+          <p>Mira la disponibilidad en tiempo real y filtra por instructor o tipo de clase.</p>
+        </article>
+
+        <article class="how-card">
+          <span class="how-num">02</span>
+          <div class="how-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17l5-9h5l3 9M11 8l3 4"/></svg>
+          </div>
+          <h3>Selecciona tu bici</h3>
+          <p>Vista del salón en tiempo real. Escoge tu posición favorita en la sala.</p>
+        </article>
+
+        <article class="how-card">
+          <span class="how-num">03</span>
+          <div class="how-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
+          </div>
+          <h3>Paga y listo</h3>
+          <p>Pago seguro con tarjeta o transferencia. Recibe tu confirmación al instante.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== HORARIOS ============== -->
+  <section class="schedule" id="horarios">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Horarios</span>
+        <h2>Esta semana en <span class="text-red">Rideon</span></h2>
+        <p>Selecciona un día y reserva tu lugar antes de que se llene.</p>
+      </div>
+
+      <!-- Tabs por día -->
+      <div class="day-tabs">
+        <button class="day-tab active" data-day="lun">Lun</button>
+        <button class="day-tab" data-day="mar">Mar</button>
+        <button class="day-tab" data-day="mie">Mié</button>
+        <button class="day-tab" data-day="jue">Jue</button>
+        <button class="day-tab" data-day="vie">Vie</button>
+        <button class="day-tab" data-day="sab">Sáb</button>
+      </div>
+
+      <!-- Lunes a Viernes comparten horario y staff -->
+      <div class="schedule-grid day-panel active" data-panel="lun">
+        <!-- Mañanas: Rosario -->
+        <article class="slot" data-status="available">
+          <span class="slot-tag tag-morning">MAÑANA</span>
+          <span class="slot-day">06:00 – 07:00</span>
+          <h4>Sunrise Ride</h4>
+          <p>Rosario Muñoz González · 60 min</p>
+          <div class="slot-foot">
+            <span class="slot-status status-available">● 10 lugares</span>
+            <strong>$220</strong>
+          </div>
+        </article>
+        <article class="slot" data-status="few">
+          <span class="slot-tag tag-morning">MAÑANA</span>
+          <span class="slot-day">07:00 – 08:00</span>
+          <h4>Power Up</h4>
+          <p>Rosario Muñoz González · 60 min</p>
+          <div class="slot-foot">
+            <span class="slot-status status-few">● 3 lugares</span>
+            <strong>$220</strong>
+          </div>
+        </article>
+        <article class="slot" data-status="available">
+          <span class="slot-tag tag-morning">MAÑANA</span>
+          <span class="slot-day">08:00 – 09:00</span>
+          <h4>Energy Boost</h4>
+          <p>Rosario Muñoz González · 60 min</p>
+          <div class="slot-foot">
+            <span class="slot-status status-available">● 8 lugares</span>
+            <strong>$220</strong>
+          </div>
+        </article>
+
+        <!-- Tardes: Lucia -->
+        <article class="slot" data-status="available">
+          <span class="slot-tag tag-evening">TARDE</span>
+          <span class="slot-day">17:00 – 18:00</span>
+          <h4>After Work Ride</h4>
+          <p>Lucia Isamar Frescas González · 60 min</p>
+          <div class="slot-foot">
+            <span class="slot-status status-available">● 12 lugares</span>
+            <strong>$220</strong>
+          </div>
+        </article>
+        <article class="slot" data-status="few">
+          <span class="slot-tag tag-evening">TARDE</span>
+          <span class="slot-day">18:00 – 19:00</span>
+          <h4>Sunset Sprint</h4>
+          <p>Lucia Isamar Frescas González · 60 min</p>
+          <div class="slot-foot">
+            <span class="slot-status status-few">● 2 lugares</span>
+            <strong>$220</strong>
+          </div>
+        </article>
+        <article class="slot" data-status="available">
+          <span class="slot-tag tag-evening">TARDE</span>
+          <span class="slot-day">19:00 – 20:00</span>
+          <h4>Night Climb</h4>
+          <p>Lucia Isamar Frescas González · 60 min</p>
+          <div class="slot-foot">
+            <span class="slot-status status-available">● 9 lugares</span>
+            <strong>$220</strong>
+          </div>
+        </article>
+      </div>
+
+      <!-- Sábado -->
+      <div class="schedule-grid day-panel" data-panel="sab">
+        <article class="slot" data-status="available">
+          <span class="slot-tag tag-weekend">FIN DE SEMANA</span>
+          <span class="slot-day">09:00 – 10:00</span>
+          <h4>Saturday Sweat</h4>
+          <p>Elmer Alsides · 60 min</p>
+          <div class="slot-foot">
+            <span class="slot-status status-available">● 14 lugares</span>
+            <strong>$240</strong>
+          </div>
+        </article>
+        <article class="slot" data-status="available">
+          <span class="slot-tag tag-weekend">FIN DE SEMANA</span>
+          <span class="slot-day">10:00 – 11:00</span>
+          <h4>Weekend Marathon</h4>
+          <p>Elmer Alsides · 60 min</p>
+          <div class="slot-foot">
+            <span class="slot-status status-available">● 11 lugares</span>
+            <strong>$240</strong>
+          </div>
+        </article>
+      </div>
+
+      <p class="schedule-note">Los horarios de lunes a viernes son los mismos. Los sábados tenemos clases especiales con Elmer.</p>
+    </div>
+  </section>
+
+  <!-- ============== BIKE SELECTOR ============== -->
+  <section class="bike-selector" id="reservar">
+    <div class="container bike-layout">
+      <div class="bike-info">
+        <span class="eyebrow">Selecciona tu lugar</span>
+        <h2>Tu bici, <span class="text-red">tu posición.</span></h2>
+        <p>Vista del salón en tiempo real. Las primeras filas tienen mejor visibilidad del instructor; las laterales reciben más aire.</p>
+
+        <ul class="bike-legend">
+          <li><span class="dot dot-free"></span> Disponible</li>
+          <li><span class="dot dot-selected"></span> Tu selección</li>
+          <li><span class="dot dot-taken"></span> Ocupada</li>
+          <li><span class="dot dot-popular"></span> Popular</li>
+        </ul>
+
+        <div class="bike-summary" id="bikeSummary">
+          <p class="summary-empty">Selecciona una bici para continuar</p>
+        </div>
+      </div>
+
+      <div class="bike-room">
+        <div class="instructor-stage">
+          <span>INSTRUCTOR</span>
+        </div>
+
+        <div class="bike-grid" id="bikeGrid">
+          <!-- Generado por JS: 4 filas x 6 bikes = 24 bicis -->
+        </div>
+
+        <div class="room-extras">
+          <span class="extra fan-left">🌀 ventilador</span>
+          <span class="extra fan-right">🌀 ventilador</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== INSTRUCTORES ============== -->
+  <section class="instructors" id="instructores">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Quién te empuja</span>
+        <h2>Instructores que <span class="text-red">cambian tu día</span></h2>
+      </div>
+
+      <div class="instructor-grid instructor-grid-3">
+        <article class="instructor-card">
+          <div class="instructor-photo" style="background: linear-gradient(135deg,#1A1A1A,#E10600)"></div>
+          <h3>Rosario Muñoz González</h3>
+          <span>Turno mañana · Lun a Vie</span>
+          <p>"El mejor regalo que te puedes dar es empezar el día moviéndote."</p>
+        </article>
+        <article class="instructor-card">
+          <div class="instructor-photo" style="background: linear-gradient(135deg,#E10600,#FFB800)"></div>
+          <h3>Lucia Isamar Frescas González</h3>
+          <span>Turno tarde · Lun a Vie</span>
+          <p>"Después del trabajo, tu cuerpo merece soltar el día."</p>
+        </article>
+        <article class="instructor-card">
+          <div class="instructor-photo" style="background: linear-gradient(135deg,#0A0A0A,#4ECDC4)"></div>
+          <h3>Elmer Alsides</h3>
+          <span>Sábados · Sesiones especiales</span>
+          <p>"El fin de semana es para ti. Sube a la bici y disfruta."</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== PRECIOS ============== -->
+  <section class="pricing" id="precios">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Membresías</span>
+        <h2>Pedalea más, <span class="text-red">paga menos</span></h2>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Plan: Clase suelta -->
+        <article class="price-card">
+          <div class="price-head">
+            <div class="price-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <div>
+              <h3>Clase suelta</h3>
+              <p class="plan-desc">Para probar sin compromiso</p>
+            </div>
+          </div>
+
+          <div class="price-row">
+            <span class="currency">$</span>
+            <span class="amount">220</span>
+            <span class="period">MXN<br/>/clase</span>
+          </div>
+
+          <ul class="price-features">
+            <li>1 clase a tu ritmo</li>
+            <li>Sin compromiso mensual</li>
+            <li>Reserva con 1 día de anticipación</li>
+            <li>Cancela hasta 4h antes</li>
+          </ul>
+
+          <a href="#horarios" class="btn btn-outline btn-block">Reservar</a>
+        </article>
+
+        <!-- Plan: Pack 5 clases (FEATURED) -->
+        <article class="price-card featured">
+          <span class="featured-badge">★ Más popular</span>
+
+          <div class="price-head">
+            <div class="price-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12"/></svg>
+            </div>
+            <div>
+              <h3>Pack 5 clases</h3>
+              <p class="plan-desc">El favorito de la comunidad</p>
+            </div>
+          </div>
+
+          <div class="price-row">
+            <span class="currency">$</span>
+            <span class="amount">950</span>
+            <span class="period">MXN<br/>5 clases</span>
+          </div>
+          <span class="save-badge">↓ Ahorras $150</span>
+
+          <ul class="price-features">
+            <li>5 clases · vigencia 30 días</li>
+            <li>Reserva con 7 días de anticipación</li>
+            <li>Cancela hasta 2h antes</li>
+            <li>Comparte con un amigo</li>
+          </ul>
+
+          <a href="#horarios" class="btn btn-primary btn-block">Comprar pack</a>
+        </article>
+
+        <!-- Plan: Mensualidad -->
+        <article class="price-card">
+          <div class="price-head">
+            <div class="price-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.178 8c5.096 0 5.096 8 0 8-5.095 0-7.133-8-12.739-8-4.585 0-4.585 8 0 8 5.606 0 7.644-8 12.74-8z"/></svg>
+            </div>
+            <div>
+              <h3>Mensualidad</h3>
+              <p class="plan-desc">Para los que viven en la bici</p>
+            </div>
+          </div>
+
+          <div class="price-row">
+            <span class="currency">$</span>
+            <span class="amount">2,400</span>
+            <span class="period">MXN<br/>/mes</span>
+          </div>
+
+          <ul class="price-features">
+            <li>Clases ilimitadas</li>
+            <li>Reserva con 14 días</li>
+            <li>Botella + toalla cortesía</li>
+            <li>Acceso a eventos exclusivos</li>
+          </ul>
+
+          <a href="#horarios" class="btn btn-outline btn-block">Suscribirme</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== CTA FINAL ============== -->
+  <section class="cta-final">
+    <div class="container cta-inner">
+      <h2>¿Listo para tu primer ride?</h2>
+      <p>Tu primera clase tiene <span class="text-red">50% de descuento</span>. Solo para nuevos riders.</p>
+      <a href="#horarios" class="btn btn-primary btn-lg">Empezar ahora</a>
+    </div>
+  </section>
+
+  <!-- ============== FOOTER ============== -->
+  <footer class="footer" id="contacto">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="logo logo-light">
+          <img src="logo.jpg" alt="Rideon Spinning Studio" class="logo-img" />
+        </a>
+        <p>Rideon Spinning Studio · Chihuahua</p>
+        <p class="muted">Av. Ejemplo 123, Col. Centro<br/>Lun–Sáb · 06:00 – 21:00</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Estudio</h4>
+        <a href="#clases">Clases</a>
+        <a href="#instructores">Instructores</a>
+        <a href="#precios">Precios</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Soporte</h4>
+        <a href="#">Política de cancelación</a>
+        <a href="#">Preguntas frecuentes</a>
+        <a href="#">Contacto</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Síguenos</h4>
+        <div class="socials">
+          <a href="#" aria-label="Instagram">IG</a>
+          <a href="#" aria-label="TikTok">TT</a>
+          <a href="#" aria-label="WhatsApp">WA</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2026 Rideon Spinning Studio. Todos los derechos reservados.</span>
+      <span>Hecho con sudor y rojo.</span>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
