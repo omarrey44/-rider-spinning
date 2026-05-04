@@ -127,11 +127,20 @@ function updateSummary(num) {
 
 buildBikeGrid();
 
-// ===== 5. NAV TOGGLE móvil (placeholder) =====
+// ===== 5. NAV TOGGLE móvil =====
 const navToggle = document.getElementById('navToggle');
-if (navToggle) {
+const mobileMenu = document.getElementById('mobileMenu');
+if (navToggle && mobileMenu) {
   navToggle.addEventListener('click', () => {
-    alert('Menú móvil — implementar drawer aquí');
+    navToggle.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+  });
+  // Cerrar menú al hacer clic en un enlace
+  mobileMenu.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => {
+      navToggle.classList.remove('open');
+      mobileMenu.classList.remove('open');
+    });
   });
 }
 
