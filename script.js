@@ -45,17 +45,52 @@ const dayPanels = document.querySelectorAll('.day-panel');
 
 dayTabs.forEach((tab) => {
   tab.addEventListener('click', () => {
-    dayTabs.forEach((t) => t.classList.remove('active'));
-    tab.classList.add('active');
+    activateTab(tab);
+  });
 
-    const day = tab.dataset.day;
-    // Lun-Vie usan el mismo panel "lun". Sáb usa panel "sab".
-    const targetPanel = day === 'sab' ? 'sab' : 'lun';
-    dayPanels.forEach((p) => {
-      p.classList.toggle('active', p.dataset.panel === targetPanel);
-    });
+  // Keyboard navigation: arrow keys between tabs
+  tab.addEventListener('keydown', (e) => {
+    const tabs = Array.from(dayTabs);
+    const idx = tabs.indexOf(tab);
+    let nextIdx = -1;
+
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      nextIdx = (idx + 1) % tabs.length;
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      nextIdx = (idx - 1 + tabs.length) % tabs.length;
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      nextIdx = 0;
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      nextIdx = tabs.length - 1;
+    }
+
+    if (nextIdx >= 0) {
+      tabs[nextIdx].focus();
+      activateTab(tabs[nextIdx]);
+    }
   });
 });
+
+function activateTab(tab) {
+  dayTabs.forEach((t) => {
+    t.classList.remove('active');
+    t.setAttribute('aria-selected', 'false');
+  });
+  tab.classList.add('active');
+  tab.setAttribute('aria-selected', 'true');
+
+  const day = tab.dataset.day;
+  const targetPanel = day === 'sab' ? 'sab' : 'lun';
+  dayPanels.forEach((p) => {
+    const isActive = p.dataset.panel === targetPanel;
+    p.classList.toggle('active', isActive);
+    p.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+  });
+}
 
 // ===== 4. SELECTOR DE BICICLETAS =====
 // Configuración: 4 filas × 6 columnas = 24 bikes
@@ -79,10 +114,12 @@ function buildBikeGrid() {
     cell.textContent = i;
     cell.dataset.bike = i;
     cell.setAttribute('aria-label', `Bicicleta ${i}`);
+    cell.setAttribute('aria-pressed', 'false');
 
     if (bikeConfig.taken.includes(i)) {
       cell.classList.add('taken');
       cell.disabled = true;
+      cell.setAttribute('aria-label', `Bicicleta ${i}, ocupada`);
     } else if (bikeConfig.popular.includes(i)) {
       cell.classList.add('popular');
     }
@@ -131,15 +168,20 @@ buildBikeGrid();
 const navToggle = document.getElementById('navToggle');
 const mobileMenu = document.getElementById('mobileMenu');
 if (navToggle && mobileMenu) {
+  navToggle.setAttribute('aria-expanded', 'false');
   navToggle.addEventListener('click', () => {
-    navToggle.classList.toggle('open');
+    const isOpen = navToggle.classList.toggle('open');
     mobileMenu.classList.toggle('open');
+    navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    navToggle.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Menú');
   });
   // Cerrar menú al hacer clic en un enlace
   mobileMenu.querySelectorAll('a').forEach((link) => {
     link.addEventListener('click', () => {
       navToggle.classList.remove('open');
       mobileMenu.classList.remove('open');
+      navToggle.setAttribute('aria-expanded', 'false');
+      navToggle.setAttribute('aria-label', 'Menú');
     });
   });
 }

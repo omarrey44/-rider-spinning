@@ -13,6 +13,7 @@
   --teal-hover: #3BB8AF;
   --teal-soft: rgba(78, 205, 196, 0.15);
   --teal-glow: rgba(78, 205, 196, 0.4);
+  --teal-dark: #2A9D8F;  /* WCAG AA-compliant teal for text on light backgrounds */
 
   --red-primary: #E10600;
   --red-hover: #B80500;
@@ -59,6 +60,73 @@ img { max-width: 100%; display: block; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; cursor: pointer; border: none; background: none; }
 ul { list-style: none; }
+
+/* Skip to content link */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 1000;
+  padding: 12px 24px;
+  background: var(--teal-primary);
+  color: var(--black);
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  transition: top 0.2s ease;
+}
+.skip-link:focus {
+  top: 16px;
+  outline: 3px solid var(--white);
+  outline-offset: 2px;
+}
+
+/* ===== Estados de foco accesibles ===== */
+*:focus-visible {
+  outline: 3px solid var(--teal-primary);
+  outline-offset: 2px;
+}
+
+a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Focus states for specific interactive elements */
+.nav-links a:focus-visible {
+  outline: 2px solid var(--teal-primary);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.day-tab:focus-visible {
+  outline: 2px solid var(--teal-primary);
+  outline-offset: 2px;
+}
+
+.slot-cta:focus-visible {
+  outline: 2px solid var(--teal-primary);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.bike-seat:focus-visible {
+  outline: 3px solid var(--teal-primary);
+  outline-offset: 1px;
+}
+
+.footer-col a:focus-visible {
+  outline: 2px solid var(--teal-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.socials a:focus-visible {
+  outline: 2px solid var(--teal-primary);
+  outline-offset: 2px;
+}
 
 .container {
   max-width: var(--max);
@@ -496,6 +564,9 @@ ul { list-style: none; }
   overflow: hidden;
   border-bottom: 1px solid var(--gray-mid);
 }
+/* Texto teal en fondo claro — contraste WCAG AA */
+.launch .eyebrow { color: var(--teal-dark); }
+.launch .text-red { color: var(--teal-dark); }
 .launch::before {
   content: '';
   position: absolute;
@@ -518,7 +589,7 @@ ul { list-style: none; }
   gap: 8px;
   padding: 8px 18px;
   background: var(--teal-soft);
-  color: var(--teal-primary);
+  color: var(--teal-dark);
   border: 1px solid rgba(78, 205, 196, 0.3);
   border-radius: var(--radius-pill);
   font-family: var(--font-display);
@@ -622,7 +693,7 @@ ul { list-style: none; }
 }
 .marquee-track span { flex-shrink: 0; }
 .marquee-track .dot-sep {
-  color: var(--teal-primary);
+  color: var(--teal-dark);
   font-size: 12px;
   align-self: center;
 }
@@ -766,6 +837,10 @@ section { padding: 100px 0; }
     radial-gradient(circle at 85% 80%, rgba(78, 205, 196, 0.06), transparent 45%);
   position: relative;
 }
+/* Texto teal en fondos claros necesita contraste WCAG AA */
+.schedule .eyebrow { color: var(--teal-dark); }
+.schedule .text-red { color: var(--teal-dark); }
+.schedule .time-arrow { color: var(--teal-dark); }
 
 /* Tabs por día — pill segmentada */
 .day-tabs {
@@ -1170,6 +1245,9 @@ section { padding: 100px 0; }
    INSTRUCTORES
    ===================================================== */
 .instructors { background: var(--gray-soft); }
+/* Texto teal en fondos claros necesita contraste WCAG AA */
+.instructors .eyebrow { color: var(--teal-dark); }
+.instructors .text-red { color: var(--teal-dark); }
 .instructor-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -1202,7 +1280,7 @@ section { padding: 100px 0; }
   display: block;
   padding: 0 20px;
   font-size: 13px;
-  color: var(--teal-primary);
+  color: var(--teal-dark);
   font-weight: 600;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -1226,6 +1304,9 @@ section { padding: 100px 0; }
     radial-gradient(circle at 0% 0%, rgba(78, 205, 196, 0.06), transparent 40%),
     radial-gradient(circle at 100% 100%, rgba(78, 205, 196, 0.04), transparent 40%);
 }
+/* Texto teal en fondos claros necesita contraste WCAG AA */
+.pricing .eyebrow { color: var(--teal-dark); }
+.pricing .text-red { color: var(--teal-dark); }
 .pricing-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1332,7 +1413,7 @@ section { padding: 100px 0; }
 .save-badge {
   display: inline-block;
   background: var(--teal-soft);
-  color: var(--teal-primary);
+  color: var(--teal-dark);
   padding: 5px 12px;
   border-radius: var(--radius-pill);
   font-size: 11px;
@@ -1368,7 +1449,7 @@ section { padding: 100px 0; }
   height: 20px;
   border-radius: 50%;
   background: var(--teal-soft);
-  color: var(--teal-primary);
+  color: var(--teal-dark);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1417,6 +1498,10 @@ section { padding: 100px 0; }
 .price-card.featured .plan-desc { color: var(--text-light); }
 .price-card.featured .price-row { border-color: rgba(255, 255, 255, 0.12); }
 .price-card.featured .price-features li { color: rgba(255, 255, 255, 0.88); }
+.price-card.featured .price-features li::before {
+  background: var(--teal-primary);
+  color: var(--white);
+}
 
 /* Badge "Más popular" — esquina superior derecha */
 .featured-badge {
@@ -1537,7 +1622,9 @@ section { padding: 100px 0; }
 /* Tablet y pantallas medianas (≤980px) */
 @media (max-width: 980px) {
   .nav-links, .navbar .btn-primary { display: none; }
-  .nav-toggle { display: flex; }
+  .nav-toggle { display: flex; margin-left: auto; padding: 10px; }
+  .nav-toggle span { width: 22px; height: 2px; }
+  .navbar { padding: 12px 0; }
 
   .hero-content { grid-template-columns: 1fr; gap: 40px; padding: 40px 24px 100px; }
   .hero-visual { max-width: 420px; margin: 0 auto; }
@@ -1570,15 +1657,32 @@ section { padding: 100px 0; }
 @media (max-width: 768px) {
   .container { padding-left: 20px; padding-right: 20px; }
 
+  /* Mobile menu */
+  .mobile-menu { padding: 16px 20px; border-radius: 0 0 16px 16px; }
+  .mobile-menu a { padding: 14px 0; font-size: 16px; font-weight: 600; }
+  .mobile-reserve-btn { margin-top: 12px; padding: 12px 20px !important; font-size: 15px; }
+
   /* Hero */
-  .hero-content { padding: 32px 20px 80px; }
-  .hero-title { font-size: clamp(36px, 8vw, 52px); }
-  .hero-tagline { font-size: 17px; line-height: 1.6; }
-  .hero-ctas { flex-direction: column; gap: 12px; }
-  .hero-ctas .btn { width: 100%; justify-content: center; }
-  .hero-visual { max-width: 320px; }
+  .hero { min-height: auto; }
+  .hero-content { padding: 24px 20px 60px; gap: 32px; }
+  .hero-title { font-size: clamp(32px, 9vw, 48px); letter-spacing: -1px; margin-bottom: 24px; }
+  .hero-title::after { width: 60px; height: 2px; }
+  .hero-sub { font-size: 15px; margin-bottom: 28px; max-width: 100%; }
+  .hero-ctas { flex-direction: column; gap: 10px; margin-bottom: 32px; }
+  .hero-ctas .btn { width: 100%; justify-content: center; padding: 14px 20px; }
+  .hero-proof { flex-direction: column; gap: 8px; align-items: center; }
+  .proof-text { text-align: center; }
+  .hero-visual { max-width: 280px; }
+  .hero-card { padding: 20px; border-radius: 18px; }
+
   .stat-value { font-size: 36px; }
   .stat-label { font-size: 13px; }
+
+  /* Section spacing */
+  section { padding: 56px 0; }
+  .section-head { margin-bottom: 32px; padding: 0 20px; }
+  .section-head h2 { font-size: clamp(24px, 6vw, 36px); margin-bottom: 12px; }
+  .section-head p { font-size: 15px; max-width: 100%; }
 
   /* How it works */
   .how-grid { gap: 16px; }
@@ -1647,7 +1751,6 @@ section { padding: 100px 0; }
   .mobile-menu a { padding: 14px 0; font-size: 16px; }
 
   /* Hero */
-  .hero { min-height: auto; }
   .hero-content { padding: 24px 16px 60px; }
   .hero-badge { padding: 6px 14px; font-size: 12px; margin-bottom: 20px; }
   .hero-title { font-size: 32px; line-height: 1.1; }
@@ -1658,10 +1761,10 @@ section { padding: 100px 0; }
   .stat-label { font-size: 12px; }
 
   /* Stats */
-  .stats-grid { gap: 20px; padding: 40px 16px; }
-  .stat-item { padding: 16px 12px; }
-  .stat-icon { width: 40px; height: 40px; margin-bottom: 12px; }
-  .stat-icon svg { width: 20px; height: 20px; }
+  .stats-grid { gap: 20px; padding: 32px 16px; }
+  .stat-item { padding: 14px 10px; }
+  .stat-icon { width: 36px; height: 36px; margin-bottom: 10px; }
+  .stat-icon svg { width: 18px; height: 18px; }
 
   /* Section heads */
   .section-head { margin-bottom: 32px; }
@@ -1671,89 +1774,123 @@ section { padding: 100px 0; }
 
   /* How it works */
   section { padding: 50px 0; }
-  .how-card { padding: 24px 16px; }
-  .how-num { font-size: 36px; top: 12px; right: 16px; }
-  .how-icon { width: 42px; height: 42px; border-radius: 10px; margin-bottom: 16px; }
-  .how-icon svg { width: 20px; height: 20px; }
-  .how-card h3 { font-size: 18px; }
-  .how-card p { font-size: 14px; }
+  .how-grid { gap: 12px; }
+  .how-card { padding: 20px 16px; margin-bottom: 12px; }
+  .how-num { font-size: 32px; top: 10px; right: 14px; opacity: 0.15; }
+  .how-icon { width: 40px; height: 40px; border-radius: 10px; margin-bottom: 14px; }
+  .how-icon svg { width: 18px; height: 18px; }
+  .how-card h3 { font-size: 17px; margin-bottom: 8px; }
+  .how-card p { font-size: 14px; line-height: 1.5; }
 
   /* Schedule tabs */
-  .day-tabs { gap: 6px; }
-  .day-tab { flex: 1 1 calc(33.33% - 6px); font-size: 13px; padding: 10px 0; border-radius: 8px; }
-  .schedule-grid { gap: 12px; }
+  .day-tabs { gap: 4px; margin-bottom: 20px; }
+  .day-tab { flex: 1 1 calc(33.33% - 4px); font-size: 12px; padding: 8px 0; border-radius: 6px; }
+  .schedule-grid { gap: 10px; }
 
   /* Schedule cards */
-  .slot { padding: 16px; gap: 10px; }
-  .slot-top { margin-bottom: 8px; }
-  .slot-tag { font-size: 11px; padding: 4px 10px; }
-  .slot-price { font-size: 20px; }
-  .slot-time { margin-bottom: 8px; }
-  .time-num { font-size: 18px; }
-  .time-arrow { font-size: 14px; }
-  .slot h4 { font-size: 16px; margin-bottom: 4px; }
+  .slot { padding: 14px; border-radius: 12px; gap: 10px; }
+  .slot::before { height: 3px; border-radius: 0 0 4px 4px; }
+  .slot-top { margin-bottom: 6px; }
+  .slot-tag { font-size: 10px; padding: 3px 8px; }
+  .slot-price { font-size: 18px; }
+  .slot-time { margin-bottom: 6px; }
+  .time-num { font-size: 16px; }
+  .time-arrow { font-size: 12px; }
+  .slot h4 { font-size: 15px; margin-bottom: 4px; }
   .slot-instructor { flex-direction: column; gap: 4px; }
-  .avatar-mini { width: 28px; height: 28px; font-size: 12px; }
-  .instructor-meta { font-size: 13px; }
-  .instructor-meta strong { font-size: 14px; }
-  .slot-cta { padding: 8px 14px; font-size: 12px; width: 100%; text-align: center; }
-  .slot-foot { flex-direction: column; gap: 8px; }
-  .slot-status { font-size: 12px; }
+  .avatar-mini { width: 26px; height: 26px; font-size: 11px; }
+  .instructor-meta { font-size: 12px; }
+  .instructor-meta strong { font-size: 13px; }
+  .slot-cta { padding: 7px 12px; font-size: 11px; width: 100%; text-align: center; border-radius: 6px; }
+  .slot-foot { flex-direction: column; gap: 6px; }
+  .slot-status { font-size: 11px; }
 
   /* Bike selector */
-  .bike-selector { padding: 20px 16px; }
-  .bike-selector h3 { font-size: 16px; }
-  .bike-selector > p { font-size: 13px; }
-  .bike-grid { padding: 16px; gap: 5px; }
-  .bike-seat { width: 24px; height: 24px; font-size: 10px; }
-  .bike-legend { gap: 12px; }
-  .bike-legend span { font-size: 12px; }
-  .legend-dot { width: 10px; height: 10px; }
+  .bike-selector { padding: 20px 16px; border-radius: 16px; }
+  .bike-selector h3 { font-size: 16px; margin-bottom: 6px; }
+  .bike-selector > p { font-size: 13px; margin-bottom: 16px; }
+  .bike-grid { padding: 12px; gap: 4px; border-radius: 10px; }
+  .bike-seat { width: 22px; height: 22px; font-size: 9px; border-radius: 4px; }
+  .bike-legend { gap: 10px; margin-top: 14px; }
+  .bike-legend span { font-size: 11px; }
+  .legend-dot { width: 8px; height: 8px; }
 
   /* Instructors */
-  .instructor-grid { grid-template-columns: 1fr; gap: 16px; }
-  .instructor-card { padding: 20px 16px; flex-direction: row; align-items: center; text-align: left; }
-  .instructor-avatar { width: 56px; height: 56px; font-size: 22px; margin-bottom: 0; margin-right: 16px; flex-shrink: 0; }
-  .instructor-card h4 { font-size: 17px; margin-bottom: 2px; }
-  .instructor-card p { font-size: 13px; }
+  .instructor-grid { grid-template-columns: 1fr; gap: 12px; }
+  .instructor-card { padding: 16px; border-radius: 12px; flex-direction: row; align-items: center; text-align: left; }
+  .instructor-avatar { width: 52px; height: 52px; font-size: 20px; margin-bottom: 0; margin-right: 14px; flex-shrink: 0; }
+  .instructor-card h4 { font-size: 16px; margin-bottom: 2px; }
+  .instructor-card p { font-size: 13px; line-height: 1.4; }
   .instructor-card .instructor-tag { display: none; }
 
   /* Pricing */
-  .pricing-grid { gap: 16px; }
-  .price-card { padding: 24px 20px; }
+  .pricing-grid { gap: 12px; }
+  .price-card { padding: 20px 16px; border-radius: 14px; }
   .price-card .instructor-tag { padding: 5px 12px; font-size: 11px; }
-  .price-card h4 { font-size: 18px; margin-bottom: 4px; }
-  .price-card .muted { font-size: 13px; margin-bottom: 16px; }
-  .price-amount { font-size: 38px; margin-bottom: 4px; }
-  .price-period { font-size: 13px; margin-bottom: 20px; }
-  .price-card ul { margin-bottom: 20px; }
-  .price-card ul li { font-size: 13px; padding: 6px 0; }
-  .price-card .btn { padding: 14px 20px; font-size: 14px; }
+  .price-card::before { height: 3px; }
+  .featured-badge { top: 14px; right: 14px; font-size: 10px; padding: 4px 10px; }
+  .price-card h4 { font-size: 17px; margin-bottom: 4px; }
+  .price-card .muted { font-size: 13px; margin-bottom: 14px; }
+  .price-amount { font-size: 36px; margin-bottom: 2px; }
+  .price-period { font-size: 13px; margin-bottom: 16px; }
+  .price-card ul { margin-bottom: 16px; }
+  .price-card ul li { font-size: 13px; padding: 5px 0; }
+  .price-card .btn { padding: 12px 18px; font-size: 14px; border-radius: 8px; }
 
   /* CTA final */
   .cta-final { padding: 48px 0; }
-  .cta-inner h2 { font-size: 28px; margin-bottom: 12px; }
-  .cta-inner p { font-size: 15px; margin-bottom: 20px; }
+  .cta-inner { padding: 0 16px; }
+  .cta-inner h2 { font-size: clamp(24px, 7vw, 36px); margin-bottom: 10px; }
+  .cta-inner p { font-size: 14px; margin-bottom: 18px; line-height: 1.5; }
+  .cta-inner .btn { width: 100%; justify-content: center; padding: 14px 20px; }
 
   /* Footer */
-  .footer { padding: 48px 0 16px; }
-  .footer-grid { grid-template-columns: 1fr; gap: 24px; }
-  .footer-bottom { flex-direction: column; gap: 8px; text-align: center; font-size: 12px; padding: 20px 16px 0; }
-  .socials { justify-content: center; }
+  .footer { padding: 40px 0 16px; }
+  .footer-grid { grid-template-columns: 1fr; gap: 24px; padding: 0 16px; }
+  .footer-brand .logo { margin-bottom: 12px; }
+  .footer-brand p { font-size: 13px; }
+  .footer-col h4 { font-size: 12px; margin-bottom: 12px; }
+  .footer-col a { font-size: 13px; padding: 4px 0; }
+  .socials { justify-content: flex-start; gap: 10px; }
+  .socials a { width: 34px; height: 34px; font-size: 11px; }
+  .footer-bottom { flex-direction: column; gap: 6px; text-align: center; font-size: 12px; padding: 16px 0 0; }
 }
 
 /* Móvil extra pequeño (≤380px) */
 @media (max-width: 380px) {
-  .hero-title { font-size: 28px; }
-  .hero-tagline { font-size: 14px; }
-  .section-head h2 { font-size: 24px; }
-  .how-card { padding: 20px 14px; }
-  .how-num { font-size: 30px; }
-  .slot { padding: 14px; }
-  .time-num { font-size: 16px; }
-  .slot h4 { font-size: 15px; }
-  .bike-seat { width: 22px; height: 22px; font-size: 9px; }
-  .price-amount { font-size: 34px; }
+  .container { padding-left: 12px; padding-right: 12px; }
+  .navbar { padding: 10px 0; }
+  .logo-img { height: 28px; }
+  .nav-toggle { padding: 8px; }
+  .nav-toggle span { width: 20px; height: 2px; }
+
+  .mobile-menu { padding: 12px 14px; }
+  .mobile-menu a { padding: 12px 0; font-size: 15px; }
+  .mobile-reserve-btn { padding: 10px 16px !important; font-size: 14px; }
+
+  .hero-content { padding: 20px 12px 48px; }
+  .hero-title { font-size: 26px; letter-spacing: -0.5px; }
+  .hero-title::after { width: 50px; height: 2px; }
+  .hero-sub { font-size: 14px; }
+  .hero-visual { max-width: 220px; }
+  .hero-card { padding: 16px; }
+
+  section { padding: 40px 0; }
+  .section-head h2 { font-size: 22px; }
+
+  .how-card { padding: 16px 12px; }
+  .how-num { font-size: 28px; }
+
+  .slot { padding: 12px; }
+  .slot h4 { font-size: 14px; }
+  .time-num { font-size: 15px; }
+
+  .bike-seat { width: 20px; height: 20px; font-size: 8px; }
+
+  .price-card { padding: 16px 14px; }
+  .price-amount { font-size: 32px; }
+
+  .cta-inner h2 { font-size: 22px; }
 }
 
 /* =====================================================
