@@ -665,131 +665,262 @@ section { padding: 100px 0; }
 /* =====================================================
    HORARIOS
    ===================================================== */
-.schedule { background: var(--white); }
+/* =====================================================
+   SCHEDULE — versión moderna
+   ===================================================== */
+.schedule {
+  background: var(--gray-soft);
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(78, 205, 196, 0.08), transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(78, 205, 196, 0.06), transparent 45%);
+  position: relative;
+}
 
-/* Tabs por día (Lun, Mar, ..., Sáb) */
+/* Tabs por día — pill segmentada */
 .day-tabs {
   display: flex;
-  gap: 8px;
+  gap: 4px;
   justify-content: center;
   flex-wrap: wrap;
-  margin-bottom: 40px;
-  background: var(--gray-soft);
-  padding: 8px;
+  margin-bottom: 48px;
+  background: var(--white);
+  padding: 6px;
   border-radius: var(--radius-pill);
   max-width: fit-content;
   margin-left: auto;
   margin-right: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--gray-mid);
 }
 .day-tab {
-  padding: 10px 24px;
+  padding: 12px 24px;
   border-radius: var(--radius-pill);
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 13px;
   color: var(--text-muted);
-  letter-spacing: 1px;
-  transition: all 0.2s;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  transition: all 0.25s ease;
 }
 .day-tab:hover { color: var(--text-dark); }
 .day-tab.active {
   background: var(--red-primary);
   color: var(--white);
-  box-shadow: 0 4px 12px rgba(225, 6, 0, 0.3);
+  box-shadow: 0 4px 14px rgba(225, 6, 0, 0.35);
 }
 
-/* Paneles de día: solo el activo se muestra */
+/* Paneles de día */
 .day-panel { display: none; }
 .day-panel.active { display: grid; }
 
 .schedule-note {
   text-align: center;
-  margin-top: 32px;
+  margin-top: 40px;
   font-size: 14px;
   color: var(--text-muted);
   font-style: italic;
 }
 
-/* Tags actualizados: morning (amber) / evening (orange) / weekend (teal) */
-.tag-morning { background: rgba(255, 184, 0, 0.15); color: #B07900; }
-.tag-evening { background: rgba(255, 107, 0, 0.15); color: #C25400; }
-.tag-weekend { background: var(--teal-soft); color: #1A8580; }
-
+/* ============ SLOT CARDS ============ */
 .schedule-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
 }
+
 .slot {
   background: var(--white);
-  border: 1.5px solid var(--gray-mid);
-  border-radius: var(--radius);
+  border: 1px solid var(--gray-mid);
+  border-radius: 20px;
   padding: 24px;
-  transition: all 0.25s ease;
-  cursor: pointer;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
   overflow: hidden;
 }
 .slot::before {
   content: '';
   position: absolute;
   top: 0; left: 0;
-  width: 4px; height: 100%;
-  background: var(--red-primary);
-  transform: scaleY(0);
-  transform-origin: top;
-  transition: transform 0.3s ease;
+  width: 100%; height: 3px;
+  background: linear-gradient(90deg, var(--teal-primary), transparent 70%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
 }
-.slot:hover { transform: translateY(-4px); border-color: var(--red-primary); }
-.slot:hover::before { transform: scaleY(1); }
-.slot[data-status="full"] { opacity: 0.6; }
+.slot:hover::before { transform: scaleX(1); }
+.slot:hover {
+  transform: translateY(-6px);
+  border-color: transparent;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
+}
+.slot[data-status="full"] { opacity: 0.55; pointer-events: none; }
+
+/* Top row: tag + price */
+.slot-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 .slot-tag {
   display: inline-block;
-  font-size: 10px;
+  font-family: var(--font-display);
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 2px;
-  padding: 5px 10px;
-  border-radius: 4px;
-  margin-bottom: 14px;
-}
-.tag-hiit { background: var(--red-soft); color: var(--red-primary); }
-.tag-climb { background: rgba(255, 107, 0, 0.12); color: #FF6B00; }
-.tag-endurance { background: rgba(78, 205, 196, 0.15); color: #1A8580; }
-.tag-recovery { background: rgba(120, 120, 120, 0.12); color: #555; }
-
-.slot-day {
-  display: block;
-  font-size: 12px;
-  color: var(--text-muted);
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
   text-transform: uppercase;
-  margin-bottom: 4px;
 }
+.slot-price {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 22px;
+  color: var(--text-dark);
+  letter-spacing: -0.5px;
+}
+
+/* Tags por turno */
+.tag-morning { background: rgba(255, 184, 0, 0.15); color: #A17000; }
+.tag-evening { background: rgba(255, 107, 0, 0.15); color: #B84A00; }
+.tag-weekend { background: var(--teal-soft); color: #168077; }
+
+/* Hora — protagonista visual */
+.slot-time {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 0;
+}
+.time-num {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 32px;
+  color: var(--text-dark);
+  letter-spacing: -1.5px;
+  line-height: 1;
+}
+.time-arrow {
+  color: var(--teal-primary);
+  font-weight: 700;
+  font-size: 22px;
+}
+
+/* Nombre de la clase */
 .slot h4 {
   font-family: var(--font-display);
   font-size: 20px;
   font-weight: 800;
-  margin-bottom: 4px;
+  color: var(--text-dark);
+  letter-spacing: -0.3px;
+  margin: 0;
 }
-.slot > p {
-  color: var(--text-muted);
+
+/* Instructor con avatar */
+.slot-instructor {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--gray-mid);
+  border-bottom: 1px solid var(--gray-mid);
+}
+.avatar-mini {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--white);
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+.avatar-rosario { background: linear-gradient(135deg, #FF6B6B, #E10600); }
+.avatar-lucia   { background: linear-gradient(135deg, #FFE66D, #FF6B00); }
+.avatar-elmer   { background: linear-gradient(135deg, #4ECDC4, #1A8580); }
+
+.instructor-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.instructor-meta strong {
   font-size: 14px;
-  margin-bottom: 20px;
+  font-weight: 700;
+  color: var(--text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+.instructor-meta span {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Footer: status + CTA */
 .slot-foot {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 16px;
-  border-top: 1px solid var(--gray-mid);
 }
-.slot-status { font-size: 13px; font-weight: 600; }
+.slot-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
 .status-available { color: #16A34A; }
-.status-few { color: #EAB308; }
+.status-available .status-dot {
+  background: #16A34A;
+  box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.6);
+  animation: pulse-green 2s infinite;
+}
+@keyframes pulse-green {
+  0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.5); }
+  70% { box-shadow: 0 0 0 8px rgba(22, 163, 74, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+}
+.status-few { color: #D97706; }
+.status-few .status-dot {
+  background: #EAB308;
+  animation: pulse-yellow 1.5s infinite;
+}
+@keyframes pulse-yellow {
+  0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.6); }
+  70% { box-shadow: 0 0 0 8px rgba(234, 179, 8, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+}
 .status-full { color: var(--text-muted); }
-.slot-foot strong {
+.status-full .status-dot { background: var(--text-muted); }
+
+.slot-cta {
   font-family: var(--font-display);
-  font-size: 22px;
-  color: var(--text-dark);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--red-primary);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: gap 0.2s ease;
+}
+.slot-cta:hover {
+  color: var(--red-hover);
+  letter-spacing: 1px;
 }
 
 /* =====================================================
