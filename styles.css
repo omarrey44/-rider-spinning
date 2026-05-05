@@ -842,25 +842,26 @@ section { padding: 100px 0; }
   color: var(--white);
   overflow: hidden;
 }
-/* Foto del estudio Rideon, blur sutil para efecto cristal */
+/* Foto del estudio Rideon: protagonista del fondo, sin blur ni opacidad agresiva */
 .schedule::before {
   content: '';
   position: absolute;
   inset: 0;
   background-image: url('studio-bg.png');
   background-size: cover;
-  background-position: center;
+  background-position: center 45%;
   background-repeat: no-repeat;
-  opacity: 0.7;
-  filter: blur(1px);
+  opacity: 0.95;
   z-index: 0;
 }
-/* Overlay sutil — la foto ya tiene su propio mood rojo/azul */
+/* Overlay sutil: vignette para legibilidad sin tapar la foto */
 .schedule::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(10,10,10,0.45) 0%, rgba(10,10,10,0.65) 100%);
+  background:
+    linear-gradient(180deg, rgba(10,10,10,0.35) 0%, rgba(10,10,10,0.15) 30%, rgba(10,10,10,0.15) 70%, rgba(10,10,10,0.5) 100%),
+    radial-gradient(ellipse at center, transparent 30%, rgba(10,10,10,0.3) 100%);
   z-index: 1;
 }
 .schedule .container { position: relative; z-index: 2; }
@@ -927,11 +928,11 @@ section { padding: 100px 0; }
   gap: 24px;
   align-items: center;
   padding: 20px 28px;
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(15, 15, 20, 0.35);
+  backdrop-filter: blur(8px) saturate(110%);
+  -webkit-backdrop-filter: blur(8px) saturate(110%);
   border: 1px solid;
-  border-image: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.04)) 1;
+  border-image: linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.04)) 1;
   border-radius: 20px;
   color: var(--white);
   position: relative;
@@ -940,11 +941,11 @@ section { padding: 100px 0; }
   overflow: hidden;
 }
 .slot:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(15, 15, 20, 0.5);
   transform: translateY(-3px);
   box-shadow:
-    0 16px 40px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 16px 40px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 .slot[data-status="full"] { opacity: 0.5; pointer-events: none; }
 
@@ -1720,6 +1721,19 @@ section { padding: 100px 0; }
   .how-icon { width: 48px; height: 48px; border-radius: 12px; margin-bottom: 20px; }
   .how-icon svg { width: 22px; height: 22px; }
   .how-card h3 { font-size: 20px; }
+
+  /* Schedule: imagen del estudio bien visible en mobile */
+  .schedule::before {
+    background-position: center center;
+    background-attachment: scroll;
+    opacity: 1;
+  }
+  .schedule::after {
+    /* Overlay aún más sutil en mobile para que la foto se aprecie */
+    background: linear-gradient(180deg, rgba(10,10,10,0.45) 0%, rgba(10,10,10,0.2) 25%, rgba(10,10,10,0.2) 75%, rgba(10,10,10,0.55) 100%);
+  }
+  /* Más espacio entre cards mobile = más foto visible */
+  .day-panel.active { gap: 20px; }
 
   /* Horarios — glass cards stack vertical en móvil */
   .slot {
