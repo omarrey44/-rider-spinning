@@ -72,6 +72,17 @@ export default function Home() {
     ? { lun: 'Lunes', mar: 'Martes', mie: 'Miércoles', jue: 'Jueves', vie: 'Viernes', sab: 'Sábado' }[selectedSlot.day]
     : '';
 
+  const getDateForDay = (dayKey: DayKey): string => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const offsets: Record<DayKey, number> = { lun: 0, mar: 1, mie: 2, jue: 3, vie: 4, sab: 5 };
+    const target = new Date(today);
+    target.setDate(today.getDate() + mondayOffset + (offsets[dayKey] ?? 0));
+    if (target < today) target.setDate(target.getDate() + 7);
+    return target.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+  };
+
   const priceStr = selectedSlot?.slot.price.replace('$', '') ?? '220';
   const priceCents = parseInt(priceStr, 10) * 100;
 
@@ -95,6 +106,10 @@ export default function Home() {
             hour: selectedSlot.slot.hour,
             period: selectedSlot.slot.period,
             price: selectedSlot.slot.price,
+            duration: selectedSlot.slot.duration,
+            instructorClass: selectedSlot.slot.instructorClass,
+            dayName: dayLabel,
+            date: getDateForDay(selectedSlot.day),
           } : null}
           onCheckout={handleCheckout}
         /></RevealSection>

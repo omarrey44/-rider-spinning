@@ -8,12 +8,17 @@ interface BikeSelectorProps {
     hour: string;
     period: string;
     price: string;
+    duration: string;
+    instructorClass: string;
+    dayName: string;
+    date: string;
   } | null;
   onCheckout: (bikeNumber: number, bikeRow: number) => void;
 }
 
 export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorProps) {
   const [selectedBike, setSelectedBike] = useState<number | null>(null);
+  const [tooltipBike, setTooltipBike] = useState<number | null>(null);
   const totalBikes = BIKE_CONFIG.rows * BIKE_CONFIG.cols;
 
   const handleBikeClick = (num: number) => {
@@ -26,6 +31,14 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
       const bikeRow = Math.ceil(selectedBike / BIKE_CONFIG.cols);
       onCheckout(selectedBike, bikeRow);
     }
+  };
+
+  const getBikeTooltip = (num: number) => {
+    const isPopular = BIKE_CONFIG.popular.includes(num);
+    if (!isPopular) return null;
+    const col = ((num - 1) % BIKE_CONFIG.cols) + 1;
+    if (col === 3 || col === 4) return 'Centro del salón — mejor visibilidad del instructor';
+    return 'Frente del salón — mayor energía';
   };
 
   return (
@@ -88,24 +101,84 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
         </div>
 
         <div className="bike-room">
-          <div className="instructor-stage"><span>INSTRUCTOR</span></div>
+          {/* Mejora 1 + 4: Instructor dinámico con avatar */}
+          {selectedSlot ? (
+            <div className="instructor-stage instructor-stage-active">
+              <span className={`avatar-instructor ${selectedSlot.instructorClass}`}></span>
+              <div className="instructor-stage-text">
+                <span className="instructor-stage-label">CLASE CON</span>
+                <span className="instructor-stage-name">{selectedSlot.instructorName.toUpperCase()}</span>
+              </div>
+            </div>
+          ) : (
+            <div className="instructor-stage"><span>INSTRUCTOR</span></div>
+          )}
+
+          {/* Mejora 2: Banner de detalles de clase */}
+          {selectedSlot && (
+            <div className="class-info-banner">
+              <div className="class-info-item">
+                <span className="class-info-icon">📆</span>
+                <div>
+                  <span className="class-info-label">Día</span>
+                  <span className="class-info-value">{selectedSlot.dayName}</span>
+                </div>
+              </div>
+              <div className="class-info-divider"></div>
+              <div className="class-info-item">
+                <span className="class-info-icon">🗓</span>
+                <div>
+                  <span className="class-info-label">Fecha</span>
+                  <span className="class-info-value">{selectedSlot.date}</span>
+                </div>
+              </div>
+              <div className="class-info-divider"></div>
+              <div className="class-info-item">
+                <span className="class-info-icon">⏰</span>
+                <div>
+                  <span className="class-info-label">Horario</span>
+                  <span className="class-info-value">{selectedSlot.hour} {selectedSlot.period}</span>
+                </div>
+              </div>
+              <div className="class-info-divider"></div>
+              <div className="class-info-item">
+                <span className="class-info-icon">⏱</span>
+                <div>
+                  <span className="class-info-label">Duración</span>
+                  <span className="class-info-value">{selectedSlot.duration}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="bike-grid">
             {Array.from({ length: totalBikes }, (_, i) => i + 1).map((num) => {
               const taken = BIKE_CONFIG.taken.includes(num);
               const popular = BIKE_CONFIG.popular.includes(num);
               const selected = selectedBike === num;
+              const tooltip = getBikeTooltip(num);
               const cls = ['bike-cell', taken && 'taken', popular && !selected && 'popular', selected && 'selected'].filter(Boolean).join(' ');
               return (
-                <button
+                <div
                   key={num}
-                  className={cls}
-                  disabled={taken}
-                  aria-label={taken ? `Bicicleta ${num}, ocupada` : `Bicicleta ${num}`}
-                  aria-pressed={selected}
-                  onClick={() => handleBikeClick(num)}
+                  className="bike-cell-wrapper"
+                  onMouseEnter={() => tooltip && setTooltipBike(num)}
+                  onMouseLeave={() => setTooltipBike(null)}
                 >
-                  {num}
-                </button>
+                  <button
+                    className={cls}
+                    disabled={taken}
+                    aria-label={taken ? `Bicicleta ${num}, ocupada` : `Bicicleta ${num}${tooltip ? ', popular: ' + tooltip : ''}`}
+                    aria-pressed={selected}
+                    onClick={() => handleBikeClick(num)}
+                  >
+                    {num}
+                  </button>
+                  {/* Mejora 3: Tooltip para bikes populares */}
+                  {tooltip && tooltipBike === num && (
+                    <div className="bike-tooltip">{tooltip}</div>
+                  )}
+                </div>
               );
             })}
           </div>
