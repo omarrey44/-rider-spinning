@@ -134,6 +134,20 @@ button:focus:not(:focus-visible) {
   outline-offset: 2px;
 }
 
+/* ===== Scroll Reveal Animations ===== */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+
 .container {
   max-width: var(--max);
   margin: 0 auto;
@@ -257,6 +271,26 @@ button:focus:not(:focus-visible) {
   transition: color 0.2s;
 }
 .nav-links a:hover { color: var(--white); }
+.nav-links a.active {
+  color: var(--teal-primary);
+  font-weight: 700;
+  position: relative;
+}
+.nav-links a.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--teal-primary);
+  border-radius: 1px;
+  animation: navUnderline 0.3s ease;
+}
+@keyframes navUnderline {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
 
 .nav-toggle {
   display: none;
@@ -301,6 +335,12 @@ button:focus:not(:focus-visible) {
 }
 .mobile-menu a:last-child { border-bottom: none; }
 .mobile-menu a:hover { color: var(--teal-primary); }
+.mobile-menu a.active {
+  color: var(--teal-primary);
+  font-weight: 800;
+  padding-left: 8px;
+  border-left: 3px solid var(--teal-primary);
+}
 .mobile-reserve-btn {
   margin-top: 16px;
   text-align: center;
@@ -452,6 +492,12 @@ button:focus:not(:focus-visible) {
   font-weight: 800;
   font-size: 18px;
   display: block;
+  animation: counterPop 0.8s ease both;
+}
+@keyframes counterPop {
+  0% { transform: scale(0.85); filter: blur(4px); opacity: 0; }
+  60% { transform: scale(1.05); filter: blur(0); opacity: 1; }
+  100% { transform: scale(1); filter: blur(0); opacity: 1; }
 }
 .proof-text span { display: block; font-size: 13px; }
 
@@ -2134,7 +2180,177 @@ section { padding: 100px 0; }
 }
 
 /* =====================================================
-   SECTION DIVIDERS
+    HERO ENTRANCE ANIMATIONS
+    ===================================================== */
+.hero-anim-in {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: heroSlideIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.delay-1 { animation-delay: 0.15s; }
+.delay-2 { animation-delay: 0.3s; }
+.delay-3 { animation-delay: 0.45s; }
+.delay-4 { animation-delay: 0.55s; }
+.delay-5 { animation-delay: 0.7s; }
+.delay-6 { animation-delay: 0.9s; }
+
+@keyframes heroSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.97);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-anim-in {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* =====================================================
+    PRÓXIMA CLASE BADGE PULSE
+    ===================================================== */
+.badge-live::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red-primary);
+  margin-right: 8px;
+  vertical-align: middle;
+  position: relative;
+  animation: badgePulse 1.8s ease-in-out infinite;
+}
+.badge-live::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red-primary);
+  animation: badgePulseRing 1.8s ease-in-out infinite;
+}
+@keyframes badgePulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(225, 6, 0, 0.6); }
+  50% { opacity: 0.5; box-shadow: 0 0 0 6px rgba(225, 6, 0, 0); }
+}
+@keyframes badgePulseRing {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+  70% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+}
+
+/* =====================================================
+    PRICING CARD HOVER LIFT (enhanced)
+    ===================================================== */
+.price-card {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.35s ease,
+              border-color 0.35s ease;
+}
+.price-card:hover {
+  transform: translateY(-12px) scale(1.015);
+  box-shadow:
+    0 32px 64px rgba(0, 0, 0, 0.1),
+    0 8px 24px rgba(78, 205, 196, 0.08);
+}
+.price-card.featured:hover {
+  transform: translateY(-16px) scale(1.02);
+  box-shadow:
+    0 40px 80px rgba(0, 0, 0, 0.25),
+    0 0 0 1px var(--teal-primary),
+    0 0 40px rgba(78, 205, 196, 0.15);
+}
+
+/* =====================================================
+    BACK TO TOP BUTTON
+    ===================================================== */
+.back-to-top {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--teal-primary);
+  color: var(--white);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(20px) scale(0.9);
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              background 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 16px rgba(78, 205, 196, 0.3);
+  z-index: 100;
+  pointer-events: none;
+}
+.back-to-top.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.back-to-top:hover {
+  background: var(--teal-dark);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 24px rgba(78, 205, 196, 0.4);
+}
+.back-to-top:active {
+  transform: translateY(0) scale(0.95);
+}
+.back-to-top svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.5;
+}
+
+@media (max-width: 480px) {
+  .back-to-top {
+    bottom: 20px;
+    right: 20px;
+    width: 42px;
+    height: 42px;
+  }
+}
+
+/* =====================================================
+    LOADING SPINNER
+    ===================================================== */
+.loading-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: var(--white);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin-right: 10px;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.modal-form .btn.btn-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+/* =====================================================
+    SECTION DIVIDERS
    ===================================================== */
 .section-divider {
   display: flex;

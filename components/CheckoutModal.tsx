@@ -216,6 +216,7 @@ export default function CheckoutModal({
             className="btn btn-primary btn-lg btn-block"
             disabled={loading}
           >
+            {loading && <span className="loading-spinner" />}
             {loading ? 'Redirigiendo a pago...' : 'Pagar y reservar'}
           </button>
         </form>

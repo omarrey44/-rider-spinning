@@ -15,23 +15,23 @@ export default function Hero() {
 
       <div className="container hero-content">
         <div className="hero-text">
-          <span className="hero-eyebrow">// SPINNING STUDIO · CHIHUAHUA</span>
+          <span className="hero-eyebrow hero-anim-in">// SPINNING STUDIO · CHIHUAHUA</span>
           <h1 className="hero-title">
-            <span className="title-line">Pedalea <span className="text-red"> <br />Rápido</span></span>
-            <span className="title-line">Llega <span className="text-red">Lejos</span></span>
+            <span className="title-line"><span className="hero-anim-in delay-1">Pedalea</span> <span className="text-red hero-anim-in delay-2">Rápido</span></span>
+            <span className="title-line"><span className="hero-anim-in delay-3">Llega</span> <span className="text-red hero-anim-in delay-4">Lejos</span></span>
           </h1>
-          <p className="hero-sub">
+          <p className="hero-sub hero-anim-in delay-4">
             Clases de spinning de alta intensidad en una sala diseñada para empujarte al siguiente nivel. Reserva tu bici, elige tu lugar y prepárate para sudar.
           </p>
 
-          <div className="hero-ctas">
+          <div className="hero-ctas hero-anim-in delay-5">
             <a href="#horarios" className="btn btn-primary btn-lg">Reservar Clase <ArrowRight /></a>
             <button className="btn btn-ghost btn-lg" type="button">
               <span className="play-icon"><PlayIcon /></span>Ver Video
             </button>
           </div>
 
-          <div className="hero-proof">
+          <div className="hero-proof hero-anim-in delay-6">
             <div className="avatars">
               <span className="avatar" style={{ background: 'linear-gradient(135deg,#FF6B6B,#E10600)' }}></span>
               <span className="avatar" style={{ background: 'linear-gradient(135deg,#4ECDC4,#1A535C)' }}></span>

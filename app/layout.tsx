@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: 'Rideon Spinning Studio — Pedalea Rápido. Llega Lejos.',
   description: 'Estudio de spinning en Chihuahua. Reserva tu clase y tu bicicleta en segundos.',
   icons: {
-    icon: '/logo.jpg',
+    icon: '/logo2.png',
   },
 };
 

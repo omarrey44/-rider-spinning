@@ -1,24 +1,61 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useScrolled } from '@/hooks/useScrolled';
+
+const SECTIONS = [
+  { id: '#clases', label: 'Clases' },
+  { id: '#horarios', label: 'Horarios' },
+  { id: '#instructores', label: 'Instructores' },
+  { id: '#precios', label: 'Precios' },
+  { id: '#contacto', label: 'Contacto' },
+];
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navbarScrolled = useScrolled(30);
+  const [activeHash, setActiveHash] = useState('');
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveHash(`#${entry.target.id}`);
+          }
+        });
+      },
+      { rootMargin: '-40% 0px -55% 0px' }
+    );
+
+    SECTIONS.forEach(({ id }) => {
+      const el = document.querySelector(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const navLinks = SECTIONS.map(({ id, label }) => ({
+    href: id,
+    label,
+    active: activeHash === id,
+  }));
 
   return (
     <>
       <nav className={`navbar ${navbarScrolled ? 'scrolled' : ''}`} role="navigation" aria-label="Navegación principal">
         <div className="container nav-inner">
           <a href="#" className="logo">
-            <img src="/logo.jpg" alt="Rideon Spinning Studio" className="logo-img" />
+            <img src="/logo2.png" alt="Rideon Spinning Studio" className="logo-img" />
           </a>
 
           <ul className="nav-links">
-            <li><a href="#clases">Clases</a></li>
-            <li><a href="#horarios">Horarios</a></li>
-            <li><a href="#instructores">Instructores</a></li>
-            <li><a href="#precios">Precios</a></li>
-            <li><a href="#contacto">Contacto</a></li>
+            {navLinks.map(({ href, label, active }) => (
+              <li key={href}>
+                <a href={href} className={active ? 'active' : ''}>
+                  {label}
+                </a>
+              </li>
+            ))}
           </ul>
 
           <a href="#reservar" className="btn btn-primary">Reservar ahora</a>
@@ -35,11 +72,11 @@ export default function Navbar() {
         </div>
 
         <div className={`mobile-menu ${mobileOpen ? 'open' : ''}`} id="mobileMenu">
-          <a href="#clases">Clases</a>
-          <a href="#horarios">Horarios</a>
-          <a href="#instructores">Instructores</a>
-          <a href="#precios">Precios</a>
-          <a href="#contacto">Contacto</a>
+          {navLinks.map(({ href, label, active }) => (
+            <a key={href} href={href} className={active ? 'active' : ''}>
+              {label}
+            </a>
+          ))}
           <a href="#reservar" className="btn btn-primary mobile-reserve-btn">Reservar ahora</a>
         </div>
       </nav>

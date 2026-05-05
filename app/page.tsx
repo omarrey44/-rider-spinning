@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import Launch from '@/components/Launch';
@@ -13,8 +13,38 @@ import FindBooking from '@/components/FindBooking';
 import Footer from '@/components/Footer';
 import SmoothScroll from '@/components/SmoothScroll';
 import CheckoutModal from '@/components/CheckoutModal';
-import SectionDivider from '@/components/SectionDivider';
+import BackToTop from '@/components/BackToTop';
 import { DayKey, ScheduleSlot } from '@/data/schedule';
+
+function RevealSection({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setRevealed(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`reveal ${revealed ? 'revealed' : ''}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
 
 export default function Home() {
   const [selectedSlot, setSelectedSlot] = useState<{
@@ -55,13 +85,10 @@ export default function Home() {
       <Hero />
 
         <main id="main">
-        <Launch />
-        <SectionDivider />
-        <HowItWorks />
-        <SectionDivider />
-        <Schedule onSelectSlot={handleSelectSlot} />
-        <SectionDivider />
-        <BikeSelector
+        <RevealSection><Launch /></RevealSection>
+        <RevealSection delay={100}><HowItWorks /></RevealSection>
+        <RevealSection delay={150}><Schedule onSelectSlot={handleSelectSlot} /></RevealSection>
+        <RevealSection delay={100}><BikeSelector
           selectedSlot={selectedSlot?.slot ? {
             className: selectedSlot.slot.className,
             instructorName: selectedSlot.slot.instructorName,
@@ -70,15 +97,12 @@ export default function Home() {
             price: selectedSlot.slot.price,
           } : null}
           onCheckout={handleCheckout}
-        />
-        <SectionDivider />
-        <Instructors />
-        <SectionDivider />
-        <Pricing />
-        <SectionDivider />
-        <FindBooking />
-        <SectionDivider />
+        /></RevealSection>
+        <RevealSection delay={100}><Instructors /></RevealSection>
+        <RevealSection delay={150}><Pricing /></RevealSection>
+        <RevealSection delay={100}><FindBooking /></RevealSection>
 
+        <RevealSection delay={100}>
         <section className="cta-final">
           <div className="container cta-inner">
             <h2>¿Listo para tu primer ride?</h2>
@@ -92,9 +116,11 @@ export default function Home() {
             </a>
           </div>
         </section>
+        </RevealSection>
       </main>
 
       <Footer />
+      <BackToTop />
 
       {checkoutOpen && checkoutBike && selectedSlot && (
         <CheckoutModal

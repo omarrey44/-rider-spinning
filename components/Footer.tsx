@@ -4,7 +4,7 @@ export default function Footer() {
       <div className="container footer-grid">
         <div className="footer-brand">
           <a href="#" className="logo logo-light">
-            <img src="/logo.jpg" alt="Rideon Spinning Studio" className="logo-img" />
+            <img src="/logo2.png" alt="Rideon Spinning Studio" className="logo-img" />
           </a>
           <p>Spinning Studio · Chihuahua</p>
           <p className="muted">Av. Ejemplo 123, Col. Centro<br />Lun–Sáb · 06:00 – 21:00</p>
