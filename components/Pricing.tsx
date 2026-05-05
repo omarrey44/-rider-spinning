@@ -1,0 +1,88 @@
+export default function Pricing() {
+  return (
+    <section className="pricing" id="precios">
+      <div className="container">
+        <div className="section-head">
+          <span className="eyebrow">Membresías</span>
+          <h2>Pedalea más, <span className="text-red">paga menos</span></h2>
+        </div>
+
+        <div className="pricing-grid">
+          <article className="price-card">
+            <div className="price-head">
+              <div className="price-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
+              </div>
+              <div>
+                <h3>Clase suelta</h3>
+                <p className="plan-desc">Para probar sin compromiso</p>
+              </div>
+            </div>
+            <div className="price-row">
+              <span className="currency">$</span>
+              <span className="amount">220</span>
+              <span className="period">MXN<br />/clase</span>
+            </div>
+            <ul className="price-features">
+              <li>1 clase a tu ritmo</li>
+              <li>Sin compromiso mensual</li>
+              <li>Reserva con 1 día de anticipación</li>
+              <li>Cancela hasta 4h antes</li>
+            </ul>
+            <a href="#horarios" className="btn btn-outline btn-block">Reservar</a>
+          </article>
+
+          <article className="price-card featured">
+            <span className="featured-badge">★ Más popular</span>
+            <div className="price-head">
+              <div className="price-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12" /></svg>
+              </div>
+              <div>
+                <h3>Pack 5 clases</h3>
+                <p className="plan-desc">El favorito de la comunidad</p>
+              </div>
+            </div>
+            <div className="price-row">
+              <span className="currency">$</span>
+              <span className="amount">950</span>
+              <span className="period">MXN<br />5 clases</span>
+            </div>
+            <span className="save-badge">↓ Ahorras $150</span>
+            <ul className="price-features">
+              <li>5 clases · vigencia 30 días</li>
+              <li>Reserva con 7 días de anticipación</li>
+              <li>Cancela hasta 2h antes</li>
+              <li>Comparte con un amigo</li>
+            </ul>
+            <a href="#horarios" className="btn btn-primary btn-block">Comprar pack</a>
+          </article>
+
+          <article className="price-card">
+            <div className="price-head">
+              <div className="price-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18.178 8c5.096 0 5.096 8 0 8-5.095 0-7.133-8-12.739-8-4.585 0-4.585 8 0 8 5.606 0 7.644-8 12.74-8z" /></svg>
+              </div>
+              <div>
+                <h3>Mensualidad</h3>
+                <p className="plan-desc">Para los que viven en la bici</p>
+              </div>
+            </div>
+            <div className="price-row">
+              <span className="currency">$</span>
+              <span className="amount">2,400</span>
+              <span className="period">MXN<br />/mes</span>
+            </div>
+            <ul className="price-features">
+              <li>Clases ilimitadas</li>
+              <li>Reserva con 14 días</li>
+              <li>Botella + toalla cortesía</li>
+              <li>Acceso a eventos exclusivos</li>
+            </ul>
+            <a href="#horarios" className="btn btn-outline btn-block">Suscribirme</a>
+          </article>
+        </div>
+      </div>
+    </section>
+  );
+}

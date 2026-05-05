@@ -12,14 +12,29 @@ desktop.ini
 # Vercel
 .vercel/
 
+# Next.js
+.next/
+out/
+build/
+
 # Logs
 *.log
 npm-debug.log*
 
-# Env files (por si después agregas)
+# Env files
 .env
 .env.local
 .env.*.local
+.env.production
 
-# Dependencies (si después migras a Next.js)
+# Dependencies
 node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
