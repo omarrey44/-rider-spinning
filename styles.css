@@ -828,35 +828,58 @@ section { padding: 100px 0; }
    HORARIOS
    ===================================================== */
 /* =====================================================
-   SCHEDULE — versión moderna
+   SCHEDULE — Glassmorphism sobre foto del estudio
    ===================================================== */
 .schedule {
-  background: var(--gray-soft);
-  background-image:
-    radial-gradient(circle at 15% 20%, rgba(78, 205, 196, 0.08), transparent 45%),
-    radial-gradient(circle at 85% 80%, rgba(78, 205, 196, 0.06), transparent 45%);
   position: relative;
+  background: var(--black);
+  color: var(--white);
+  overflow: hidden;
 }
-/* Texto teal en fondos claros necesita contraste WCAG AA */
-.schedule .eyebrow { color: var(--teal-dark); }
-.schedule .text-red { color: var(--teal-dark); }
-.schedule .time-arrow { color: var(--teal-dark); }
+/* Foto de fondo, blur sutil para efecto cristal */
+.schedule::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('bike-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.55;
+  filter: blur(2px);
+  z-index: 0;
+}
+/* Overlay con gradiente + acentos rojos para legibilidad */
+.schedule::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0.7) 100%),
+    radial-gradient(ellipse at 90% 50%, rgba(225,6,0,0.18), transparent 55%),
+    radial-gradient(ellipse at 10% 30%, rgba(225,6,0,0.12), transparent 50%);
+  z-index: 1;
+}
+.schedule .container { position: relative; z-index: 2; }
+.schedule .section-head h2,
+.schedule .section-head p { color: var(--white); }
 
-/* Tabs por día — pill segmentada */
+/* Tabs por día — pill segmentada en glass */
 .day-tabs {
   display: flex;
   gap: 4px;
   justify-content: center;
   flex-wrap: wrap;
-  margin-bottom: 48px;
-  background: var(--white);
+  margin-bottom: 40px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   padding: 6px;
   border-radius: var(--radius-pill);
   max-width: fit-content;
   margin-left: auto;
   margin-right: auto;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  border: 1px solid var(--gray-mid);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 .day-tab {
   padding: 12px 24px;
@@ -864,238 +887,241 @@ section { padding: 100px 0; }
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 13px;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.65);
   letter-spacing: 1.5px;
   text-transform: uppercase;
   transition: all 0.25s ease;
 }
-.day-tab:hover { color: var(--text-dark); }
+.day-tab:hover { color: var(--white); }
 .day-tab.active {
   background: var(--red-primary);
   color: var(--white);
-  box-shadow: 0 4px 14px rgba(225, 6, 0, 0.35);
+  box-shadow: 0 4px 14px rgba(225, 6, 0, 0.45);
 }
 
 /* Paneles de día */
 .day-panel { display: none; }
-.day-panel.active { display: grid; }
+.day-panel.active {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 1080px;
+  margin: 0 auto;
+}
 
 .schedule-note {
   text-align: center;
   margin-top: 40px;
   font-size: 14px;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.55);
   font-style: italic;
 }
 
-/* ============ SLOT CARDS ============ */
-.schedule-grid {
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 24px;
-}
-
+/* ============ GLASS CARDS — layout horizontal ============ */
 .slot {
-  background: linear-gradient(180deg, #FDF8F0 0%, #F5F0E6 100%);
-  border: 1px solid rgba(78, 205, 196, 0.25);
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  gap: 24px;
+  align-items: center;
+  padding: 20px 28px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid;
+  border-image: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.04)) 1;
   border-radius: 20px;
-  padding: 24px;
+  color: var(--white);
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.8) inset,
-    0 4px 16px rgba(20, 20, 20, 0.04);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
 }
-/* Acento teal arriba: siempre visible */
-.slot::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 4px;
-  background: linear-gradient(90deg, var(--teal-primary), var(--teal-hover), transparent 85%);
-  opacity: 1;
-  transition: height 0.3s ease, box-shadow 0.3s ease;
-}
-.slot:hover::before {
-  height: 5px;
-  box-shadow: 0 2px 12px rgba(78, 205, 196, 0.3);
-}
 .slot:hover {
-  transform: translateY(-6px);
-  border-color: rgba(78, 205, 196, 0.45);
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-3px);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.8) inset,
-    0 16px 40px rgba(20, 20, 20, 0.08),
-    0 0 50px rgba(78, 205, 196, 0.1);
+    0 16px 40px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
-.slot[data-status="full"] { opacity: 0.55; pointer-events: none; }
+.slot[data-status="full"] { opacity: 0.5; pointer-events: none; }
 
-/* Top row: tag + price */
-.slot-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.slot-tag {
-  display: inline-block;
-  font-family: var(--font-display);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 1.5px;
-  padding: 6px 12px;
-  border-radius: var(--radius-pill);
-  text-transform: uppercase;
-}
-.slot-price {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: 22px;
-  color: var(--text-dark);
-  letter-spacing: -0.5px;
-}
-
-/* Tags por turno */
-.tag-morning { background: rgba(255, 184, 0, 0.18); color: #A17000; }
-.tag-evening { background: rgba(255, 107, 0, 0.18); color: #B84A00; }
-.tag-weekend { background: var(--teal-soft); color: #168077; }
-
-/* Hora — protagonista visual */
+/* Columna 1: Hora */
 .slot-time {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 14px;
-  padding: 4px 0;
+  min-width: 80px;
 }
-.time-num {
+.time-hour {
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: 32px;
-  color: var(--text-dark);
-  letter-spacing: -1.5px;
+  font-size: 36px;
   line-height: 1;
+  color: var(--white);
+  letter-spacing: -1.5px;
 }
-.time-arrow {
-  color: var(--teal-primary);
-  font-weight: 700;
-  font-size: 22px;
+.time-period {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 3px;
+  margin-top: 6px;
 }
 
-/* Nombre de la clase */
+/* Columna 2: separador vertical */
+.slot-divider {
+  width: 1px;
+  height: 64px;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+}
+
+/* Columna 3: Info de la clase */
+.slot-info { min-width: 0; }
 .slot h4 {
   font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--text-dark);
-  letter-spacing: -0.3px;
-  margin: 0;
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: -0.5px;
+  color: var(--white);
+  margin: 0 0 8px;
 }
-
-/* Instructor con avatar */
-.slot-instructor {
+.slot-meta {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 0;
-  border-top: 1px solid rgba(20, 20, 20, 0.08);
-  border-bottom: 1px solid rgba(20, 20, 20, 0.08);
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+}
+.meta-item svg { width: 14px; height: 14px; flex-shrink: 0; }
+.meta-sep {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 14px;
+}
+
+/* Instructor con avatar circular */
+.slot-instructor {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 .avatar-mini {
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 16px;
+  font-size: 13px;
   color: var(--white);
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+/* Si dentro hay <img>, llena el círculo */
+.avatar-mini img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 .avatar-rosario { background: linear-gradient(135deg, #FF6B6B, #E10600); }
 .avatar-lucia   { background: linear-gradient(135deg, #FFE66D, #FF6B00); }
 .avatar-elmer   { background: linear-gradient(135deg, #4ECDC4, #1A8580); }
 
-.instructor-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-.instructor-meta strong {
+.slot-instructor strong {
   font-size: 14px;
-  font-weight: 700;
-  color: var(--text-dark);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.instructor-meta span {
-  font-size: 12px;
-  color: var(--text-muted);
+  font-weight: 600;
+  color: var(--white);
 }
 
-/* Footer: status + CTA */
-.slot-foot {
+/* Columna 4: Status + price + CTA pill */
+.slot-side {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  min-width: 170px;
 }
 .slot-status {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
 }
 .status-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   display: inline-block;
 }
-.status-available { color: #16A34A; }
 .status-available .status-dot {
-  background: #16A34A;
-  box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.6);
-  animation: pulse-green 2s infinite;
+  background: #22C55E;
+  box-shadow:
+    0 0 0 4px rgba(34, 197, 94, 0.15),
+    0 0 12px rgba(34, 197, 94, 0.6);
 }
-@keyframes pulse-green {
-  0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.5); }
-  70% { box-shadow: 0 0 0 8px rgba(22, 163, 74, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
-}
-.status-few { color: #D97706; }
 .status-few .status-dot {
   background: #EAB308;
-  animation: pulse-yellow 1.5s infinite;
+  box-shadow:
+    0 0 0 4px rgba(234, 179, 8, 0.15),
+    0 0 12px rgba(234, 179, 8, 0.6);
 }
-@keyframes pulse-yellow {
-  0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.6); }
-  70% { box-shadow: 0 0 0 8px rgba(234, 179, 8, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+.status-full .status-dot {
+  background: var(--red-primary);
+  box-shadow:
+    0 0 0 4px rgba(225, 6, 0, 0.15),
+    0 0 12px rgba(225, 6, 0, 0.6);
 }
-.status-full { color: var(--text-muted); }
-.status-full .status-dot { background: var(--text-muted); }
 
+.slot-price {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 22px;
+  color: var(--white);
+  letter-spacing: -0.5px;
+}
+
+/* CTA pill */
 .slot-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #FF3030 0%, #E10600 100%);
+  color: var(--white);
+  padding: 11px 22px;
+  border-radius: var(--radius-pill);
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 13px;
-  color: var(--red-primary);
-  letter-spacing: 0.5px;
+  font-size: 12px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  transition: gap 0.2s ease;
+  box-shadow: 0 4px 14px rgba(225, 6, 0, 0.4);
+  transition: all 0.25s ease;
+  margin-top: 4px;
 }
 .slot-cta:hover {
-  color: var(--red-hover);
-  letter-spacing: 1px;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(225, 6, 0, 0.55);
+  color: var(--white);
 }
+.slot-cta svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s ease;
+}
+.slot-cta:hover svg { transform: translateX(3px); }
 
 /* =====================================================
    BIKE SELECTOR
@@ -1692,17 +1718,35 @@ section { padding: 100px 0; }
   .how-icon svg { width: 22px; height: 22px; }
   .how-card h3 { font-size: 20px; }
 
-  /* Horarios */
-  .slot { padding: 20px; }
-  .slot-top { flex-direction: row; margin-bottom: 12px; }
-  .slot-price { font-size: 22px; }
-  .time-num { font-size: 20px; }
-  .slot-time { margin-bottom: 10px; }
-  .slot h4 { font-size: 17px; margin-bottom: 6px; }
-  .avatar-mini { width: 32px; height: 32px; font-size: 13px; }
-  .slot-cta { padding: 8px 18px; font-size: 13px; }
-  .slot-foot { flex-direction: column; gap: 10px; align-items: flex-start; }
-  .slot-status { font-size: 13px; }
+  /* Horarios — glass cards stack vertical en móvil */
+  .slot {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 20px;
+  }
+  .slot-divider { display: none; }
+  .slot-time {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 10px;
+    min-width: 0;
+  }
+  .time-hour { font-size: 28px; }
+  .time-period { margin-top: 0; font-size: 12px; letter-spacing: 2px; }
+  .slot h4 { font-size: 20px; margin-bottom: 6px; }
+  .slot-meta { gap: 10px; margin-bottom: 10px; }
+  .meta-item { font-size: 12px; }
+  .slot-side {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 0;
+    gap: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 14px;
+  }
+  .slot-cta { flex: 1 1 100%; justify-content: center; }
 
   /* Bike selector */
   .bike-grid { gap: 6px; padding: 20px; }
@@ -1719,9 +1763,12 @@ section { padding: 100px 0; }
 
   /* Pricing */
   .price-card { padding: 32px 24px; }
-  .price-amount { font-size: 44px; }
-  .price-card h4 { font-size: 20px; }
-  .price-card ul li { font-size: 14px; padding: 8px 0; }
+  .price-card h3 { font-size: 18px; }
+  .amount { font-size: 48px; letter-spacing: -2px; }
+  .currency { font-size: 22px; margin-top: 6px; }
+  .period { font-size: 10px; }
+  .save-badge { font-size: 10px; padding: 4px 10px; }
+  .price-features li { font-size: 13px; }
   .price-card .btn { width: 100%; justify-content: center; }
 
   /* CTA final */
@@ -1787,23 +1834,19 @@ section { padding: 100px 0; }
   .day-tab { flex: 1 1 calc(33.33% - 4px); font-size: 12px; padding: 8px 0; border-radius: 6px; }
   .schedule-grid { gap: 10px; }
 
-  /* Schedule cards */
-  .slot { padding: 14px; border-radius: 12px; gap: 10px; }
-  .slot::before { height: 3px; border-radius: 0 0 4px 4px; }
-  .slot-top { margin-bottom: 6px; }
-  .slot-tag { font-size: 10px; padding: 3px 8px; }
+  /* Schedule cards — más compactas en pantallas chicas */
+  .slot { padding: 16px 18px; gap: 12px; border-radius: 16px; }
+  .time-hour { font-size: 26px; }
+  .time-period { font-size: 11px; }
+  .slot h4 { font-size: 18px; }
+  .slot-meta { gap: 8px; flex-wrap: wrap; }
+  .meta-item { font-size: 11px; }
+  .meta-item svg { width: 12px; height: 12px; }
+  .slot-instructor strong { font-size: 13px; }
+  .avatar-mini { width: 30px; height: 30px; font-size: 12px; }
+  .slot-status { font-size: 12px; }
   .slot-price { font-size: 18px; }
-  .slot-time { margin-bottom: 6px; }
-  .time-num { font-size: 16px; }
-  .time-arrow { font-size: 12px; }
-  .slot h4 { font-size: 15px; margin-bottom: 4px; }
-  .slot-instructor { flex-direction: column; gap: 4px; }
-  .avatar-mini { width: 26px; height: 26px; font-size: 11px; }
-  .instructor-meta { font-size: 12px; }
-  .instructor-meta strong { font-size: 13px; }
-  .slot-cta { padding: 7px 12px; font-size: 11px; width: 100%; text-align: center; border-radius: 6px; }
-  .slot-foot { flex-direction: column; gap: 6px; }
-  .slot-status { font-size: 11px; }
+  .slot-cta { padding: 10px 16px; font-size: 11px; }
 
   /* Bike selector */
   .bike-selector { padding: 20px 16px; border-radius: 16px; }
@@ -1824,18 +1867,22 @@ section { padding: 100px 0; }
   .instructor-card .instructor-tag { display: none; }
 
   /* Pricing */
-  .pricing-grid { gap: 12px; }
-  .price-card { padding: 20px 16px; border-radius: 14px; }
-  .price-card .instructor-tag { padding: 5px 12px; font-size: 11px; }
-  .price-card::before { height: 3px; }
+  .pricing-grid { gap: 16px; }
+  .price-card { padding: 28px 22px 26px; border-radius: 18px; }
+  .price-card.featured { transform: none; }
   .featured-badge { top: 14px; right: 14px; font-size: 10px; padding: 4px 10px; }
-  .price-card h4 { font-size: 17px; margin-bottom: 4px; }
-  .price-card .muted { font-size: 13px; margin-bottom: 14px; }
-  .price-amount { font-size: 36px; margin-bottom: 2px; }
-  .price-period { font-size: 13px; margin-bottom: 16px; }
-  .price-card ul { margin-bottom: 16px; }
-  .price-card ul li { font-size: 13px; padding: 5px 0; }
-  .price-card .btn { padding: 12px 18px; font-size: 14px; border-radius: 8px; }
+  .price-head { gap: 12px; margin-bottom: 22px; }
+  .price-icon { width: 42px; height: 42px; border-radius: 12px; }
+  .price-icon svg { width: 20px; height: 20px; }
+  .price-card h3 { font-size: 17px; }
+  .plan-desc { font-size: 12px; }
+  .amount { font-size: 44px; letter-spacing: -2px; }
+  .currency { font-size: 20px; margin-top: 4px; }
+  .period { font-size: 10px; }
+  .save-badge { font-size: 10px; padding: 4px 10px; }
+  .price-features { gap: 10px; margin-bottom: 22px; }
+  .price-features li { font-size: 13px; }
+  .price-features li::before { width: 18px; height: 18px; font-size: 11px; }
 
   /* CTA final */
   .cta-final { padding: 48px 0; }
@@ -1881,14 +1928,16 @@ section { padding: 100px 0; }
   .how-card { padding: 16px 12px; }
   .how-num { font-size: 28px; }
 
-  .slot { padding: 12px; }
-  .slot h4 { font-size: 14px; }
-  .time-num { font-size: 15px; }
+  .slot { padding: 14px 16px; gap: 10px; }
+  .slot h4 { font-size: 16px; }
+  .time-hour { font-size: 22px; }
+  .time-period { font-size: 10px; letter-spacing: 1.5px; }
 
   .bike-seat { width: 20px; height: 20px; font-size: 8px; }
 
-  .price-card { padding: 16px 14px; }
-  .price-amount { font-size: 32px; }
+  .price-card { padding: 22px 18px 22px; }
+  .amount { font-size: 38px; }
+  .currency { font-size: 18px; }
 
   .cta-inner h2 { font-size: 22px; }
 }
