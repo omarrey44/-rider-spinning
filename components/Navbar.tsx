@@ -15,6 +15,11 @@ export default function Navbar() {
   const [activeHash, setActiveHash] = useState('');
 
   useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileOpen]);
+
+  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -44,7 +49,7 @@ export default function Navbar() {
     <>
       <nav className={`navbar ${navbarScrolled ? 'scrolled' : ''}`} role="navigation" aria-label="Navegación principal">
         <div className="container nav-inner">
-          <a href="#" className="logo">
+          <a href="#" className="logo" onClick={() => setMobileOpen(false)}>
             <img src="/logo2.png" alt="Rideon Spinning Studio" className="logo-img" />
           </a>
 
@@ -73,11 +78,11 @@ export default function Navbar() {
 
         <div className={`mobile-menu ${mobileOpen ? 'open' : ''}`} id="mobileMenu">
           {navLinks.map(({ href, label, active }) => (
-            <a key={href} href={href} className={active ? 'active' : ''}>
+            <a key={href} href={href} className={active ? 'active' : ''} onClick={() => setMobileOpen(false)}>
               {label}
             </a>
           ))}
-          <a href="#reservar" className="btn btn-primary mobile-reserve-btn">Reservar ahora</a>
+          <a href="#reservar" className="btn btn-primary mobile-reserve-btn" onClick={() => setMobileOpen(false)}>Reservar ahora</a>
         </div>
       </nav>
     </>

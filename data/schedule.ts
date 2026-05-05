@@ -38,6 +38,6 @@ export const days: Array<{ key: DayKey; label: string }> = [
 export const BIKE_CONFIG = {
   rows: 4,
   cols: 6,
-  taken: [3, 5, 9, 14, 17, 22],
+  taken: [] as number[],
   popular: [7, 8, 9, 10],
 };
