@@ -966,6 +966,33 @@ section { padding: 100px 0; }
   font-style: italic;
 }
 
+.no-more-slots {
+  text-align: center;
+  padding: 48px 24px;
+  background: rgba(15, 15, 20, 0.35);
+  backdrop-filter: blur(8px) saturate(110%);
+  -webkit-backdrop-filter: blur(8px) saturate(110%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+}
+.no-more-icon {
+  display: block;
+  font-size: 40px;
+  margin-bottom: 16px;
+}
+.no-more-slots h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--white);
+  margin: 0 0 8px;
+}
+.no-more-slots p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0;
+}
+
 /* ============ GLASS CARDS — layout horizontal ============ */
 .slot {
   display: grid;
