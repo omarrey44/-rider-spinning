@@ -43,8 +43,9 @@ export default function Hero() {
               </div>
             </div>
             <div className="proof-text">
-              <strong ref={kmCounter.ref as React.RefObject<HTMLElement>}>{kmCounter.value}</strong> km pedaleados
-              <span>esta semana por nuestra comunidad</span>
+              <span className="km-number" ref={kmCounter.ref as React.RefObject<HTMLElement>}>{kmCounter.value}</span>
+              <span className="km-unit">km pedaleados</span>
+              <span className="km-label">esta semana por <strong>nuestra comunidad</strong></span>
             </div>
           </div>
         </div>

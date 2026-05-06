@@ -483,8 +483,10 @@ button:focus:not(:focus-visible) {
 }
 .hero-bike-visual {
   position: relative;
-  max-width: 340px;
+  max-width: 520px;
   flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
 }
 .hero-bike-img {
   width: 100%;
@@ -540,16 +542,41 @@ button:focus:not(:focus-visible) {
 }
 .avatar:first-child { margin-left: 0; }
 .proof-text {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-light);
+  line-height: 1.5;
+  text-align: left;
 }
-.proof-text strong {
+.proof-text .km-number {
+  color: var(--red);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 32px;
+  display: block;
+  line-height: 1;
+  letter-spacing: -1px;
+  animation: counterPop 0.8s ease both;
+  text-shadow: 0 0 30px rgba(225, 6, 0, 0.3);
+}
+.proof-text .km-unit {
   color: var(--white);
   font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 18px;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
   display: block;
-  animation: counterPop 0.8s ease both;
+  margin-top: 2px;
+}
+.proof-text .km-label {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  display: block;
+  margin-top: 6px;
+}
+.proof-text .km-label strong {
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
 }
 @keyframes counterPop {
   0% { transform: scale(0.85); filter: blur(4px); opacity: 0; }
@@ -2353,10 +2380,17 @@ section { padding: 100px 0; }
   .hero-ctas { flex-direction: column; gap: 10px; margin-bottom: 32px; }
   .hero-ctas .btn { width: 100%; justify-content: center; padding: 14px 20px; }
   .hero-proof { flex-direction: row; gap: 12px; align-items: center; justify-content: center; }
-  .hero-bike-visual { max-width: 120px; }
+  .hero-bike-visual { max-width: 180px; }
   .proof-text { text-align: center; }
+  .proof-text .km-number { font-size: 28px; }
+  .proof-text .km-unit { font-size: 14px; }
+  .proof-text strong { font-size: 20px; }
+  .proof-text span { font-size: 14px; }
   .hero-visual { max-width: 280px; }
   .hero-card { padding: 20px; border-radius: 18px; }
+
+  /* How it works — mobile bg swap */
+  .how::before { background-image: url('/bikeMovil.png'); opacity: 1; background-position: center bottom; background-size: contain; }
 
   .stat-value { font-size: 36px; }
   .stat-label { font-size: 13px; }
@@ -2506,7 +2540,10 @@ section { padding: 100px 0; }
   .hero-visual { max-width: 260px; }
   .hero-visual svg { max-width: 260px; }
   .hero-proof { flex-direction: column; gap: 8px; }
-  .hero-bike-visual { max-width: 100px; }
+  .hero-bike-visual { max-width: 220px; }
+  .proof-text strong { font-size: 18px; }
+  .proof-text .km-number { font-size: 24px; }
+  .proof-text .km-unit { font-size: 13px; }
   .stat-value { font-size: 30px; }
   .stat-label { font-size: 12px; }
 
