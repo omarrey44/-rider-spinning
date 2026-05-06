@@ -96,6 +96,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
               {d.key === todayKey && <span className="today-dot" aria-label="Hoy" />}
             </button>
           ))}
+          <span className="day-tab-indicator" />
         </div>
 
         <div
@@ -119,6 +120,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                     key={`${activeDay}-${idx}`}
                     className={`slot ${isNext ? 'slot-next' : ''}`}
                     data-status={slot.status}
+                    data-class-color={slot.classColor}
                     style={{ '--stagger-delay': `${idx * 80}ms` } as React.CSSProperties}
                   >
                     {isNext && (
@@ -133,6 +135,9 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                     <span className="slot-divider" aria-hidden="true"></span>
                     <div className="slot-info">
                       <h4>{slot.className}</h4>
+                      <span className={`class-type-tag class-type-tag--${slot.classColor}`}>
+                        {slot.className.split(' ')[0]}
+                      </span>
                       <div className="slot-meta">
                         <span className="meta-item"><ClockIcon />{slot.duration}</span>
                         <span className="meta-sep" aria-hidden="true">|</span>
@@ -142,7 +147,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                         <span className={`avatar-mini ${slot.instructorClass}`} aria-hidden="true">
                           {slot.instructorInitial}
                         </span>
-                        <strong>{slot.instructorName}</strong>
+                        <span className="instructor-name">{slot.instructorName}</span>
                       </div>
                     </div>
                     <div className="slot-side">

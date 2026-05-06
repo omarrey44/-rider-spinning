@@ -32,10 +32,15 @@ export default function Hero() {
           </div>
 
           <div className="hero-proof hero-anim-in delay-6">
-            <div className="avatars">
-              <span className="avatar" style={{ background: 'linear-gradient(135deg,#FF6B6B,#E10600)' }}></span>
-              <span className="avatar" style={{ background: 'linear-gradient(135deg,#4ECDC4,#1A535C)' }}></span>
-              <span className="avatar" style={{ background: 'linear-gradient(135deg,#FFE66D,#FF6B00)' }}></span>
+            <div className="hero-bike-visual">
+              <img className="hero-bike-img" src="/bike-masked.png" alt="" aria-hidden="true" />
+              <div className="speed-lines" aria-hidden="true">
+                <span className="speed-line sl-1"></span>
+                <span className="speed-line sl-2"></span>
+                <span className="speed-line sl-3"></span>
+                <span className="speed-line sl-4"></span>
+                <span className="speed-line sl-5"></span>
+              </div>
             </div>
             <div className="proof-text">
               <strong ref={kmCounter.ref as React.RefObject<HTMLElement>}>{kmCounter.value}</strong> km pedaleados
