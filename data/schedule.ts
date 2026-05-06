@@ -16,17 +16,17 @@ export interface ScheduleSlot {
 }
 
 export const weekdaySlots: ScheduleSlot[] = [
-  { hour: '06:00', period: 'AM', className: 'Sunrise Ride', duration: '60 min', level: 'Principiante', instructorInitial: 'R', instructorName: 'Rosario M.', instructorClass: 'avatar-rosario', status: 'available', spotsText: '10 disponibles', price: '$220' },
-  { hour: '07:00', period: 'AM', className: 'Power Up', duration: '60 min', level: 'Intermedio', instructorInitial: 'R', instructorName: 'Rosario M.', instructorClass: 'avatar-rosario', status: 'few', spotsText: '3 disponibles', price: '$220' },
-  { hour: '08:00', period: 'AM', className: 'Energy Boost', duration: '60 min', level: 'Intermedio', instructorInitial: 'R', instructorName: 'Rosario M.', instructorClass: 'avatar-rosario', status: 'available', spotsText: '8 disponibles', price: '$220' },
-  { hour: '05:00', period: 'PM', className: 'After Work Ride', duration: '60 min', level: 'Todos los niveles', instructorInitial: 'L', instructorName: 'Lucia F.', instructorClass: 'avatar-lucia', status: 'available', spotsText: '12 disponibles', price: '$220' },
-  { hour: '06:00', period: 'PM', className: 'Sunset Sprint', duration: '60 min', level: 'Avanzado', instructorInitial: 'L', instructorName: 'Lucia F.', instructorClass: 'avatar-lucia', status: 'few', spotsText: '2 disponibles', price: '$220' },
-  { hour: '07:00', period: 'PM', className: 'Night Climb', duration: '60 min', level: 'Avanzado', instructorInitial: 'L', instructorName: 'Lucia F.', instructorClass: 'avatar-lucia', status: 'available', spotsText: '9 disponibles', price: '$220' },
+  { hour: '06:00', period: 'AM', className: 'Sunrise Ride', duration: '60 min', level: 'Principiante', instructorInitial: 'R', instructorName: 'Rosario M.', instructorClass: 'avatar-rosario', status: 'available', spotsText: '24 disponibles', price: '$220' },
+  { hour: '07:00', period: 'AM', className: 'Power Up', duration: '60 min', level: 'Intermedio', instructorInitial: 'R', instructorName: 'Rosario M.', instructorClass: 'avatar-rosario', status: 'available', spotsText: '24 disponibles', price: '$220' },
+  { hour: '08:00', period: 'AM', className: 'Energy Boost', duration: '60 min', level: 'Intermedio', instructorInitial: 'R', instructorName: 'Rosario M.', instructorClass: 'avatar-rosario', status: 'available', spotsText: '24 disponibles', price: '$220' },
+  { hour: '05:00', period: 'PM', className: 'After Work Ride', duration: '60 min', level: 'Todos los niveles', instructorInitial: 'L', instructorName: 'Lucia F.', instructorClass: 'avatar-lucia', status: 'available', spotsText: '24 disponibles', price: '$220' },
+  { hour: '06:00', period: 'PM', className: 'Sunset Sprint', duration: '60 min', level: 'Avanzado', instructorInitial: 'L', instructorName: 'Lucia F.', instructorClass: 'avatar-lucia', status: 'available', spotsText: '24 disponibles', price: '$220' },
+  { hour: '07:00', period: 'PM', className: 'Night Climb', duration: '60 min', level: 'Avanzado', instructorInitial: 'L', instructorName: 'Lucia F.', instructorClass: 'avatar-lucia', status: 'available', spotsText: '24 disponibles', price: '$220' },
 ];
 
 export const saturdaySlots: ScheduleSlot[] = [
-  { hour: '09:00', period: 'AM', className: 'Saturday Sweat', duration: '60 min', level: 'Todos los niveles', instructorInitial: 'E', instructorName: 'Elmer A.', instructorClass: 'avatar-elmer', status: 'available', spotsText: '14 disponibles', price: '$240' },
-  { hour: '10:00', period: 'AM', className: 'Weekend Marathon', duration: '60 min', level: 'Avanzado', instructorInitial: 'E', instructorName: 'Elmer A.', instructorClass: 'avatar-elmer', status: 'available', spotsText: '11 disponibles', price: '$240' },
+  { hour: '09:00', period: 'AM', className: 'Saturday Sweat', duration: '60 min', level: 'Todos los niveles', instructorInitial: 'E', instructorName: 'Elmer A.', instructorClass: 'avatar-elmer', status: 'available', spotsText: '24 disponibles', price: '$240' },
+  { hour: '10:00', period: 'AM', className: 'Weekend Marathon', duration: '60 min', level: 'Avanzado', instructorInitial: 'E', instructorName: 'Elmer A.', instructorClass: 'avatar-elmer', status: 'available', spotsText: '24 disponibles', price: '$240' },
 ];
 
 export const days: Array<{ key: DayKey; label: string }> = [
