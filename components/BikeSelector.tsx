@@ -12,6 +12,7 @@ interface BikeSelectorProps {
     instructorClass: string;
     dayName: string;
     date: string;
+    fullDateTime: string;
   } | null;
   onCheckout: (bikeNumber: number, bikeRow: number) => void;
 }
@@ -167,8 +168,8 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
                   </p>
                   <p className="class-detail-line">
                     <span className="detail-icon">📆</span>
-                    <span className="detail-label">{selectedSlot.dayName}</span>
-                    <strong>{selectedSlot.date} · {selectedSlot.hour} {selectedSlot.period}</strong>
+                    <span className="detail-label">Fecha</span>
+                    <strong>{selectedSlot.fullDateTime}</strong>
                   </p>
                   <p className="class-detail-line">
                     <span className="detail-icon">⏱</span>

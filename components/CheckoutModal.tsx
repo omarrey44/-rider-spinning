@@ -9,8 +9,8 @@ interface CheckoutModalProps {
   bikeRow: number;
   className: string;
   instructorName: string;
-  day: string;
-  hour: string;
+  dateTime: string;
+  duration: string;
   priceCents: number;
   currency: string;
 }
@@ -22,8 +22,8 @@ export default function CheckoutModal({
   bikeRow,
   className: classTitle,
   instructorName,
-  day,
-  hour,
+  dateTime,
+  duration,
   priceCents,
   currency,
 }: CheckoutModalProps) {
@@ -89,8 +89,7 @@ export default function CheckoutModal({
           bike_row: bikeRow,
           class_title: classTitle,
           instructor_name: instructorName,
-          day,
-          hour,
+          date_time: dateTime,
           amount_cents: priceCents,
           currency,
         }),
@@ -136,23 +135,38 @@ export default function CheckoutModal({
 
         <div className="modal-summary">
           <div className="summary-row">
-            <span>Clase</span>
+            <span className="summary-icon-label">
+              <svg className="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Clase
+            </span>
             <strong>{classTitle}</strong>
           </div>
           <div className="summary-row">
-            <span>Instructor</span>
+            <span className="summary-icon-label">
+              <svg className="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Instructor
+            </span>
             <strong>{instructorName}</strong>
           </div>
           <div className="summary-row">
-            <span>Día</span>
-            <strong>{day}</strong>
+            <span className="summary-icon-label">
+              <svg className="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Fecha
+            </span>
+            <strong>{dateTime}</strong>
           </div>
           <div className="summary-row">
-            <span>Hora</span>
-            <strong>{hour}</strong>
+            <span className="summary-icon-label">
+              <svg className="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Duración
+            </span>
+            <strong>{duration}</strong>
           </div>
           <div className="summary-row">
-            <span>Bici</span>
+            <span className="summary-icon-label">
+              <svg className="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 17.5V8l4-3v12.5"/><path d="M5.5 17.5L9 8h6l3-3"/></svg>
+              Bici
+            </span>
             <strong>#{String(bikeNumber).padStart(2, '0')} · Fila {bikeRow}</strong>
           </div>
           <div className="summary-divider" />

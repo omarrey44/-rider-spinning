@@ -12,8 +12,7 @@ export async function POST(req: NextRequest) {
       bike_row,
       class_title,
       instructor_name,
-      day,
-      hour,
+      date_time,
       amount_cents,
       currency,
     } = body;
@@ -45,7 +44,7 @@ export async function POST(req: NextRequest) {
             currency: currency?.toLowerCase() || 'mxn',
             product_data: {
               name: `Rideon - ${class_title}`,
-              description: `Bici #${String(bike_number).padStart(2, '0')} · Fila ${bike_row} · ${day} ${hour}`,
+              description: `Bici #${String(bike_number).padStart(2, '0')} · Fila ${bike_row} · ${date_time}`,
               metadata: {
                 customer_name,
                 customer_phone: customer_phone || '',
@@ -53,8 +52,7 @@ export async function POST(req: NextRequest) {
                 bike_row: String(bike_row),
                 class_title,
                 instructor_name,
-                day,
-                hour,
+                date_time,
               },
             },
             unit_amount: amount_cents,
@@ -70,8 +68,7 @@ export async function POST(req: NextRequest) {
         bike_row: String(bike_row),
         class_title,
         instructor_name,
-        day,
-        hour,
+        date_time,
       },
       success_url: `${baseUrl}/reserva-exitosa?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/#reservar`,

@@ -83,6 +83,21 @@ export default function Home() {
     return target.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
   };
 
+  const getFullDateTime = (dayKey: DayKey): string => {
+    const dayNames: Record<DayKey, string> = { lun: 'Lunes', mar: 'Martes', mie: 'Miércoles', jue: 'Jueves', vie: 'Viernes', sab: 'Sábado' };
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const offsets: Record<DayKey, number> = { lun: 0, mar: 1, mie: 2, jue: 3, vie: 4, sab: 5 };
+    const target = new Date(today);
+    target.setDate(today.getDate() + mondayOffset + (offsets[dayKey] ?? 0));
+    if (target < today) target.setDate(target.getDate() + 7);
+    const dateStr = target.toLocaleDateString('es-MX', { day: 'numeric', month: 'long' });
+    const hourStr = selectedSlot?.slot.hour ?? '';
+    const periodStr = selectedSlot?.slot.period ?? '';
+    return `${dayNames[dayKey]} ${dateStr} ${hourStr} ${periodStr}`;
+  };
+
   const priceStr = selectedSlot?.slot.price.replace('$', '') ?? '220';
   const priceCents = parseInt(priceStr, 10) * 100;
 
@@ -110,6 +125,7 @@ export default function Home() {
             instructorClass: selectedSlot.slot.instructorClass,
             dayName: dayLabel,
             date: getDateForDay(selectedSlot.day),
+            fullDateTime: getFullDateTime(selectedSlot.day),
           } : null}
           onCheckout={handleCheckout}
         /></RevealSection>
@@ -145,8 +161,8 @@ export default function Home() {
           bikeRow={checkoutBike.row}
           className={selectedSlot.slot.className}
           instructorName={selectedSlot.slot.instructorName}
-          day={dayLabel}
-          hour={`${selectedSlot.slot.hour} ${selectedSlot.slot.period}`}
+          dateTime={getFullDateTime(selectedSlot.day)}
+          duration={selectedSlot.slot.duration}
           priceCents={priceCents}
           currency="MXN"
         />
