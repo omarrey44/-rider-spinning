@@ -16,14 +16,63 @@ interface BikeSelectorProps {
   onCheckout: (bikeNumber: number, bikeRow: number) => void;
 }
 
+/* SVG inline de silueta de bici spinning (vista lateral) */
+function BikeIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Rueda trasera */}
+      <circle cx="12" cy="30" r="7" stroke="currentColor" strokeWidth="1.8" fill="none" opacity="0.6"/>
+      <circle cx="12" cy="30" r="1" fill="currentColor" opacity="0.4"/>
+      {/* Rueda delantera */}
+      <circle cx="36" cy="30" r="7" stroke="currentColor" strokeWidth="1.8" fill="none" opacity="0.6"/>
+      <circle cx="36" cy="30" r="1" fill="currentColor" opacity="0.4"/>
+      {/* Cuadro principal — triángulo */}
+      <path d="M12 30 L20 18 L30 30" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+      {/* Tubo horizontal superior */}
+      <path d="M20 18 L32 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/>
+      {/* Horquilla delantera */}
+      <path d="M32 18 L36 30" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/>
+      {/* Tija del sillín */}
+      <path d="M20 18 L18 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/>
+      {/* Sillín */}
+      <rect x="14" y="10" width="9" height="2.5" rx="1.25" fill="currentColor" opacity="0.7"/>
+      {/* Potencia / manubrio */}
+      <path d="M32 18 L34 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/>
+      {/* Manubrio */}
+      <path d="M30 12 L38 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/>
+      {/* Pedalier / eje central */}
+      <circle cx="20" cy="30" r="2" stroke="currentColor" strokeWidth="1.2" fill="none" opacity="0.5"/>
+      {/* Pedales */}
+      <rect x="17" y="33" width="6" height="1.5" rx="0.75" fill="currentColor" opacity="0.4"/>
+    </svg>
+  );
+}
+
+function LockIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 14 14" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11 6H10V4.5C10 3.12 8.88 2 7.5 2S5 3.12 5 4.5V6H4C3.45 6 3 6.45 3 7V11C3 11.55 3.45 12 4 12H11C11.55 12 12 11.55 12 11V7C12 6.45 11.55 6 11 6ZM7.5 9.5C6.67 9.5 6 8.83 6 8S6.67 6.5 7.5 6.5 9 7.17 9 8 8.33 9.5 7.5 9.5ZM9 6H6V4.5C6 3.67 6.67 3 7.5 3S9 3.67 9 4.5V6Z"/>
+    </svg>
+  );
+}
+
 export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorProps) {
   const [selectedBike, setSelectedBike] = useState<number | null>(null);
   const [tooltipBike, setTooltipBike] = useState<number | null>(null);
   const totalBikes = BIKE_CONFIG.rows * BIKE_CONFIG.cols;
 
+  const scrollToHorarios = () => {
+    const el = document.getElementById('horarios');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   const handleBikeClick = (num: number) => {
     if (BIKE_CONFIG.taken.includes(num)) return;
     setSelectedBike(num);
+    // Si no hay clase seleccionada, guiar al usuario hacia horarios
+    if (!selectedSlot) {
+      setTimeout(scrollToHorarios, 400);
+    }
   };
 
   const handleCheckout = () => {
@@ -60,39 +109,80 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
             {selectedBike === null ? (
               <p className="summary-empty">Selecciona una bici para continuar</p>
             ) : !selectedSlot ? (
-              <div className="summary-detail">
-                <div>
-                  <h4>Bike #{String(selectedBike).padStart(2, '0')}</h4>
-                  <p style={{ color: 'var(--red-primary)', fontWeight: 600, fontSize: '13px' }}>
-                    Primero selecciona una clase en horarios
+              <div className="summary-no-class">
+                <div className="summary-bike-confirmed">
+                  <div className="check-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                  <h4>Bicicleta #{String(selectedBike).padStart(2, '0')} seleccionada</h4>
+                  <p className="summary-position">
+                    Fila {Math.ceil(selectedBike / BIKE_CONFIG.cols)}
+                    {BIKE_CONFIG.popular.includes(selectedBike) && (
+                      <span className="tag-popular">Posición popular</span>
+                    )}
                   </p>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <strong style={{ fontFamily: 'var(--font-display)', fontSize: '24px' }}>—</strong>
+                <div className="summary-next-step">
+                  <p>Ahora elige tu clase para completar la reserva</p>
+                  <button
+                    className="btn btn-outline btn-scroll-horarios"
+                    onClick={scrollToHorarios}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    Ver horarios disponibles
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 6l5 5 5-5" />
+                    </svg>
+                  </button>
                 </div>
               </div>
             ) : (
               <div className="summary-detail">
-                <div>
-                  <h4>Bike #{String(selectedBike).padStart(2, '0')}</h4>
-                  <p>
-                    Fila {Math.ceil(selectedBike / BIKE_CONFIG.cols)}{' '}
+                <div className="summary-confirmed-block">
+                  <div className="check-circle check-green">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                  <h4>Has seleccionado la bicicleta #{String(selectedBike).padStart(2, '0')}</h4>
+                  <p className="summary-position">
+                    Fila {Math.ceil(selectedBike / BIKE_CONFIG.cols)}
                     {BIKE_CONFIG.popular.includes(selectedBike) && (
-                      <>· <span style={{ color: 'var(--red-primary)' }}>Posición popular</span></>
+                      <span className="tag-popular">· Posición popular</span>
                     )}
                   </p>
-                  <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>
-                    {selectedSlot.className} · {selectedSlot.instructorName} · {selectedSlot.hour} {selectedSlot.period}
+                </div>
+                <div className="summary-class-block">
+                  <p className="class-detail-line">
+                    <span className="detail-icon">🏋️</span>
+                    <span className="detail-label">Clase</span>
+                    <strong>{selectedSlot.className}</strong>
+                  </p>
+                  <p className="class-detail-line">
+                    <span className="detail-icon">🧑‍🏫</span>
+                    <span className="detail-label">Instructor</span>
+                    <strong>{selectedSlot.instructorName}</strong>
+                  </p>
+                  <p className="class-detail-line">
+                    <span className="detail-icon">📆</span>
+                    <span className="detail-label">{selectedSlot.dayName}</span>
+                    <strong>{selectedSlot.date} · {selectedSlot.hour} {selectedSlot.period}</strong>
+                  </p>
+                  <p className="class-detail-line">
+                    <span className="detail-icon">⏱</span>
+                    <span className="detail-label">Duración</span>
+                    <strong>{selectedSlot.duration}</strong>
                   </p>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <strong style={{ fontFamily: 'var(--font-display)', fontSize: '24px' }}>{selectedSlot.price}</strong>
+                <div className="summary-price-confirm">
+                  <strong className="summary-price">{selectedSlot.price}</strong>
                   <button
-                    className="btn btn-primary"
-                    style={{ marginTop: '8px', display: 'inline-flex', cursor: 'pointer' }}
+                    className="btn btn-primary btn-confirm-reservation"
                     onClick={handleCheckout}
                   >
-                    Continuar
+                    Confirmar reserva
                   </button>
                 </div>
               </div>
@@ -101,7 +191,7 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
         </div>
 
         <div className="bike-room">
-          {/* Mejora 1 + 4: Instructor dinámico con avatar */}
+          {/* Instructor position */}
           {selectedSlot ? (
             <div className="instructor-stage instructor-stage-active">
               <span className={`avatar-instructor ${selectedSlot.instructorClass}`}></span>
@@ -114,7 +204,7 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
             <div className="instructor-stage"><span>INSTRUCTOR</span></div>
           )}
 
-          {/* Mejora 2: Banner de detalles de clase */}
+          {/* Class info banner */}
           {selectedSlot && (
             <div className="class-info-banner">
               <div className="class-info-item">
@@ -151,17 +241,28 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
             </div>
           )}
 
+          {/* Arc grid de bicis */}
           <div className="bike-grid">
             {Array.from({ length: totalBikes }, (_, i) => i + 1).map((num) => {
               const taken = BIKE_CONFIG.taken.includes(num);
               const popular = BIKE_CONFIG.popular.includes(num);
               const selected = selectedBike === num;
               const tooltip = getBikeTooltip(num);
-              const cls = ['bike-cell', taken && 'taken', popular && !selected && 'popular', selected && 'selected'].filter(Boolean).join(' ');
+              const col = ((num - 1) % BIKE_CONFIG.cols) + 1;
+              // Arc spread: -30° to +30° across columns
+              const arcAngle = ((col - 1) / (BIKE_CONFIG.cols - 1) - 0.5) * 60;
+              const cls = [
+                'bike-node',
+                taken && 'taken',
+                popular && !selected && 'popular',
+                selected && 'selected',
+              ].filter(Boolean).join(' ');
+
               return (
                 <div
                   key={num}
-                  className="bike-cell-wrapper"
+                  className="bike-node-wrapper"
+                  style={{ '--bike-arc': `${arcAngle}deg` } as React.CSSProperties}
                   onMouseEnter={() => tooltip && setTooltipBike(num)}
                   onMouseLeave={() => setTooltipBike(null)}
                 >
@@ -172,9 +273,11 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
                     aria-pressed={selected}
                     onClick={() => handleBikeClick(num)}
                   >
-                    {num}
+                    <BikeIcon className="bike-icon-svg" />
+                    <span className="bike-num">{num}</span>
+                    {taken && <LockIcon className="bike-lock" />}
                   </button>
-                  {/* Mejora 3: Tooltip para bikes populares */}
+                  {/* Tooltip for popular bikes */}
                   {tooltip && tooltipBike === num && (
                     <div className="bike-tooltip">{tooltip}</div>
                   )}

@@ -1406,17 +1406,156 @@ section { padding: 100px 0; }
 }
 .summary-detail {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 16px;
 }
 .summary-detail h4 {
   font-family: var(--font-display);
-  font-size: 22px;
-  margin-bottom: 4px;
+  font-size: 18px;
+  margin: 0;
 }
 .summary-detail p {
   font-size: 13px;
   color: var(--text-light);
+  margin: 0;
+}
+
+/* Confirmación de bici sin clase seleccionada */
+.summary-no-class {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.summary-bike-confirmed {
+  text-align: center;
+}
+.summary-bike-confirmed h4 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--teal-primary);
+  margin: 8px 0 6px;
+}
+.summary-position {
+  font-size: 13px;
+  color: var(--text-light);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.tag-popular {
+  color: var(--teal-primary);
+  font-weight: 600;
+  font-size: 11px;
+  background: rgba(78, 205, 196, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.check-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(78, 205, 196, 0.15);
+  color: var(--teal-primary);
+}
+.check-circle svg {
+  width: 20px;
+  height: 20px;
+}
+.check-green {
+  background: rgba(76, 175, 80, 0.15);
+  color: #4CAF50;
+}
+.summary-next-step {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 16px;
+  text-align: center;
+}
+.summary-next-step p {
+  font-size: 13px;
+  color: var(--text-light);
+  margin: 0 0 12px;
+}
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1.5px solid var(--teal-primary);
+  color: var(--teal-primary);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+.btn-outline:hover {
+  background: var(--teal-primary);
+  color: var(--black);
+}
+
+/* Bloque de clase detallada */
+.summary-confirmed-block {
+  text-align: center;
+}
+.summary-confirmed-block h4 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: #4CAF50;
+  margin: 8px 0 6px;
+}
+.summary-class-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 14px;
+}
+.class-detail-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  margin: 0;
+}
+.class-detail-line .detail-icon {
+  font-size: 15px;
+  flex-shrink: 0;
+  width: 22px;
+  text-align: center;
+}
+.class-detail-line .detail-label {
+  color: var(--text-muted);
+  min-width: 80px;
+  font-size: 12px;
+}
+.class-detail-line strong {
+  color: var(--white);
+  font-weight: 600;
+}
+
+/* Price + Confirm button block */
+.summary-price-confirm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 4px;
+}
+.summary-price {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--teal-primary);
+  font-weight: 700;
+}
+.btn-confirm-reservation {
+  width: 100%;
 }
 
 .bike-room {
@@ -1538,18 +1677,27 @@ section { padding: 100px 0; }
   background: rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
 }
+/* =====================================================
+   BIKE ARC SELECTOR — Siluetas + Layout semicircular
+   ===================================================== */
 .bike-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 12px;
+  gap: 10px;
   position: relative;
+  perspective: 800px;
 }
-.bike-cell-wrapper {
+
+.bike-node-wrapper {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  transform: rotate(var(--bike-arc, 0deg));
+  transform-origin: center 180%;
+  transition: transform 0.3s ease;
 }
+
 .bike-tooltip {
   position: absolute;
   bottom: calc(100% + 8px);
@@ -1576,45 +1724,125 @@ section { padding: 100px 0; }
   border: 5px solid transparent;
   border-top-color: var(--teal-primary);
 }
-.bike-cell {
+
+/* Nodo bici (botón) */
+.bike-node {
+  position: relative;
   aspect-ratio: 1;
-  border-radius: 8px;
-  border: 1.5px solid rgba(255, 255, 255, 0.4);
-  background: transparent;
+  width: 100%;
+  max-width: 56px;
+  margin: 0 auto;
+  border-radius: 10px;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.6);
+  gap: 2px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 48px;
-  min-height: 48px;
-  width: 100%;
+  transition: all 0.25s ease;
+  padding: 4px;
 }
-.bike-cell:hover:not(.taken) {
-  border-color: var(--red-primary);
-  color: var(--white);
+
+.bike-icon-svg {
+  width: 28px;
+  height: 28px;
+  color: rgba(255, 255, 255, 0.45);
+  transition: color 0.25s ease, filter 0.25s ease;
+}
+
+.bike-num {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.5px;
+  transition: color 0.25s ease;
+}
+
+.bike-lock {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 10px;
+  height: 10px;
+  color: rgba(255, 255, 255, 0.15);
+}
+
+/* Hover disponible */
+.bike-node:hover:not(.taken) {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.06);
   transform: scale(1.08);
 }
-.bike-cell.taken {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.2);
+.bike-node:hover:not(.taken) .bike-icon-svg {
+  color: rgba(255, 255, 255, 0.7);
+}
+.bike-node:hover:not(.taken) .bike-num {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Ocupada */
+.bike-node.taken {
+  border-color: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
   cursor: not-allowed;
 }
-/* Bikes "populares" usan teal porque es información atmosférica, no acción */
-.bike-cell.popular {
-  border-color: var(--teal-primary);
-  box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+.bike-node.taken .bike-icon-svg {
+  color: rgba(255, 255, 255, 0.12);
 }
-.bike-cell.selected {
-  background: var(--red-primary);
+.bike-node.taken .bike-num {
+  color: rgba(255, 255, 255, 0.15);
+}
+.bike-node.taken .bike-lock {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* Popular — anillo pulsante dorado/teal */
+.bike-node.popular {
+  border-color: rgba(78, 205, 196, 0.5);
+  background: rgba(78, 205, 196, 0.05);
+  animation: bikePulse 2.5s ease-in-out infinite;
+}
+.bike-node.popular .bike-icon-svg {
+  color: rgba(78, 205, 196, 0.7);
+}
+.bike-node.popular .bike-num {
+  color: rgba(78, 205, 196, 0.6);
+}
+.bike-node.popular::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(78, 205, 196, 0.3);
+  animation: ringPulse 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Seleccionada — rojo con glow */
+.bike-node.selected {
   border-color: var(--red-primary);
+  background: rgba(225, 6, 0, 0.12);
+  box-shadow: 0 0 20px rgba(225, 6, 0, 0.5), 0 0 40px rgba(225, 6, 0, 0.15);
+  transform: scale(1.06);
+}
+.bike-node.selected .bike-icon-svg {
+  color: var(--red-primary);
+  filter: drop-shadow(0 0 6px rgba(225, 6, 0, 0.6));
+}
+.bike-node.selected .bike-num {
   color: var(--white);
-  box-shadow: 0 0 20px rgba(225, 6, 0, 0.7);
-  transform: scale(1.05);
+  font-size: 10px;
+}
+
+@keyframes bikePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+@keyframes ringPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0; transform: scale(1.08); }
 }
 
 .room-extras {
@@ -2454,14 +2682,15 @@ section { padding: 100px 0; }
   }
   .slot-cta { flex: 1 1 100%; justify-content: center; }
 
-  /* Bike grid: cells más chicos para que quepa en mobile */
+  /* Bike arc: nodos más chicos en mobile */
   .bike-room { padding: 20px 16px; }
   .bike-grid { gap: 6px; }
-  .bike-cell {
-    min-width: 0 !important;
-    min-height: 0 !important;
-    font-size: 10px;
+  .bike-node {
+    max-width: 48px;
+    padding: 3px;
   }
+  .bike-icon-svg { width: 22px; height: 22px; }
+  .bike-num { font-size: 8px; }
   .room-extras { font-size: 10px; }
   .instructor-stage-active { flex-direction: column; gap: 6px; padding: 10px; }
   .avatar-instructor { width: 32px; height: 32px; }
@@ -2593,6 +2822,9 @@ section { padding: 100px 0; }
   .bike-selector h3 { font-size: 16px; margin-bottom: 6px; }
   .bike-selector > p { font-size: 13px; margin-bottom: 16px; }
   .bike-grid { padding: 12px; gap: 4px; border-radius: 10px; }
+  .bike-node { max-width: 40px; padding: 3px; transform-origin: center 220%; }
+  .bike-icon-svg { width: 18px; height: 18px; }
+  .bike-num { font-size: 7px; }
   .bike-seat { width: 22px; height: 22px; font-size: 9px; border-radius: 4px; }
   .bike-legend { gap: 10px; margin-top: 14px; }
   .bike-legend span { font-size: 11px; }
