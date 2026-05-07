@@ -2007,7 +2007,13 @@ section { padding: 100px 0; }
     padding: 10px 18px;
     font-size: 11px;
   }
-  .next-badge { font-size: 9px; padding: 3px 8px; }
+  .next-badge {
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    padding: 3px 10px;
+  }
   .today-dot { width: 4px; height: 4px; }
 }
 
@@ -2667,7 +2673,7 @@ section { padding: 100px 0; }
   .slot {
     grid-template-columns: 1fr;
     gap: 14px;
-    padding: 40px;
+    padding: 24px 28px;
     min-width: 0;
   }
   .slot-divider { display: none; }

@@ -11,13 +11,13 @@ export default function Instructors() {
           <article className="instructor-card">
             <div className="instructor-photo" style={{ background: 'linear-gradient(135deg,#1A1A1A,#E10600)' }}></div>
             <h3>Rosario Muñoz González</h3>
-            <span>Turno mañana · Lun a Vie</span>
+            <span>Turno mañana · Lunes a Viernes</span>
             <p>"El mejor regalo que te puedes dar es empezar el día moviéndote."</p>
           </article>
           <article className="instructor-card">
             <div className="instructor-photo" style={{ background: 'linear-gradient(135deg,#E10600,#FFB800)' }}></div>
             <h3>Lucia Isamar Frescas González</h3>
-            <span>Turno tarde · Lun a Vie</span>
+            <span>Turno tarde · Lunes a Viernes</span>
             <p>"Después del trabajo, tu cuerpo merece soltar el día."</p>
           </article>
           <article className="instructor-card">
