@@ -1899,9 +1899,9 @@ section { padding: 100px 0; }
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--teal-primary);
-  background: rgba(10, 10, 14, 0.85);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(78, 205, 196, 0.4);
+  background: rgba(10, 10, 14, 0.92);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(78, 205, 196, 0.5);
   border-radius: 20px;
   padding: 6px 18px;
   animation: nextBadgeBlink 2s ease-in-out infinite;
