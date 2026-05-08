@@ -72,13 +72,15 @@ interface ScheduleProps {
 }
 
 export default function Schedule({ onSelectSlot }: ScheduleProps) {
-  const todayKey = getCurrentDayKey();
-  const [activeDay, setActiveDay] = useState<DayKey>(todayKey);
+  // ⚠ Valores DEPENDIENTES DE Date() inicializan con defaults DETERMINISTAS
+  // para que el HTML del server y del cliente coincidan en la primera
+  // hidratación. Después de hidratar, useEffect los actualiza con valores
+  // reales. Esto previene hydration errors (#418, #423, #425).
+  const [activeDay, setActiveDay] = useState<DayKey>('lun');
+  const [todayKey, setTodayKey] = useState<DayKey>('lun');
   const [animKey, setAnimKey] = useState(0);
-  const [clockTime, setClockTime] = useState(() => {
-    const n = new Date();
-    return `${n.getHours().toString().padStart(2, '0')}:${n.getMinutes().toString().padStart(2, '0')}`;
-  });
+  const [clockTime, setClockTime] = useState('--:--');
+  const [currentHour24, setCurrentHour24] = useState<number | null>(null);
 
   // slotsByDow: rows agrupadas por day_of_week (1-6). Vacío hasta que cargue Supabase.
   // Si la query falla o devuelve [], usamos los arrays estáticos como fallback.
@@ -134,11 +136,19 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
     return () => { cancelled = true; };
   }, []);
 
+  // Hidratación de valores Date-dependientes (solo cliente, después del mount)
   useEffect(() => {
-    const t = setInterval(() => {
+    const today = getCurrentDayKey();
+    setTodayKey(today);
+    setActiveDay(today);
+
+    const updateNow = () => {
       const n = new Date();
       setClockTime(`${n.getHours().toString().padStart(2, '0')}:${n.getMinutes().toString().padStart(2, '0')}`);
-    }, 15000);
+      setCurrentHour24(n.getHours() + n.getMinutes() / 60);
+    };
+    updateNow();
+    const t = setInterval(updateNow, 15000);
     return () => clearInterval(t);
   }, []);
 
@@ -154,16 +164,17 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
     return activeDay === 'sab' ? saturdaySlots : weekdaySlots;
   }, [usingDb, slotsByDow, activeDay]);
 
-  const now = new Date();
-  const currentHour24 = now.getHours() + now.getMinutes() / 60;
-  const isToday = activeDay === todayKey;
+  // currentHour24 === null durante SSR + primer render del cliente.
+  // En ese momento NO filtramos por hora actual (mostramos todos los slots)
+  // y no marcamos "isToday". Una vez hidratado, useEffect lo setea.
+  const isToday = currentHour24 !== null && activeDay === todayKey;
 
-  const visibleSlots = isToday
+  const visibleSlots = isToday && currentHour24 !== null
     ? baseSlots.filter((s) => slotTo24h(s) > currentHour24)
     : baseSlots;
 
   const nextSlot = useMemo(() => {
-    if (!isToday) return null;
+    if (!isToday || currentHour24 === null) return null;
     const upcoming = baseSlots
       .filter((s) => slotTo24h(s) > currentHour24)
       .sort((a, b) => slotTo24h(a) - slotTo24h(b));
