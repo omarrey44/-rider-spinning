@@ -25,7 +25,7 @@ export default function Hero() {
           </p>
 
           <div className="hero-ctas hero-anim-in delay-5">
-            <a href="#horarios" className="btn btn-primary btn-lg">Reservar Clase <ArrowRight /></a>
+            <a href="#horarios" className="btn btn-primary btn-lg btn-shimmer">Reservar Clase <ArrowRight /></a>
             <button className="btn btn-ghost btn-lg" type="button">
               <span className="play-icon"><PlayIcon /></span>Ver Video
             </button>

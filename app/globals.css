@@ -1797,43 +1797,51 @@ section { padding: 100px 0; }
   position: relative;
   aspect-ratio: 1;
   width: 100%;
-  max-width: 56px;
+  max-width: 60px;
   margin: 0 auto;
   border-radius: 10px;
   border: 1.5px solid rgba(255, 255, 255, 0.15);
   background: rgba(255, 255, 255, 0.03);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
   cursor: pointer;
   transition: all 0.25s ease;
-  padding: 4px;
+  padding: 6px;
 }
 
 .bike-icon-svg {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   color: rgba(255, 255, 255, 0.45);
   transition: color 0.25s ease, filter 0.25s ease;
 }
 
+/* Número de bici: badge en esquina superior izquierda, monospace, legible */
 .bike-num {
-  font-size: 9px;
+  position: absolute;
+  top: 4px;
+  left: 5px;
+  font-family: ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.35);
-  letter-spacing: 0.5px;
-  transition: color 0.25s ease;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.3px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  transition: color 0.25s ease, background 0.25s ease;
+  pointer-events: none;
 }
 
 .bike-lock {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 10px;
-  height: 10px;
-  color: rgba(255, 255, 255, 0.15);
+  top: 5px;
+  right: 5px;
+  width: 11px;
+  height: 11px;
+  color: rgba(255, 255, 255, 0.18);
 }
 
 /* Hover disponible — glow teal */
@@ -1850,7 +1858,8 @@ section { padding: 100px 0; }
   filter: drop-shadow(0 0 4px rgba(78, 205, 196, 0.55));
 }
 .bike-node:hover:not(.taken):not(.selected) .bike-num {
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--teal-primary);
+  background: rgba(78, 205, 196, 0.18);
 }
 
 /* Ocupada */
@@ -1863,7 +1872,8 @@ section { padding: 100px 0; }
   color: rgba(255, 255, 255, 0.12);
 }
 .bike-node.taken .bike-num {
-  color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.2);
 }
 .bike-node.taken .bike-lock {
   color: rgba(255, 255, 255, 0.2);
@@ -1879,7 +1889,8 @@ section { padding: 100px 0; }
   color: rgba(78, 205, 196, 0.7);
 }
 .bike-node.popular .bike-num {
-  color: rgba(78, 205, 196, 0.6);
+  color: var(--teal-primary);
+  background: rgba(78, 205, 196, 0.15);
 }
 .bike-node.popular::before {
   content: '';
@@ -1903,7 +1914,8 @@ section { padding: 100px 0; }
 }
 .bike-node.selected .bike-num {
   color: var(--white);
-  font-size: 10px;
+  background: var(--red-primary);
+  box-shadow: 0 0 8px rgba(225, 6, 0, 0.5);
 }
 /* Anillo exterior expansivo en la bici seleccionada */
 .bike-node.selected::after {
@@ -2445,6 +2457,7 @@ section { padding: 100px 0; }
   gap: 28px;
   max-width: 1140px;
   margin: 0 auto;
+  perspective: 1400px; /* habilita el tilt 3D en las cards hijas */
 }
 
 .price-card {
@@ -2471,9 +2484,16 @@ section { padding: 100px 0; }
 }
 .price-card:hover::before { transform: scaleX(1); }
 .price-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.08);
+  transform: translateY(-10px) rotateX(3deg) rotateY(-2deg);
+  box-shadow:
+    0 30px 60px -10px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(78, 205, 196, 0.08);
   border-color: var(--text-dark);
+}
+/* Card del medio inclina al lado contrario para sentir simetría */
+.price-card.featured:hover { transform: scale(1.04) translateY(-10px) rotateX(3deg); }
+.pricing-grid .price-card:nth-child(3):hover {
+  transform: translateY(-10px) rotateX(3deg) rotateY(2deg);
 }
 
 /* Cabecera: icono + título + descripción */
@@ -2613,7 +2633,7 @@ section { padding: 100px 0; }
   height: 3px;
 }
 .price-card.featured:hover {
-  transform: scale(1.04) translateY(-10px);
+  transform: scale(1.04) translateY(-10px) rotateX(3deg);
   box-shadow:
     0 30px 70px rgba(0, 0, 0, 0.4),
     0 0 80px rgba(78, 205, 196, 0.2);
@@ -3069,11 +3089,17 @@ section { padding: 100px 0; }
   }
   .row-labels span::after { width: 4px; }
   .bike-node {
-    max-width: 48px;
-    padding: 3px;
+    max-width: 50px;
+    padding: 4px;
   }
-  .bike-icon-svg { width: 22px; height: 22px; }
-  .bike-num { font-size: 8px; }
+  .bike-icon-svg { width: 26px; height: 26px; }
+  .bike-num {
+    font-size: 9px;
+    padding: 1px 3px;
+    top: 3px;
+    left: 3px;
+  }
+  .bike-lock { width: 9px; height: 9px; top: 3px; right: 3px; }
   .room-extras { font-size: 10px; }
   .instructor-stage-active { flex-direction: column; gap: 6px; padding: 10px; }
   .avatar-instructor { width: 32px; height: 32px; }
@@ -3488,6 +3514,38 @@ section { padding: 100px 0; }
 
 @media (min-width: 768px) {
   .divider-line { max-width: 360px; height: 2px; }
+}
+
+/* =====================================================
+   MICRO-INTERACTIONS — shimmer en CTA hero
+   ===================================================== */
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate; /* contiene el ::after dentro del border-radius */
+}
+.btn-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 80%
+  );
+  transform: skewX(-22deg);
+  animation: btnShimmer 4.5s ease-out 1.8s infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+@keyframes btnShimmer {
+  0% { left: -100%; }
+  35% { left: 200%; }
+  100% { left: 200%; } /* hold offscreen hasta el siguiente ciclo */
 }
 
 /* =====================================================
