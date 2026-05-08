@@ -42,3 +42,41 @@ export const BIKE_CONFIG = {
   taken: [] as number[],
   popular: [7, 8, 9, 10],
 };
+
+/* ============================================================
+   getTakenBikes — placeholder mientras no hay realtime de Supabase.
+   Genera un set deterministicó de bicis ocupadas a partir de un seed
+   (className + day), para que cada clase tenga su propio patrón pero
+   estable mientras navegas. Cuando se integre la query real, se
+   reemplaza esta función por un fetch a `bookings`.
+   ============================================================ */
+function hashString(s: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+function mulberry32(seed: number) {
+  return function () {
+    let t = (seed += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export function getTakenBikes(seed: string): number[] {
+  if (!seed) return [];
+  const total = BIKE_CONFIG.rows * BIKE_CONFIG.cols;
+  const rng = mulberry32(hashString(seed));
+  // Entre 5 y 11 bicis ocupadas → varía la sensación de disponibilidad
+  const count = 5 + Math.floor(rng() * 7);
+  const taken = new Set<number>();
+  while (taken.size < count) {
+    taken.add(1 + Math.floor(rng() * total));
+  }
+  return Array.from(taken).sort((a, b) => a - b);
+}

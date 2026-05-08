@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { BIKE_CONFIG } from '@/data/schedule';
+import { useState, useMemo } from 'react';
+import { BIKE_CONFIG, getTakenBikes } from '@/data/schedule';
 import { BoltIcon, UserIcon, CalendarIcon, CalendarDaysIcon, AlarmClockIcon, StopwatchIcon, FanIcon } from './Icons';
 
 interface BikeSelectorProps {
@@ -63,15 +63,29 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
   const [tooltipBike, setTooltipBike] = useState<number | null>(null);
   const totalBikes = BIKE_CONFIG.rows * BIKE_CONFIG.cols;
 
+  // Bicis ocupadas: derivadas del slot seleccionado para que cada clase
+  // tenga su propio patrón. Se reemplazará por query a Supabase cuando
+  // tengamos realtime de bookings.
+  const takenBikes = useMemo(() => {
+    if (!selectedSlot) return [] as number[];
+    return getTakenBikes(`${selectedSlot.className}-${selectedSlot.dayName}-${selectedSlot.hour}`);
+  }, [selectedSlot]);
+
+  const availableCount = totalBikes - takenBikes.length;
+
+  // Reset bici si la actual quedó "ocupada" al cambiar de clase
+  if (selectedBike !== null && takenBikes.includes(selectedBike)) {
+    setSelectedBike(null);
+  }
+
   const scrollToHorarios = () => {
     const el = document.getElementById('horarios');
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const handleBikeClick = (num: number) => {
-    if (BIKE_CONFIG.taken.includes(num)) return;
+    if (takenBikes.includes(num)) return;
     setSelectedBike(num);
-    // Si no hay clase seleccionada, guiar al usuario hacia horarios
     if (!selectedSlot) {
       setTimeout(scrollToHorarios, 400);
     }
@@ -84,16 +98,46 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
     }
   };
 
+  // Tooltip por fila — todas las bicis libres reciben contexto
   const getBikeTooltip = (num: number) => {
+    if (takenBikes.includes(num)) return null;
+    const row = Math.ceil(num / BIKE_CONFIG.cols);
     const isPopular = BIKE_CONFIG.popular.includes(num);
-    if (!isPopular) return null;
-    const col = ((num - 1) % BIKE_CONFIG.cols) + 1;
-    if (col === 3 || col === 4) return 'Centro del salón — mejor visibilidad del instructor';
-    return 'Frente del salón — mayor energía';
+    if (row === 1) return 'Fila 1 · Frente al instructor · Más energía';
+    if (row === 2) return isPopular
+      ? 'Fila 2 · Centro · Posición popular ⭐'
+      : 'Fila 2 · Centro · Visibilidad balanceada';
+    if (row === 3) return 'Fila 3 · Distancia cómoda · Buena para empezar';
+    if (row === 4) return 'Fila 4 · Más espacio · Cerca de salida';
+    return null;
   };
+
+  // Estado del step indicator
+  const stepClass = selectedSlot ? 'completed' : 'active';
+  const stepBike = selectedSlot ? (selectedBike ? 'completed' : 'active') : (selectedBike ? 'active' : 'pending');
+  const stepPay = selectedSlot && selectedBike ? 'active' : 'pending';
 
   return (
     <section className="bike-selector" id="reservar">
+      <div className="container">
+        {/* Step indicator del flujo de reserva */}
+        <ol className="step-indicator" aria-label="Pasos de la reserva">
+          <li className={`step step-${stepClass}`}>
+            <span className="step-num">1</span>
+            <span className="step-label">Clase</span>
+          </li>
+          <li className="step-line" aria-hidden="true"></li>
+          <li className={`step step-${stepBike}`}>
+            <span className="step-num">2</span>
+            <span className="step-label">Bici</span>
+          </li>
+          <li className="step-line" aria-hidden="true"></li>
+          <li className={`step step-${stepPay}`}>
+            <span className="step-num">3</span>
+            <span className="step-label">Pago</span>
+          </li>
+        </ol>
+      </div>
       <div className="container bike-layout">
         <div className="bike-info">
           <span className="eyebrow">Selecciona tu lugar</span>
@@ -125,6 +169,14 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
                       <span className="tag-popular">Posición popular</span>
                     )}
                   </p>
+                  <button
+                    type="button"
+                    className="change-bike-btn"
+                    onClick={() => setSelectedBike(null)}
+                    aria-label="Cambiar selección de bici"
+                  >
+                    Cambiar bici
+                  </button>
                 </div>
                 <div className="summary-next-step">
                   <p>Ahora elige tu clase para completar la reserva</p>
@@ -148,13 +200,21 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
                   </div>
-                  <h4>Has seleccionado la bicicleta #{String(selectedBike).padStart(2, '0')}</h4>
+                  <h4>Bicicleta #{String(selectedBike).padStart(2, '0')} seleccionada</h4>
                   <p className="summary-position">
                     Fila {Math.ceil(selectedBike / BIKE_CONFIG.cols)}
                     {BIKE_CONFIG.popular.includes(selectedBike) && (
                       <span className="tag-popular">· Posición popular</span>
                     )}
                   </p>
+                  <button
+                    type="button"
+                    className="change-bike-btn"
+                    onClick={() => setSelectedBike(null)}
+                    aria-label="Cambiar selección de bici"
+                  >
+                    Cambiar bici
+                  </button>
                 </div>
                 <div className="summary-class-block">
                   <p className="class-detail-line">
@@ -235,6 +295,20 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
             </div>
           )}
 
+          {/* Counter de disponibilidad */}
+          {selectedSlot && (
+            <div className={`availability-counter ${availableCount <= 5 ? 'low' : ''}`}>
+              <span className="availability-dot" aria-hidden="true"></span>
+              <strong>{availableCount}</strong> de {totalBikes} disponibles
+              {availableCount <= 5 && <span className="availability-warn">¡Pocos lugares!</span>}
+            </div>
+          )}
+
+          {/* Indicador de orientación: frente */}
+          <div className="room-orientation room-orientation-front" aria-hidden="true">
+            <span className="orientation-arrow">↑</span> Frente
+          </div>
+
           {/* Arc grid de bicis con labels de fila */}
           <div className="bike-grid-wrap">
             <div className="row-labels" aria-hidden="true">
@@ -245,7 +319,7 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
             </div>
             <div className="bike-grid">
             {Array.from({ length: totalBikes }, (_, i) => i + 1).map((num) => {
-              const taken = BIKE_CONFIG.taken.includes(num);
+              const taken = takenBikes.includes(num);
               const popular = BIKE_CONFIG.popular.includes(num);
               const selected = selectedBike === num;
               const tooltip = getBikeTooltip(num);
@@ -287,6 +361,12 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
             })}
             </div>
           </div>
+
+          {/* Indicador de orientación: fondo */}
+          <div className="room-orientation room-orientation-back" aria-hidden="true">
+            <span className="orientation-arrow">↓</span> Fondo · Salida
+          </div>
+
           <div className="room-extras">
             <span className="extra fan-left"><FanIcon /> ventilador</span>
             <span className="extra fan-right"><FanIcon /> ventilador</span>

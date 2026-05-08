@@ -61,7 +61,8 @@ export default function Pricing() {
           <article className="price-card">
             <div className="price-head">
               <div className="price-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18.178 8c5.096 0 5.096 8 0 8-5.095 0-7.133-8-12.739-8-4.585 0-4.585 8 0 8 5.606 0 7.644-8 12.74-8z" /></svg>
+                {/* Crown icon — denota plan premium / acceso ilimitado */}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18h18l-1.5-9-4.5 4-3-6-3 6-4.5-4L3 18z"/><path d="M3 22h18"/></svg>
               </div>
               <div>
                 <h3>Mensualidad</h3>

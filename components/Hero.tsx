@@ -1,8 +1,51 @@
-import { useCounterOnView } from '@/hooks/useCounterOnView';
+'use client';
+
+import { useEffect, useState } from 'react';
 import { ArrowRight, PlayIcon } from './Icons';
+import { weekdaySlots, saturdaySlots, ScheduleSlot } from '@/data/schedule';
+
+function slotTo24h(s: ScheduleSlot): number {
+  const [h, m] = s.hour.split(':').map(Number);
+  if (s.period === 'PM' && h !== 12) return h + 12 + m / 60;
+  if (s.period === 'AM' && h === 12) return m / 60;
+  return h + m / 60;
+}
+
+/* Próxima clase relativa a "ahora": hoy si quedan, sino primera de mañana */
+function getNextClass(): { slot: ScheduleSlot; whenLabel: string } | null {
+  const now = new Date();
+  const dow = now.getDay();
+  const isSaturday = dow === 6;
+  const isSunday = dow === 0;
+
+  const todaySlots = isSaturday ? saturdaySlots : isSunday ? [] : weekdaySlots;
+  const currentH = now.getHours() + now.getMinutes() / 60;
+  const remainingToday = todaySlots
+    .filter((s) => slotTo24h(s) > currentH)
+    .sort((a, b) => slotTo24h(a) - slotTo24h(b));
+
+  if (remainingToday.length > 0) {
+    return { slot: remainingToday[0], whenLabel: 'Hoy' };
+  }
+
+  // Sin clases hoy: tomar la primera del próximo día con slots
+  const nextDow = (dow + 1) % 7;
+  const nextSlots = nextDow === 6 ? saturdaySlots : nextDow === 0 ? [] : weekdaySlots;
+  if (nextSlots.length > 0) {
+    return { slot: nextSlots[0], whenLabel: 'Mañana' };
+  }
+  return null;
+}
 
 export default function Hero() {
-  const kmCounter = useCounterOnView(12450);
+  const [nextClass, setNextClass] = useState<ReturnType<typeof getNextClass>>(null);
+
+  useEffect(() => {
+    setNextClass(getNextClass());
+    // Re-evaluar cada minuto para que cambie cuando pase la siguiente clase
+    const t = setInterval(() => setNextClass(getNextClass()), 60_000);
+    return () => clearInterval(t);
+  }, []);
 
   return (
     <header className="hero">
@@ -43,9 +86,9 @@ export default function Hero() {
               </div>
             </div>
             <div className="proof-text">
-              <span className="km-number" ref={kmCounter.ref as React.RefObject<HTMLElement>}>{kmCounter.value}</span>
-              <span className="km-unit">km pedaleados</span>
-              <span className="km-label">esta semana por <strong>nuestra comunidad</strong></span>
+              <span className="km-eyebrow">Próximamente en Chihuahua</span>
+              <span className="km-headline">Sé parte del <strong>primer ride</strong></span>
+              <span className="km-label">Reserva tu lugar antes de que abran las puertas</span>
             </div>
           </div>
         </div>
@@ -54,26 +97,40 @@ export default function Hero() {
           <div className="hero-card">
             <div className="hero-card-bg"></div>
             <div className="hero-card-content">
-              <span className="badge badge-live">● PRÓXIMA CLASE</span>
-              <h3>Sunset Sprint</h3>
-              <p>Con Lucia Frescas · 60 min · 18:00</p>
+              {nextClass ? (
+                <>
+                  <span className="badge badge-live">● PRÓXIMA CLASE · {nextClass.whenLabel}</span>
+                  <h3>{nextClass.slot.className}</h3>
+                  <p>Con {nextClass.slot.instructorName} · {nextClass.slot.duration} · {nextClass.slot.hour} {nextClass.slot.period}</p>
+                </>
+              ) : (
+                <>
+                  <span className="badge badge-live">● ESTA SEMANA</span>
+                  <h3>Reserva tu primer ride</h3>
+                  <p>Lun a Sáb · 6 instructores · 32 clases por semana</p>
+                </>
+              )}
+              {/* Mini grid 6×3: matchea el ancho del salón real (6 cols), versión compacta */}
               <div className="bike-preview">
                 <div className="bike-row">
-                  <span className="bike taken"></span><span className="bike taken"></span>
-                  <span className="bike free"></span><span className="bike free"></span><span className="bike taken"></span>
+                  <span className="bike free"></span><span className="bike taken"></span>
+                  <span className="bike free"></span><span className="bike free"></span>
+                  <span className="bike taken"></span><span className="bike free"></span>
                 </div>
                 <div className="bike-row">
-                  <span className="bike taken"></span><span className="bike selected"></span>
-                  <span className="bike free"></span><span className="bike taken"></span><span className="bike free"></span>
+                  <span className="bike taken"></span><span className="bike free"></span>
+                  <span className="bike selected"></span><span className="bike free"></span>
+                  <span className="bike free"></span><span className="bike taken"></span>
                 </div>
                 <div className="bike-row">
                   <span className="bike free"></span><span className="bike taken"></span>
-                  <span className="bike taken"></span><span className="bike free"></span><span className="bike free"></span>
+                  <span className="bike free"></span><span className="bike free"></span>
+                  <span className="bike taken"></span><span className="bike free"></span>
                 </div>
               </div>
               <div className="hero-card-footer">
-                <span>Bike #07 · Fila 2</span>
-                <strong>$220 MXN</strong>
+                <span>Bike #08 · Fila 2 centro</span>
+                <strong>{nextClass ? nextClass.slot.price : '$220'} MXN</strong>
               </div>
             </div>
           </div>

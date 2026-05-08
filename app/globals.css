@@ -548,36 +548,37 @@ button:focus:not(:focus-visible) {
   line-height: 1.5;
   text-align: left;
 }
-.proof-text .km-number {
-  color: var(--red);
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: 32px;
+.proof-text .km-eyebrow {
   display: block;
+  color: var(--teal-primary);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
   line-height: 1;
-  letter-spacing: -1px;
-  animation: counterPop 0.8s ease both;
-  text-shadow: 0 0 30px rgba(225, 6, 0, 0.3);
 }
-.proof-text .km-unit {
+.proof-text .km-headline {
+  display: block;
   color: var(--white);
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 16px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  display: block;
-  margin-top: 2px;
+  font-size: 22px;
+  letter-spacing: -0.3px;
+  line-height: 1.15;
+  margin-top: 8px;
+}
+.proof-text .km-headline strong {
+  color: var(--red-primary);
+  font-weight: 900;
+  text-shadow: 0 0 20px rgba(225, 6, 0, 0.35);
 }
 .proof-text .km-label {
   color: rgba(255, 255, 255, 0.6);
   font-size: 13px;
   display: block;
   margin-top: 6px;
-}
-.proof-text .km-label strong {
-  color: rgba(255, 255, 255, 0.85);
-  font-weight: 600;
+  line-height: 1.4;
 }
 @keyframes counterPop {
   0% { transform: scale(0.85); filter: blur(4px); opacity: 0; }
@@ -3005,12 +3006,11 @@ section { padding: 100px 0; }
   .hero-ctas { flex-direction: column; gap: 10px; margin-bottom: 32px; }
   .hero-ctas .btn { width: 100%; justify-content: center; padding: 14px 20px; }
   .hero-proof { flex-direction: row; gap: 12px; align-items: center; justify-content: center; }
+  .proof-text { text-align: left; }
+  .proof-text .km-headline { font-size: 18px; }
+  .proof-text .km-eyebrow { font-size: 10px; letter-spacing: 2px; }
   .hero-bike-visual { max-width: 180px; }
   .proof-text { text-align: center; }
-  .proof-text .km-number { font-size: 28px; }
-  .proof-text .km-unit { font-size: 14px; }
-  .proof-text strong { font-size: 20px; }
-  .proof-text span { font-size: 14px; }
   .hero-visual { max-width: 280px; }
   .hero-card { padding: 20px; border-radius: 18px; }
 
@@ -3181,9 +3181,7 @@ section { padding: 100px 0; }
   .hero-visual svg { max-width: 260px; }
   .hero-proof { flex-direction: column; gap: 8px; }
   .hero-bike-visual { max-width: 220px; }
-  .proof-text strong { font-size: 18px; }
-  .proof-text .km-number { font-size: 24px; }
-  .proof-text .km-unit { font-size: 13px; }
+  .proof-text .km-headline { font-size: 16px; }
   .stat-value { font-size: 30px; }
   .stat-label { font-size: 12px; }
 
@@ -3516,6 +3514,184 @@ section { padding: 100px 0; }
 
 @media (min-width: 768px) {
   .divider-line { max-width: 360px; height: 2px; }
+}
+
+/* =====================================================
+   BIKE SELECTOR — UX additions (step indicator, counter,
+   orientación, change-bike button)
+   ===================================================== */
+
+/* ---- Step indicator ---- */
+.step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  list-style: none;
+  margin: 0 auto 36px;
+  padding: 12px 20px;
+  max-width: fit-content;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+}
+.step {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: rgba(255, 255, 255, 0.4);
+  transition: color 0.25s ease;
+  list-style: none;
+}
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 11px;
+  font-weight: 800;
+  transition: all 0.25s ease;
+}
+.step-active { color: var(--white); }
+.step-active .step-num {
+  background: var(--red-primary);
+  border-color: var(--red-primary);
+  color: var(--white);
+  box-shadow: 0 0 12px rgba(225, 6, 0, 0.45);
+}
+.step-completed { color: var(--teal-primary); }
+.step-completed .step-num {
+  background: var(--teal-primary);
+  border-color: var(--teal-primary);
+  color: var(--black);
+  font-size: 0;
+}
+.step-completed .step-num::after {
+  content: '✓';
+  font-size: 13px;
+  font-weight: 800;
+}
+.step-line {
+  width: 32px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+  list-style: none;
+}
+
+/* ---- Availability counter ---- */
+.availability-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto 16px;
+  padding: 8px 16px;
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  border-radius: 999px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+.availability-counter strong {
+  color: var(--white);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 15px;
+}
+.availability-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22C55E;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.7);
+  animation: pulseDot 2s ease-in-out infinite;
+}
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+.availability-counter.low {
+  background: rgba(225, 6, 0, 0.15);
+  border-color: rgba(225, 6, 0, 0.4);
+}
+.availability-counter.low .availability-dot {
+  background: var(--red-primary);
+  box-shadow: 0 0 10px rgba(225, 6, 0, 0.7);
+}
+.availability-warn {
+  font-weight: 700;
+  color: #FF6B6B;
+  font-size: 12px;
+  margin-left: 4px;
+  letter-spacing: 0.3px;
+}
+
+/* ---- Room orientation labels (Frente / Fondo) ---- */
+.room-orientation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.32);
+  text-transform: uppercase;
+  margin: 8px 0;
+}
+.room-orientation-front { color: rgba(78, 205, 196, 0.5); }
+.orientation-arrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+/* ---- Cambiar bici ---- */
+.change-bike-btn {
+  margin-top: 8px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.3px;
+}
+.change-bike-btn:hover {
+  border-color: rgba(78, 205, 196, 0.5);
+  color: var(--teal-primary);
+  background: rgba(78, 205, 196, 0.08);
+}
+.change-bike-btn::before {
+  content: '✕  ';
+  opacity: 0.6;
+  font-size: 10px;
+}
+
+/* ---- Mobile ---- */
+@media (max-width: 640px) {
+  .step-indicator { gap: 6px; padding: 8px 12px; }
+  .step-label { font-size: 11px; }
+  .step-num { width: 20px; height: 20px; font-size: 10px; }
+  .step-line { width: 16px; }
+  .availability-counter { font-size: 12px; padding: 6px 12px; }
+  .availability-counter strong { font-size: 13px; }
+  .room-orientation { font-size: 9px; letter-spacing: 1.5px; }
 }
 
 /* =====================================================
