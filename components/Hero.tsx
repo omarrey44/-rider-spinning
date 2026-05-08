@@ -69,7 +69,6 @@ export default function Hero() {
 
           <div className="hero-ctas hero-anim-in delay-5">
             <a href="#horarios" className="btn btn-primary btn-lg btn-shimmer">Reservar Clase <ArrowRight /></a>
-            <a href="#instructores" className="btn btn-ghost btn-lg">Conocer instructores</a>
           </div>
 
           <div className="hero-proof hero-anim-in delay-6">
