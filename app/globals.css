@@ -1441,10 +1441,57 @@ section { padding: 100px 0; }
   padding: 24px;
   min-height: 120px;
 }
+/* Cuando el summary está vacío (sin bici seleccionada), quitamos la caja
+   y mostramos un hint flotante elegante en lugar de un "textarea" vacío. */
+.bike-summary:has(.summary-empty) {
+  background: transparent;
+  border: none;
+  padding: 8px 0;
+  min-height: 0;
+}
 .summary-empty {
-  color: var(--text-light);
-  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
   font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.2px;
+  margin: 0;
+  padding: 0;
+}
+.summary-empty::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--teal-primary);
+  box-shadow:
+    0 0 0 4px rgba(78, 205, 196, 0.18),
+    0 0 14px rgba(78, 205, 196, 0.55);
+  animation: emptyHintPulse 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.summary-empty::after {
+  content: '→';
+  margin-left: 2px;
+  color: var(--teal-primary);
+  font-weight: 700;
+  font-size: 16px;
+  animation: emptyHintNudge 1.6s ease-in-out infinite;
+  opacity: 0.85;
+}
+@keyframes emptyHintPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.18), 0 0 14px rgba(78, 205, 196, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(78, 205, 196, 0.05), 0 0 22px rgba(78, 205, 196, 0.7);
+  }
+}
+@keyframes emptyHintNudge {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(5px); }
 }
 .summary-detail {
   display: flex;
