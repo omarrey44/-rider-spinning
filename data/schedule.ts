@@ -68,11 +68,24 @@ function mulberry32(seed: number) {
   };
 }
 
-export function getTakenBikes(seed: string): number[] {
+export function getTakenBikes(_seed: string): number[] {
+  // Pre-launch: el negocio aún no opera, no hay bookings reales.
+  // Todas las bicis disponibles para no inflar artificialmente el "ocupado".
+  // Cuando se conecte Supabase realtime, esta función pasa a hacer:
+  //   const { data } = await supabase.from('bookings')
+  //     .select('bike_number')
+  //     .eq('class_title', ...).eq('day', ...).eq('hour', ...)
+  //     .in('status', ['pending','confirmed']);
+  //   return data.map(b => b.bike_number);
+  return [];
+}
+
+// Helper interno preservado por si quieres reactivar el modo "demo" en
+// algún branch promocional (todas las clases con bikes ocupadas pseudo-random).
+function _generateDemoTakenBikes(seed: string): number[] {
   if (!seed) return [];
   const total = BIKE_CONFIG.rows * BIKE_CONFIG.cols;
   const rng = mulberry32(hashString(seed));
-  // Entre 5 y 11 bicis ocupadas → varía la sensación de disponibilidad
   const count = 5 + Math.floor(rng() * 7);
   const taken = new Set<number>();
   while (taken.size < count) {
@@ -80,3 +93,4 @@ export function getTakenBikes(seed: string): number[] {
   }
   return Array.from(taken).sort((a, b) => a - b);
 }
+void _generateDemoTakenBikes; // keep referenced
