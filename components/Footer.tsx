@@ -4,7 +4,7 @@ export default function Footer() {
       <div className="container footer-grid">
         <div className="footer-brand">
           <a href="#" className="logo logo-light">
-            <img src="/logo2.png" alt="Rideon Spinning Studio" className="logo-img" />
+            <img src="/logo2.webp" alt="Rideon Spinning Studio" className="logo-img" />
           </a>
           <p>Spinning Studio · Chihuahua</p>
           <p className="muted">Av. Ejemplo 123, Col. Centro<br />Lun–Sáb · 06:00 – 21:00</p>
@@ -19,9 +19,15 @@ export default function Footer() {
 
         <div className="footer-col">
           <h4>Soporte</h4>
-          <a href="#">Política de cancelación</a>
-          <a href="#">Preguntas frecuentes</a>
-          <a href="#">Contacto</a>
+          <a href="/politica-de-cancelacion">Política de cancelación</a>
+          <a href="/#faq">Preguntas frecuentes</a>
+          <a href="https://wa.me/526562929700" target="_blank" rel="noopener noreferrer">Contacto</a>
+        </div>
+
+        <div className="footer-col">
+          <h4>Legal</h4>
+          <a href="/terminos">Términos y condiciones</a>
+          <a href="/privacidad">Aviso de privacidad</a>
         </div>
 
         <div className="footer-col">

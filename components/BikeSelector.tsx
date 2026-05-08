@@ -292,6 +292,13 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
                   <span className="class-info-value">{selectedSlot.duration}</span>
                 </div>
               </div>
+              <div className="class-info-divider"></div>
+              <div className="class-info-item class-info-item--price">
+                <div>
+                  <span className="class-info-label">Precio</span>
+                  <span className="class-info-value">{selectedSlot.price} <small>MXN</small></span>
+                </div>
+              </div>
             </div>
           )}
 
@@ -373,6 +380,26 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
           </div>
         </div>
       </div>
+
+      {/* Sticky CTA bar para mobile cuando ya se eligió clase + bici */}
+      {selectedSlot && selectedBike !== null && (
+        <div className="sticky-checkout-bar" role="region" aria-label="Tu reserva">
+          <div className="sticky-checkout-info">
+            <span className="sticky-bike">#{String(selectedBike).padStart(2, '0')}</span>
+            <div className="sticky-text">
+              <span className="sticky-class">{selectedSlot.className}</span>
+              <span className="sticky-meta">{selectedSlot.hour} {selectedSlot.period} · {selectedSlot.price}</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="btn btn-primary sticky-checkout-cta"
+            onClick={handleCheckout}
+          >
+            Continuar
+          </button>
+        </div>
+      )}
     </section>
   );
 }

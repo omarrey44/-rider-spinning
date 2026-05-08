@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArrowRight, PlayIcon } from './Icons';
+import { ArrowRight } from './Icons';
 import { weekdaySlots, saturdaySlots, ScheduleSlot } from '@/data/schedule';
 
 function slotTo24h(s: ScheduleSlot): number {
@@ -69,9 +69,7 @@ export default function Hero() {
 
           <div className="hero-ctas hero-anim-in delay-5">
             <a href="#horarios" className="btn btn-primary btn-lg btn-shimmer">Reservar Clase <ArrowRight /></a>
-            <button className="btn btn-ghost btn-lg" type="button">
-              <span className="play-icon"><PlayIcon /></span>Ver Video
-            </button>
+            <a href="#instructores" className="btn btn-ghost btn-lg">Conocer instructores</a>
           </div>
 
           <div className="hero-proof hero-anim-in delay-6">

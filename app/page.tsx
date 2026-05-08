@@ -9,6 +9,7 @@ import Schedule from '@/components/Schedule';
 import BikeSelector from '@/components/BikeSelector';
 import Instructors from '@/components/Instructors';
 import Pricing from '@/components/Pricing';
+import FAQ from '@/components/FAQ';
 import FindBooking from '@/components/FindBooking';
 import Footer from '@/components/Footer';
 import SmoothScroll from '@/components/SmoothScroll';
@@ -131,6 +132,7 @@ export default function Home() {
         /></RevealSection>
         <RevealSection delay={100}><Instructors /></RevealSection>
         <RevealSection delay={150}><Pricing /></RevealSection>
+        <RevealSection delay={100}><FAQ /></RevealSection>
         <RevealSection delay={100}><FindBooking /></RevealSection>
 
         <RevealSection delay={100}>
@@ -138,9 +140,8 @@ export default function Home() {
           <div className="container cta-inner">
             <h2>¿Listo para tu primer ride?</h2>
             <p>
-              Tu primera clase tiene{' '}
-              <span className="text-red">50% de descuento</span>. Solo para
-              nuevos riders.
+              Sé de los <span className="text-red">primeros riders</span> en
+              Chihuahua. Reserva tu lugar antes de que abramos.
             </p>
             <a href="#horarios" className="btn btn-primary btn-lg">
               Empezar ahora

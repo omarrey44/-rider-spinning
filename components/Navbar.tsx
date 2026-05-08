@@ -50,7 +50,7 @@ export default function Navbar() {
       <nav className={`navbar ${navbarScrolled ? 'scrolled' : ''}`} role="navigation" aria-label="Navegación principal">
         <div className="container nav-inner">
           <a href="#" className="logo" onClick={() => setMobileOpen(false)}>
-            <img src="/logo2.png" alt="Rideon Spinning Studio" className="logo-img" />
+            <img src="/logo2.webp" alt="Rideon Spinning Studio" className="logo-img" />
           </a>
 
           <ul className="nav-links">

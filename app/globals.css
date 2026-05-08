@@ -922,7 +922,7 @@ section { padding: 100px 0; }
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url('/bike-bg.png');
+  background-image: url('/bike-bg.webp');
   background-size: cover;
   background-position: center left;
   background-repeat: no-repeat;
@@ -1697,6 +1697,18 @@ section { padding: 100px 0; }
   color: var(--teal-primary);
 }
 .class-info-icon svg { width: 18px; height: 18px; }
+.class-info-item--price .class-info-value {
+  color: var(--white);
+  font-weight: 800;
+  font-size: 16px;
+}
+.class-info-item--price .class-info-value small {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 9px;
+  font-weight: 600;
+  margin-left: 2px;
+  letter-spacing: 0.5px;
+}
 .class-info-item > div {
   display: flex;
   flex-direction: column;
@@ -2739,8 +2751,8 @@ section { padding: 100px 0; }
 }
 .footer-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 48px;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr;
+  gap: 36px;
   margin-bottom: 48px;
 }
 .footer-brand .logo { color: var(--white); margin-bottom: 16px; display: inline-flex; }
@@ -3034,7 +3046,7 @@ section { padding: 100px 0; }
   .hero-card { padding: 20px; border-radius: 18px; }
 
   /* How it works — mobile bg swap */
-  .how::before { background-image: url('/bikeMovil.png'); opacity: 1; background-position: center bottom; background-size: contain; }
+  .how::before { background-image: url('/bikeMovil.webp'); opacity: 1; background-position: center bottom; background-size: contain; }
 
   .stat-value { font-size: 36px; }
   .stat-label { font-size: 13px; }
@@ -3744,6 +3756,309 @@ section { padding: 100px 0; }
   0% { left: -100%; }
   35% { left: 200%; }
   100% { left: 200%; } /* hold offscreen hasta el siguiente ciclo */
+}
+
+/* =====================================================
+   STICKY CHECKOUT BAR (mobile only)
+   Aparece cuando ya hay clase + bici seleccionadas
+   ===================================================== */
+.sticky-checkout-bar {
+  display: none;
+}
+@media (max-width: 768px) {
+  .sticky-checkout-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 90;
+    background: rgba(10, 10, 10, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(78, 205, 196, 0.25);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
+    animation: stickyBarSlideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+@keyframes stickyBarSlideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+.sticky-checkout-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+.sticky-bike {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--red-primary);
+  color: var(--white);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 13px;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(225, 6, 0, 0.45);
+}
+.sticky-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.sticky-class {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--white);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+.sticky-meta {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 2px;
+  letter-spacing: 0.2px;
+}
+.sticky-checkout-cta {
+  padding: 12px 22px !important;
+  font-size: 14px !important;
+  flex-shrink: 0;
+}
+
+/* Cuando la sticky bar está visible, dar padding-bottom al body para no
+   tapar el footer/contenido al final */
+@media (max-width: 768px) {
+  body:has(.sticky-checkout-bar) {
+    padding-bottom: 76px;
+  }
+}
+
+/* =====================================================
+   FAQ — sección de preguntas frecuentes
+   ===================================================== */
+.faq {
+  background: var(--white);
+  padding: 90px 0;
+}
+.faq .section-head { margin-bottom: 48px; }
+.faq .eyebrow { color: var(--teal-dark); }
+.faq .text-red { color: var(--teal-dark); }
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  background: var(--white);
+  border: 1px solid var(--gray-mid);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.faq-item:hover {
+  border-color: rgba(78, 205, 196, 0.4);
+}
+.faq-item.open {
+  border-color: var(--teal-dark);
+  box-shadow: 0 8px 24px rgba(20, 20, 20, 0.06);
+}
+
+.faq-trigger {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 22px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-body);
+}
+.faq-question {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text-dark);
+  letter-spacing: -0.1px;
+  flex: 1;
+  line-height: 1.3;
+}
+.faq-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--gray-soft);
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: transform 0.3s ease, background 0.25s ease, color 0.25s ease;
+}
+.faq-item.open .faq-chevron {
+  transform: rotate(180deg);
+  background: var(--teal-soft);
+  color: var(--teal-dark);
+}
+
+.faq-answer {
+  padding: 0 22px 20px 22px;
+  animation: faqFade 0.3s ease;
+}
+.faq-answer p {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-muted);
+  margin: 0;
+}
+@keyframes faqFade {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.faq-cta {
+  text-align: center;
+  margin-top: 36px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.faq-cta a {
+  color: var(--teal-dark);
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  padding-bottom: 1px;
+  transition: border-color 0.2s ease;
+}
+.faq-cta a:hover {
+  border-color: var(--teal-dark);
+}
+
+@media (max-width: 640px) {
+  .faq { padding: 60px 0; }
+  .faq-trigger { padding: 16px 18px; }
+  .faq-question { font-size: 14px; }
+  .faq-answer { padding: 0 18px 18px; }
+  .faq-answer p { font-size: 13px; }
+}
+
+/* =====================================================
+   LEGAL PAGES (términos / privacidad / cancelación)
+   ===================================================== */
+.legal-page {
+  background: #0a0a0a;
+  color: rgba(255, 255, 255, 0.85);
+  min-height: 100vh;
+  padding: 100px 0 80px;
+}
+.legal-container {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.legal-back {
+  display: inline-block;
+  font-size: 13px;
+  color: var(--teal-primary);
+  margin-bottom: 32px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: color 0.2s ease;
+}
+.legal-back:hover { color: var(--white); }
+.legal-page h1 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(32px, 5vw, 48px);
+  letter-spacing: -1px;
+  color: var(--white);
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+.legal-meta {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.45);
+  margin-bottom: 48px;
+  font-style: italic;
+}
+.legal-page section {
+  margin-bottom: 36px;
+}
+.legal-page section:last-child {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 28px;
+}
+.legal-page h2 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--white);
+  margin-bottom: 12px;
+  letter-spacing: -0.2px;
+}
+.legal-page h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--teal-primary);
+  margin-top: 16px;
+  margin-bottom: 8px;
+  letter-spacing: 0.3px;
+}
+.legal-page p {
+  font-size: 15px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 12px;
+}
+.legal-page ul {
+  list-style: none;
+  margin-bottom: 12px;
+  padding-left: 0;
+}
+.legal-page ul li {
+  font-size: 15px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.75);
+  padding-left: 20px;
+  position: relative;
+  margin-bottom: 6px;
+}
+.legal-page ul li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--teal-primary);
+  font-weight: 700;
+}
+.legal-page a {
+  color: var(--teal-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s ease;
+}
+.legal-page a:hover { color: var(--white); }
+.legal-page strong {
+  color: var(--white);
+  font-weight: 700;
 }
 
 /* =====================================================
