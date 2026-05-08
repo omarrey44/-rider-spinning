@@ -21,7 +21,7 @@ export default function Hero() {
             <span className="title-line"><span className="hero-anim-in delay-3">Llega</span> <span className="text-red hero-anim-in delay-4">Lejos</span></span>
           </h1>
           <p className="hero-sub hero-anim-in delay-4">
-            Clases de spinning de alta intensidad en una sala diseñada para empujarte al siguiente nivel. Reserva tu bici, elige tu lugar y prepárate para sudar.
+            Spinning de alta intensidad. Reserva tu bici, elige tu lugar y prepárate para sudar.
           </p>
 
           <div className="hero-ctas hero-anim-in delay-5">

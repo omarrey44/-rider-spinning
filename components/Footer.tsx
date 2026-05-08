@@ -42,7 +42,7 @@ export default function Footer() {
 
       <div className="footer-bottom">
         <span>© 2026 Rideon Spinning Studio. Todos los derechos reservados.</span>
-        <span>Hecho con sudor y rojo.</span>
+        <span>Pedalea con propósito · Chihuahua</span>
       </div>
     </footer>
   );

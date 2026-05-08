@@ -80,7 +80,7 @@ export default function Home() {
     const target = new Date(today);
     target.setDate(today.getDate() + mondayOffset + (offsets[dayKey] ?? 0));
     if (target < today) target.setDate(target.getDate() + 7);
-    return target.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+    return target.toLocaleDateString('es-MX', { day: 'numeric', month: 'long' });
   };
 
   const getFullDateTime = (dayKey: DayKey): string => {

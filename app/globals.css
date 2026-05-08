@@ -45,14 +45,15 @@
   --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.08);
   --shadow-red: 0 8px 25px rgba(225, 6, 0, 0.35);
 
-  /* === Class Type Accents === */
-  --accent-fire: #FF6B35;
-  --accent-endurance: #E10600;
-  --accent-rhythm: #9B59B6;
-  --accent-hiit: #3498DB;
-  --accent-climb: #2ECC71;
-  --accent-power: #F39C12;
-  --accent-recovery: #1ABC9C;
+  /* === Class Type Accents — un color por clase, identidad propia === */
+  --accent-sunrise:   #FF9A3C;  /* amanecer */
+  --accent-power:     #F39C12;  /* energía amarilla */
+  --accent-energy:    #FFC93C;  /* boost amarillo claro */
+  --accent-afterwork: #9B59B6;  /* sunset suave */
+  --accent-sunset:    #E74C3C;  /* naranja-rojo */
+  --accent-night:     #5D3FD3;  /* azul nocturno */
+  --accent-sweat:     #1ABC9C;  /* turquesa fuerte */
+  --accent-marathon:  #2ECC71;  /* verde resistencia */
 }
 
 /* ===== Reset ===== */
@@ -1276,13 +1277,14 @@ section { padding: 100px 0; }
   color: var(--white);
 }
 
-.class-type-tag--fire { background: var(--accent-fire); }
-.class-type-tag--endurance { background: var(--accent-endurance); }
-.class-type-tag--rhythm { background: var(--accent-rhythm); }
-.class-type-tag--hiit { background: var(--accent-hiit); }
-.class-type-tag--climb { background: var(--accent-climb); }
-.class-type-tag--power { background: var(--accent-power); }
-.class-type-tag--recovery { background: var(--accent-recovery); }
+.class-type-tag--sunrise   { background: var(--accent-sunrise); }
+.class-type-tag--power     { background: var(--accent-power); }
+.class-type-tag--energy    { background: var(--accent-energy);    color: var(--text-dark); }
+.class-type-tag--afterwork { background: var(--accent-afterwork); }
+.class-type-tag--sunset    { background: var(--accent-sunset); }
+.class-type-tag--night     { background: var(--accent-night); }
+.class-type-tag--sweat     { background: var(--accent-sweat); }
+.class-type-tag--marathon  { background: var(--accent-marathon); }
 
 /* Columna 4: Status + price + CTA pill */
 .slot-side {

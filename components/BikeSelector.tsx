@@ -97,7 +97,7 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
       <div className="container bike-layout">
         <div className="bike-info">
           <span className="eyebrow">Selecciona tu lugar</span>
-          <h2>Tu bici, <span className="text-red">tu posición.</span></h2>
+          <h2>Tu bici, <span className="text-red">tu posición</span></h2>
           <p>Vista del salón en tiempo real. Las primeras filas tienen mejor visibilidad del instructor; las laterales reciben más aire.</p>
 
           <ul className="bike-legend">
@@ -210,18 +210,10 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
           {selectedSlot && (
             <div className="class-info-banner">
               <div className="class-info-item">
-                <span className="class-info-icon"><CalendarIcon /></span>
-                <div>
-                  <span className="class-info-label">Día</span>
-                  <span className="class-info-value">{selectedSlot.dayName}</span>
-                </div>
-              </div>
-              <div className="class-info-divider"></div>
-              <div className="class-info-item">
                 <span className="class-info-icon"><CalendarDaysIcon /></span>
                 <div>
-                  <span className="class-info-label">Fecha</span>
-                  <span className="class-info-value">{selectedSlot.date}</span>
+                  <span className="class-info-label">Día</span>
+                  <span className="class-info-value">{selectedSlot.dayName} · {selectedSlot.date}</span>
                 </div>
               </div>
               <div className="class-info-divider"></div>
