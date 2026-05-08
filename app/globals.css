@@ -480,19 +480,14 @@ button:focus:not(:focus-visible) {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 28px;
-  max-width: 620px;
+  gap: 36px;
+  max-width: 760px;
   width: 100%;
-  padding: 20px 26px;
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
+  /* Sin fondo: bici y texto son elementos separados, no una "tarjeta" */
 }
 .hero-bike-visual {
   position: relative;
-  width: 200px;
+  width: 320px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -566,26 +561,23 @@ button:focus:not(:focus-visible) {
 .proof-text .km-eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   color: var(--teal-primary);
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 10px;
-  letter-spacing: 2.5px;
+  font-size: 11px;
+  letter-spacing: 2.8px;
   text-transform: uppercase;
   line-height: 1;
-  padding: 4px 10px;
-  background: rgba(78, 205, 196, 0.12);
-  border: 1px solid rgba(78, 205, 196, 0.25);
-  border-radius: 999px;
+  margin-bottom: 14px;
 }
 .proof-text .km-eyebrow::before {
   content: '';
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--teal-primary);
-  box-shadow: 0 0 8px rgba(78, 205, 196, 0.7);
+  box-shadow: 0 0 10px rgba(78, 205, 196, 0.7);
   animation: pulseDot 2s ease-in-out infinite;
 }
 .proof-text .km-headline {
@@ -593,10 +585,9 @@ button:focus:not(:focus-visible) {
   color: var(--white);
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 18px;
-  letter-spacing: -0.2px;
-  line-height: 1.2;
-  margin-top: 10px;
+  font-size: 22px;
+  letter-spacing: -0.4px;
+  line-height: 1.15;
 }
 .proof-text .km-headline strong {
   color: var(--red-primary);
@@ -604,11 +595,11 @@ button:focus:not(:focus-visible) {
   text-shadow: 0 0 14px rgba(225, 6, 0, 0.4);
 }
 .proof-text .km-label {
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
   display: block;
-  margin-top: 4px;
-  line-height: 1.4;
+  margin-top: 8px;
+  line-height: 1.5;
 }
 @keyframes counterPop {
   0% { transform: scale(0.85); filter: blur(4px); opacity: 0; }
@@ -3036,7 +3027,7 @@ section { padding: 100px 0; }
   .hero-ctas { flex-direction: column; gap: 10px; margin-bottom: 32px; }
   .hero-ctas .btn { width: 100%; justify-content: center; padding: 14px 20px; }
   .hero-proof { gap: 18px; padding: 14px 16px; max-width: 100%; }
-  .hero-bike-visual { width: 140px; }
+  .hero-bike-visual { width: 200px; }
   .proof-text .km-headline { font-size: 17px; }
   .proof-text .km-label { font-size: 12px; }
   .hero-visual { max-width: 280px; }
@@ -3207,8 +3198,8 @@ section { padding: 100px 0; }
   .hero-tagline { font-size: 15px; }
   .hero-visual { max-width: 260px; }
   .hero-visual svg { max-width: 260px; }
-  .hero-proof { flex-direction: column; gap: 12px; padding: 14px 16px; }
-  .hero-bike-visual { width: 160px; }
+  .hero-proof { flex-direction: column; gap: 14px; padding: 16px; }
+  .hero-bike-visual { width: 240px; }
   .proof-text { text-align: center; }
   .proof-text .km-headline { font-size: 16px; }
   .stat-value { font-size: 30px; }
