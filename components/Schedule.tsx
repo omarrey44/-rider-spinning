@@ -1,9 +1,16 @@
+'use client';
+
 import { useState, useEffect, useMemo } from 'react';
 import { DayKey, days, weekdaySlots, saturdaySlots, ScheduleSlot } from '@/data/schedule';
 import { ArrowRight, ClockIcon, SignalIcon } from './Icons';
+import { createClient } from '@/lib/supabase/client';
 
 const jsDayToKey: Record<number, DayKey> = {
   1: 'lun', 2: 'mar', 3: 'mie', 4: 'jue', 5: 'vie', 6: 'sab',
+};
+
+const dayKeyToDow: Record<DayKey, number> = {
+  lun: 1, mar: 2, mie: 3, jue: 4, vie: 5, sab: 6,
 };
 
 function getCurrentDayKey(): DayKey {
@@ -19,6 +26,47 @@ function slotTo24h(slot: ScheduleSlot): number {
   return h + m / 60;
 }
 
+// Mapea una fila de schedule_slots (con join a instructors) al tipo ScheduleSlot que usa la UI
+type DbSlotRow = {
+  start_hour: number;
+  start_minute: number;
+  duration_min: number;
+  class_title: string;
+  class_color: string;
+  level: string;
+  price_cents: number;
+  capacity: number;
+  day_of_week: number;
+  instructor: {
+    full_name: string;
+    initial: string;
+    avatar_class: 'avatar-rosario' | 'avatar-lucia' | 'avatar-elmer';
+  } | null;
+};
+
+function dbRowToSlot(row: DbSlotRow): ScheduleSlot {
+  const h = row.start_hour;
+  const m = row.start_minute;
+  const period: 'AM' | 'PM' = h < 12 ? 'AM' : 'PM';
+  const hour12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  const hour = `${String(hour12).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+
+  return {
+    hour,
+    period,
+    className: row.class_title,
+    duration: `${row.duration_min} min`,
+    level: row.level,
+    classColor: row.class_color,
+    instructorInitial: row.instructor?.initial ?? '?',
+    instructorName: row.instructor?.full_name ?? 'Por confirmar',
+    instructorClass: row.instructor?.avatar_class ?? 'avatar-rosario',
+    status: 'available',
+    spotsText: `${row.capacity} disponibles`,
+    price: `$${Math.round(row.price_cents / 100)}`,
+  };
+}
+
 interface ScheduleProps {
   onSelectSlot: (slot: ScheduleSlot, day: DayKey) => void;
 }
@@ -32,6 +80,60 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
     return `${n.getHours().toString().padStart(2, '0')}:${n.getMinutes().toString().padStart(2, '0')}`;
   });
 
+  // slotsByDow: rows agrupadas por day_of_week (1-6). Vacío hasta que cargue Supabase.
+  // Si la query falla o devuelve [], usamos los arrays estáticos como fallback.
+  const [slotsByDow, setSlotsByDow] = useState<Record<number, ScheduleSlot[]>>({});
+  const [usingDb, setUsingDb] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchSlots() {
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from('schedule_slots')
+          .select(`
+            day_of_week,
+            start_hour,
+            start_minute,
+            duration_min,
+            class_title,
+            class_color,
+            level,
+            price_cents,
+            capacity,
+            instructor:instructors!inner ( full_name, initial, avatar_class )
+          `)
+          .eq('active', true)
+          .order('day_of_week', { ascending: true })
+          .order('start_hour', { ascending: true });
+
+        if (cancelled) return;
+
+        if (error || !data || data.length === 0) {
+          // Sin DB / sin filas / error: nos quedamos con el fallback estático
+          setUsingDb(false);
+          return;
+        }
+
+        const grouped: Record<number, ScheduleSlot[]> = {};
+        for (const row of data as unknown as DbSlotRow[]) {
+          const slot = dbRowToSlot(row);
+          (grouped[row.day_of_week] ??= []).push(slot);
+        }
+        setSlotsByDow(grouped);
+        setUsingDb(true);
+      } catch {
+        // Env vars faltan o red caída → fallback silencioso
+        if (!cancelled) setUsingDb(false);
+      }
+    }
+
+    fetchSlots();
+    return () => { cancelled = true; };
+  }, []);
+
   useEffect(() => {
     const t = setInterval(() => {
       const n = new Date();
@@ -44,8 +146,13 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
     setAnimKey((k) => k + 1);
   }, [activeDay]);
 
-  const activePanel: 'lun' | 'sab' = activeDay === 'sab' ? 'sab' : 'lun';
-  const baseSlots = activePanel === 'sab' ? saturdaySlots : weekdaySlots;
+  // Resolver baseSlots: si tenemos DB usamos eso (filtrado por día), si no fallback estático
+  const baseSlots: ScheduleSlot[] = useMemo(() => {
+    if (usingDb) {
+      return slotsByDow[dayKeyToDow[activeDay]] ?? [];
+    }
+    return activeDay === 'sab' ? saturdaySlots : weekdaySlots;
+  }, [usingDb, slotsByDow, activeDay]);
 
   const now = new Date();
   const currentHour24 = now.getHours() + now.getMinutes() / 60;

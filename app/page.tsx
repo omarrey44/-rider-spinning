@@ -162,6 +162,8 @@ export default function Home() {
           className={selectedSlot.slot.className}
           instructorName={selectedSlot.slot.instructorName}
           dateTime={getFullDateTime(selectedSlot.day)}
+          day={dayLabel}
+          hour={`${selectedSlot.slot.hour} ${selectedSlot.slot.period}`}
           duration={selectedSlot.slot.duration}
           priceCents={priceCents}
           currency="MXN"

@@ -9,7 +9,12 @@ interface CheckoutModalProps {
   bikeRow: number;
   className: string;
   instructorName: string;
+  /** Display string para Stripe receipt (ej. "Lunes 5 mayo 06:00 AM") */
   dateTime: string;
+  /** Día de la semana (ej. "Lunes") — se guarda en BD */
+  day: string;
+  /** Hora con AM/PM (ej. "06:00 AM") — se guarda en BD */
+  hour: string;
   duration: string;
   priceCents: number;
   currency: string;
@@ -23,6 +28,8 @@ export default function CheckoutModal({
   className: classTitle,
   instructorName,
   dateTime,
+  day,
+  hour,
   duration,
   priceCents,
   currency,
@@ -90,6 +97,8 @@ export default function CheckoutModal({
           class_title: classTitle,
           instructor_name: instructorName,
           date_time: dateTime,
+          day,
+          hour,
           amount_cents: priceCents,
           currency,
         }),

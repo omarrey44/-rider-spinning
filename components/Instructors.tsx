@@ -1,4 +1,69 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
+
+type AvatarClass = 'avatar-rosario' | 'avatar-lucia' | 'avatar-elmer';
+
+interface InstructorRow {
+  id: string;
+  full_name: string;
+  bio: string | null;
+  avatar_class: AvatarClass;
+  display_order: number;
+}
+
+// Lookup local de estilos. Para agregar un instructor con look distinto
+// hay que añadir entrada aquí + nuevo valor permitido en el CHECK de la BD.
+const STYLE_MAP: Record<AvatarClass, { gradient: string; shiftLabel: string }> = {
+  'avatar-rosario': {
+    gradient: 'linear-gradient(135deg,#1A1A1A,#E10600)',
+    shiftLabel: 'Turno mañana · Lunes a Viernes',
+  },
+  'avatar-lucia': {
+    gradient: 'linear-gradient(135deg,#E10600,#FFB800)',
+    shiftLabel: 'Turno tarde · Lunes a Viernes',
+  },
+  'avatar-elmer': {
+    gradient: 'linear-gradient(135deg,#0A0A0A,#4ECDC4)',
+    shiftLabel: 'Sábados · Sesiones especiales',
+  },
+};
+
+// Fallback si Supabase no responde (env vars faltantes en local, red caída, etc.)
+const FALLBACK: InstructorRow[] = [
+  { id: '1', full_name: 'Rosario Muñoz González',        bio: '"El mejor regalo que te puedes dar es empezar el día moviéndote."', avatar_class: 'avatar-rosario', display_order: 1 },
+  { id: '2', full_name: 'Lucia Isamar Frescas González', bio: '"Después del trabajo, tu cuerpo merece soltar el día."',           avatar_class: 'avatar-lucia',   display_order: 2 },
+  { id: '3', full_name: 'Elmer Alsides',                  bio: '"El fin de semana es para ti. Sube a la bici y disfruta."',        avatar_class: 'avatar-elmer',   display_order: 3 },
+];
+
 export default function Instructors() {
+  const [instructors, setInstructors] = useState<InstructorRow[]>(FALLBACK);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchInstructors() {
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from('instructors')
+          .select('id, full_name, bio, avatar_class, display_order')
+          .eq('active', true)
+          .order('display_order', { ascending: true });
+
+        if (cancelled) return;
+        if (!error && data && data.length > 0) {
+          setInstructors(data as InstructorRow[]);
+        }
+        // Si error o array vacío, conservamos FALLBACK ya cargado.
+      } catch {
+        // env vars faltantes → fallback silencioso
+      }
+    }
+    fetchInstructors();
+    return () => { cancelled = true; };
+  }, []);
+
   return (
     <section className="instructors" id="instructores">
       <div className="container">
@@ -8,24 +73,17 @@ export default function Instructors() {
         </div>
 
         <div className="instructor-grid instructor-grid-3">
-          <article className="instructor-card">
-            <div className="instructor-photo" style={{ background: 'linear-gradient(135deg,#1A1A1A,#E10600)' }}></div>
-            <h3>Rosario Muñoz González</h3>
-            <span>Turno mañana · Lunes a Viernes</span>
-            <p>"El mejor regalo que te puedes dar es empezar el día moviéndote."</p>
-          </article>
-          <article className="instructor-card">
-            <div className="instructor-photo" style={{ background: 'linear-gradient(135deg,#E10600,#FFB800)' }}></div>
-            <h3>Lucia Isamar Frescas González</h3>
-            <span>Turno tarde · Lunes a Viernes</span>
-            <p>"Después del trabajo, tu cuerpo merece soltar el día."</p>
-          </article>
-          <article className="instructor-card">
-            <div className="instructor-photo" style={{ background: 'linear-gradient(135deg,#0A0A0A,#4ECDC4)' }}></div>
-            <h3>Elmer Alsides</h3>
-            <span>Sábados · Sesiones especiales</span>
-            <p>"El fin de semana es para ti. Sube a la bici y disfruta."</p>
-          </article>
+          {instructors.map((ins) => {
+            const style = STYLE_MAP[ins.avatar_class] ?? STYLE_MAP['avatar-rosario'];
+            return (
+              <article key={ins.id} className="instructor-card">
+                <div className="instructor-photo" style={{ background: style.gradient }}></div>
+                <h3>{ins.full_name}</h3>
+                <span>{style.shiftLabel}</span>
+                {ins.bio && <p>{ins.bio}</p>}
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>

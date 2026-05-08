@@ -13,13 +13,15 @@ export async function POST(req: NextRequest) {
       class_title,
       instructor_name,
       date_time,
+      day,
+      hour,
       amount_cents,
       currency,
     } = body;
 
-    if (!customer_name || !customer_email || !bike_number) {
+    if (!customer_name || !customer_email || !bike_number || !day || !hour) {
       return NextResponse.json(
-        { error: 'Faltan datos requeridos: nombre, correo y bicicleta' },
+        { error: 'Faltan datos requeridos: nombre, correo, bicicleta, día y hora' },
         { status: 400 }
       );
     }
@@ -53,6 +55,8 @@ export async function POST(req: NextRequest) {
                 class_title,
                 instructor_name,
                 date_time,
+                day,
+                hour,
               },
             },
             unit_amount: amount_cents,
@@ -69,6 +73,8 @@ export async function POST(req: NextRequest) {
         class_title,
         instructor_name,
         date_time,
+        day,
+        hour,
       },
       success_url: `${baseUrl}/reserva-exitosa?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/#reservar`,
