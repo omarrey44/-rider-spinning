@@ -480,23 +480,25 @@ button:focus:not(:focus-visible) {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24px;
-  max-width: 560px;
+  gap: 28px;
+  max-width: 620px;
   width: 100%;
-  padding: 18px 22px;
+  padding: 20px 26px;
   background: rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 18px;
+  border-radius: 20px;
 }
 .hero-bike-visual {
   position: relative;
-  width: 110px;
+  width: 200px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Permite que las speed lines se extiendan fuera de su caja */
+  overflow: visible;
 }
 .hero-bike-img {
   width: 100%;
@@ -3033,8 +3035,8 @@ section { padding: 100px 0; }
   .hero-sub { font-size: 15px; margin-bottom: 28px; max-width: 100%; }
   .hero-ctas { flex-direction: column; gap: 10px; margin-bottom: 32px; }
   .hero-ctas .btn { width: 100%; justify-content: center; padding: 14px 20px; }
-  .hero-proof { gap: 16px; padding: 14px 16px; max-width: 100%; }
-  .hero-bike-visual { width: 90px; }
+  .hero-proof { gap: 18px; padding: 14px 16px; max-width: 100%; }
+  .hero-bike-visual { width: 140px; }
   .proof-text .km-headline { font-size: 17px; }
   .proof-text .km-label { font-size: 12px; }
   .hero-visual { max-width: 280px; }
@@ -3205,8 +3207,8 @@ section { padding: 100px 0; }
   .hero-tagline { font-size: 15px; }
   .hero-visual { max-width: 260px; }
   .hero-visual svg { max-width: 260px; }
-  .hero-proof { flex-direction: column; gap: 12px; padding: 12px 14px; }
-  .hero-bike-visual { width: 80px; }
+  .hero-proof { flex-direction: column; gap: 12px; padding: 14px 16px; }
+  .hero-bike-visual { width: 160px; }
   .proof-text { text-align: center; }
   .proof-text .km-headline { font-size: 16px; }
   .stat-value { font-size: 30px; }
