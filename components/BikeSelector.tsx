@@ -84,11 +84,13 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
   };
 
   const handleBikeClick = (num: number) => {
+    // Sin clase seleccionada: la sala está bloqueada — redirigir al schedule
+    if (!selectedSlot) {
+      scrollToHorarios();
+      return;
+    }
     if (takenBikes.includes(num)) return;
     setSelectedBike(num);
-    if (!selectedSlot) {
-      setTimeout(scrollToHorarios, 400);
-    }
   };
 
   const handleCheckout = () => {
@@ -152,46 +154,12 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
           </ul>
 
           <div className="bike-summary">
-            {selectedBike === null ? (
+            {!selectedSlot ? (
+              <p className="summary-empty summary-empty-noclass">
+                Elige tu clase primero
+              </p>
+            ) : selectedBike === null ? (
               <p className="summary-empty">Selecciona una bici para continuar</p>
-            ) : !selectedSlot ? (
-              <div className="summary-no-class">
-                <div className="summary-bike-confirmed">
-                  <div className="check-circle">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  </div>
-                  <h4>Bicicleta #{String(selectedBike).padStart(2, '0')} seleccionada</h4>
-                  <p className="summary-position">
-                    Fila {Math.ceil(selectedBike / BIKE_CONFIG.cols)}
-                    {BIKE_CONFIG.popular.includes(selectedBike) && (
-                      <span className="tag-popular">Posición popular</span>
-                    )}
-                  </p>
-                  <button
-                    type="button"
-                    className="change-bike-btn"
-                    onClick={() => setSelectedBike(null)}
-                    aria-label="Cambiar selección de bici"
-                  >
-                    Cambiar bici
-                  </button>
-                </div>
-                <div className="summary-next-step">
-                  <p>Ahora elige tu clase para completar la reserva</p>
-                  <button
-                    className="btn btn-outline btn-scroll-horarios"
-                    onClick={scrollToHorarios}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    Ver horarios disponibles
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M3 6l5 5 5-5" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
             ) : (
               <div className="summary-detail">
                 <div className="summary-confirmed-block">
@@ -252,7 +220,28 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
           </div>
         </div>
 
-        <div className="bike-room">
+        <div className={`bike-room ${!selectedSlot ? 'bike-room-locked' : ''}`}>
+          {/* Overlay cuando no hay clase: la sala se ve pero está bloqueada */}
+          {!selectedSlot && (
+            <div className="bike-room-locked-overlay">
+              <div className="locked-icon-wrap" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              </div>
+              <h4 className="locked-title">Sala bloqueada</h4>
+              <p className="locked-subtitle">Elige una clase primero para activar tu lugar</p>
+              <button
+                type="button"
+                className="btn btn-primary locked-cta"
+                onClick={scrollToHorarios}
+              >
+                ↑ Ver horarios
+              </button>
+            </div>
+          )}
+
           {/* Instructor position */}
           {selectedSlot ? (
             <div className="instructor-stage instructor-stage-active">

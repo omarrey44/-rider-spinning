@@ -1481,6 +1481,23 @@ section { padding: 100px 0; }
   animation: emptyHintNudge 1.6s ease-in-out infinite;
   opacity: 0.85;
 }
+/* Variante "no class" — la flecha apunta arriba al schedule (pulso rojo
+   en lugar de teal para diferenciar el estado bloqueante) */
+.summary-empty-noclass::before {
+  background: var(--red-primary);
+  box-shadow:
+    0 0 0 4px rgba(225, 6, 0, 0.18),
+    0 0 14px rgba(225, 6, 0, 0.55);
+}
+.summary-empty-noclass::after {
+  content: '↑';
+  color: var(--red-primary);
+  animation-name: emptyHintNudgeUp;
+}
+@keyframes emptyHintNudgeUp {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
 @keyframes emptyHintPulse {
   0%, 100% {
     box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.18), 0 0 14px rgba(78, 205, 196, 0.55);
@@ -1669,6 +1686,83 @@ section { padding: 100px 0; }
   border-radius: 24px;
   padding: 36px;
   position: relative;
+  overflow: hidden;
+}
+
+/* === Sala bloqueada (no se ha elegido clase) ============== */
+.bike-room-locked .instructor-stage,
+.bike-room-locked .class-info-banner,
+.bike-room-locked .availability-counter,
+.bike-room-locked .room-orientation,
+.bike-room-locked .bike-grid-wrap,
+.bike-room-locked .room-extras {
+  opacity: 0.32;
+  filter: grayscale(35%);
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 0.3s ease, filter 0.3s ease;
+}
+.bike-room-locked-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  text-align: center;
+  z-index: 5;
+  background: radial-gradient(
+    circle at center,
+    rgba(10, 10, 10, 0.55) 0%,
+    rgba(10, 10, 10, 0.85) 70%
+  );
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  animation: lockedFadeIn 0.4s ease;
+}
+@keyframes lockedFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.locked-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(225, 6, 0, 0.12);
+  color: var(--red-primary);
+  border: 1px solid rgba(225, 6, 0, 0.35);
+  margin-bottom: 8px;
+  box-shadow: 0 0 24px rgba(225, 6, 0, 0.18);
+}
+.locked-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--white);
+  letter-spacing: -0.3px;
+  margin: 0;
+}
+.locked-subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0 0 16px;
+  max-width: 280px;
+  line-height: 1.5;
+}
+.locked-cta {
+  padding: 12px 24px !important;
+  font-size: 14px !important;
+}
+
+@media (max-width: 640px) {
+  .locked-icon-wrap { width: 48px; height: 48px; }
+  .locked-title { font-size: 18px; }
+  .locked-subtitle { font-size: 13px; }
 }
 .instructor-stage {
   background: rgba(255, 255, 255, 0.08);
