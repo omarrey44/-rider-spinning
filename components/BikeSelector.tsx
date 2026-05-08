@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { BIKE_CONFIG } from '@/data/schedule';
+import { BoltIcon, UserIcon, CalendarIcon, CalendarDaysIcon, AlarmClockIcon, StopwatchIcon, FanIcon } from './Icons';
 
 interface BikeSelectorProps {
   selectedSlot: {
@@ -157,22 +158,22 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
                 </div>
                 <div className="summary-class-block">
                   <p className="class-detail-line">
-                    <span className="detail-icon">🏋️</span>
+                    <span className="detail-icon"><BoltIcon /></span>
                     <span className="detail-label">Clase</span>
                     <strong>{selectedSlot.className}</strong>
                   </p>
                   <p className="class-detail-line">
-                    <span className="detail-icon">🧑‍🏫</span>
+                    <span className="detail-icon"><UserIcon /></span>
                     <span className="detail-label">Instructor</span>
                     <strong>{selectedSlot.instructorName}</strong>
                   </p>
                   <p className="class-detail-line">
-                    <span className="detail-icon">📆</span>
+                    <span className="detail-icon"><CalendarIcon /></span>
                     <span className="detail-label">Fecha</span>
                     <strong>{selectedSlot.fullDateTime}</strong>
                   </p>
                   <p className="class-detail-line">
-                    <span className="detail-icon">⏱</span>
+                    <span className="detail-icon"><StopwatchIcon /></span>
                     <span className="detail-label">Duración</span>
                     <strong>{selectedSlot.duration}</strong>
                   </p>
@@ -209,7 +210,7 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
           {selectedSlot && (
             <div className="class-info-banner">
               <div className="class-info-item">
-                <span className="class-info-icon">📆</span>
+                <span className="class-info-icon"><CalendarIcon /></span>
                 <div>
                   <span className="class-info-label">Día</span>
                   <span className="class-info-value">{selectedSlot.dayName}</span>
@@ -217,7 +218,7 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
               </div>
               <div className="class-info-divider"></div>
               <div className="class-info-item">
-                <span className="class-info-icon">🗓</span>
+                <span className="class-info-icon"><CalendarDaysIcon /></span>
                 <div>
                   <span className="class-info-label">Fecha</span>
                   <span className="class-info-value">{selectedSlot.date}</span>
@@ -225,7 +226,7 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
               </div>
               <div className="class-info-divider"></div>
               <div className="class-info-item">
-                <span className="class-info-icon">⏰</span>
+                <span className="class-info-icon"><AlarmClockIcon /></span>
                 <div>
                   <span className="class-info-label">Horario</span>
                   <span className="class-info-value">{selectedSlot.hour} {selectedSlot.period}</span>
@@ -233,7 +234,7 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
               </div>
               <div className="class-info-divider"></div>
               <div className="class-info-item">
-                <span className="class-info-icon">⏱</span>
+                <span className="class-info-icon"><StopwatchIcon /></span>
                 <div>
                   <span className="class-info-label">Duración</span>
                   <span className="class-info-value">{selectedSlot.duration}</span>
@@ -287,8 +288,8 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
             })}
           </div>
           <div className="room-extras">
-            <span className="extra fan-left">🌀 ventilador</span>
-            <span className="extra fan-right">🌀 ventilador</span>
+            <span className="extra fan-left"><FanIcon /> ventilador</span>
+            <span className="extra fan-right"><FanIcon /> ventilador</span>
           </div>
         </div>
       </div>

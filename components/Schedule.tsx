@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { DayKey, days, weekdaySlots, saturdaySlots, ScheduleSlot } from '@/data/schedule';
-import { ArrowRight, ClockIcon, SignalIcon } from './Icons';
+import { ArrowRight, ClockIcon, SignalIcon, MoonIcon, InfoIcon } from './Icons';
 import { createClient } from '@/lib/supabase/client';
 
 const jsDayToKey: Record<number, DayKey> = {
@@ -214,7 +214,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
         >
           {visibleSlots.length === 0 && isToday ? (
             <div className="no-more-slots">
-              <span className="no-more-icon">🌙</span>
+              <span className="no-more-icon"><MoonIcon /></span>
               <h4>No hay más clases hoy</h4>
               <p>Selecciona otro día para ver horarios disponibles.</p>
             </div>
@@ -277,7 +277,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
         </div>
 
         <div className="schedule-note">
-          <span className="note-icon">ℹ️</span>
+          <span className="note-icon"><InfoIcon /></span>
           <span>Los horarios de lunes a viernes son los mismos. Los sábados tenemos clases especiales con Elmer.</span>
         </div>
       </div>

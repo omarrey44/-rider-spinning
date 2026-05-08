@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { MailIcon, BikeIcon, UserIcon, CalendarIcon, AlarmClockIcon, CheckIcon } from './Icons';
 
 interface Booking {
   id: string;
@@ -14,6 +15,13 @@ interface Booking {
   status: string;
   created_at: string;
 }
+
+const STATUS_LABELS: Record<string, string> = {
+  confirmed: 'Confirmada',
+  pending: 'Pendiente',
+  cancelled: 'Cancelada',
+  refunded: 'Reembolsada',
+};
 
 export default function FindBooking() {
   const [email, setEmail] = useState('');
@@ -58,113 +66,103 @@ export default function FindBooking() {
     }
   };
 
-  const statusLabels: Record<string, string> = {
-    confirmed: 'Confirmada',
-    pending: 'Pendiente',
-    cancelled: 'Cancelada',
-  };
-
-  const statusColors: Record<string, string> = {
-    confirmed: 'var(--teal-dark)',
-    pending: '#f59e0b',
-    cancelled: 'var(--text-muted)',
-  };
-
   return (
-    <section className="find-booking" style={{ background: 'var(--white)', padding: '80px 24px' }}>
-      <div className="container" style={{ maxWidth: '600px', margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <span className="section-eyebrow">Mis reservas</span>
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 5vw, 36px)', fontWeight: 800, margin: '8px 0 0' }}>
-            Buscar mi reserva
-          </h2>
-          <p style={{ color: 'var(--text-muted)', marginTop: '12px', fontSize: '15px' }}>
-            Ingresa el correo que usaste al reservar
-          </p>
+    <section className="find-booking" id="mis-reservas">
+      <div className="container">
+        <div className="section-head">
+          <span className="eyebrow">Mis reservas</span>
+          <h2>Buscar mi <span className="text-red">reserva</span></h2>
+          <p>Ingresa el correo que usaste al reservar y te mostramos tus clases.</p>
         </div>
 
-        <form onSubmit={handleLookup} style={{ display: 'flex', gap: '12px', marginBottom: '32px', flexWrap: 'wrap' }}>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => { setEmail(e.target.value); setError(null); }}
-            placeholder="tu@correo.com"
-            required
-            style={{ flex: 1, minWidth: '240px', padding: '14px 20px', borderRadius: '12px', border: '1px solid var(--gray-mid)', fontSize: '15px', outline: 'none' }}
-          />
+        <form onSubmit={handleLookup} className="lookup-form">
+          <div className="lookup-input-wrap">
+            <span className="lookup-input-icon" aria-hidden="true"><MailIcon /></span>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); setError(null); }}
+              placeholder="tu@correo.com"
+              required
+              aria-label="Correo electrónico"
+              className="lookup-input"
+            />
+          </div>
           <button
             type="submit"
-            className="btn btn-primary"
+            className="btn btn-primary lookup-btn"
             disabled={loading}
-            style={{ padding: '14px 28px', whiteSpace: 'nowrap' }}
           >
-            {loading ? 'Buscando...' : 'Buscar'}
+            {loading ? 'Buscando…' : 'Buscar'}
           </button>
         </form>
 
         {error && (
-          <div role="alert" style={{ background: '#fef2f2', color: '#b91c1c', padding: '14px 20px', borderRadius: '12px', fontSize: '14px', marginBottom: '24px' }}>
+          <div role="alert" className="lookup-error">
             {error}
           </div>
         )}
 
         {hasSearched && bookings.length === 0 && !error && (
-          <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-muted)', fontSize: '15px' }}>
-            No encontramos reservas con ese correo.
+          <div className="lookup-empty">
+            <span className="lookup-empty-icon" aria-hidden="true"><BikeIcon size={32} /></span>
+            <h4>Sin reservas con ese correo</h4>
+            <p>Verifica que el email sea el mismo que usaste al pagar.</p>
           </div>
         )}
 
         {bookings.length > 0 && (
-          <div style={{ display: 'grid', gap: '16px' }}>
-            {bookings.map((b) => (
-              <div
-                key={b.id}
-                style={{
-                  background: 'var(--gray-soft)',
-                  borderRadius: '16px',
-                  padding: '24px',
-                  display: 'grid',
-                  gap: '12px',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                  <strong style={{ fontFamily: 'var(--font-display)', fontSize: '16px' }}>
-                    {b.class_title}
-                  </strong>
-                  <span
-                    style={{
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      color: statusColors[b.status] || 'var(--text-muted)',
-                      background: 'var(--white)',
-                      padding: '4px 12px',
-                      borderRadius: '20px',
-                    }}
-                  >
-                    {statusLabels[b.status] || b.status}
-                  </span>
-                </div>
+          <div className="lookup-results">
+            <p className="lookup-count">
+              {bookings.length} {bookings.length === 1 ? 'reserva encontrada' : 'reservas encontradas'}
+            </p>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '8px', fontSize: '14px' }}>
-                  <div>
-                    <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '12px' }}>Instructor</span>
-                    <strong>{b.instructor_name}</strong>
+            {bookings.map((b) => {
+              const statusKey = b.status?.toLowerCase() || 'unknown';
+              const label = STATUS_LABELS[statusKey] || statusKey;
+              return (
+                <article key={b.id} className="booking-card" data-status={statusKey}>
+                  <div className="booking-card-head">
+                    <h3>{b.class_title}</h3>
+                    <span className={`status-pill status-pill--${statusKey}`}>
+                      {statusKey === 'confirmed' && <CheckIcon size={12} />}
+                      {label}
+                    </span>
                   </div>
-                  <div>
-                    <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '12px' }}>Día</span>
-                    <strong>{b.day}</strong>
+
+                  <div className="booking-card-grid">
+                    <div className="booking-card-item">
+                      <span className="booking-icon" aria-hidden="true"><UserIcon /></span>
+                      <div className="booking-text">
+                        <span className="booking-label">Instructor</span>
+                        <strong>{b.instructor_name}</strong>
+                      </div>
+                    </div>
+                    <div className="booking-card-item">
+                      <span className="booking-icon" aria-hidden="true"><CalendarIcon /></span>
+                      <div className="booking-text">
+                        <span className="booking-label">Día</span>
+                        <strong>{b.day}</strong>
+                      </div>
+                    </div>
+                    <div className="booking-card-item">
+                      <span className="booking-icon" aria-hidden="true"><AlarmClockIcon /></span>
+                      <div className="booking-text">
+                        <span className="booking-label">Hora</span>
+                        <strong>{b.hour}</strong>
+                      </div>
+                    </div>
+                    <div className="booking-card-item">
+                      <span className="booking-icon" aria-hidden="true"><BikeIcon size={18} /></span>
+                      <div className="booking-text">
+                        <span className="booking-label">Bici</span>
+                        <strong>#{String(b.bike_number).padStart(2, '0')} · Fila {b.bike_row}</strong>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '12px' }}>Hora</span>
-                    <strong>{b.hour}</strong>
-                  </div>
-                  <div>
-                    <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '12px' }}>Bici</span>
-                    <strong>#{String(b.bike_number).padStart(2, '0')} · Fila {b.bike_row}</strong>
-                  </div>
-                </div>
-              </div>
-            ))}
+                </article>
+              );
+            })}
           </div>
         )}
       </div>
