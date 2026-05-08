@@ -3916,6 +3916,20 @@ section { padding: 100px 0; }
 }
 
 /* =====================================================
+   MOBILE SUMMARY SLIM-DOWN
+   En mobile cuando ya seleccionaste clase + bici, la sticky bar
+   abajo muestra todo lo importante (clase, hora, precio, continuar).
+   Por eso ocultamos los bloques redundantes del summary de arriba —
+   solo dejamos la confirmación de bici + el botón "Cambiar bici".
+   ===================================================== */
+@media (max-width: 768px) {
+  .summary-detail .summary-class-block,
+  .summary-detail .summary-price-confirm {
+    display: none;
+  }
+}
+
+/* =====================================================
    STICKY CHECKOUT BAR (mobile only)
    Aparece cuando ya hay clase + bici seleccionadas
    ===================================================== */
