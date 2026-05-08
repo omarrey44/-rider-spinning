@@ -1702,6 +1702,51 @@ section { padding: 100px 0; }
 /* =====================================================
    BIKE ARC SELECTOR — Siluetas + Layout semicircular
    ===================================================== */
+
+/* Wrapper que coloca los labels de fila a la izquierda del grid */
+.bike-grid-wrap {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+  align-items: stretch;
+}
+
+.row-labels {
+  display: grid;
+  grid-template-rows: repeat(4, 1fr);
+  gap: 10px;
+  align-items: center;
+  justify-items: end;
+  padding-right: 4px;
+}
+.row-labels span {
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  color: rgba(255, 255, 255, 0.28);
+  white-space: nowrap;
+  position: relative;
+  padding-right: 12px;
+}
+/* Línea horizontal sutil que conecta el label con el grid */
+.row-labels span::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 8px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+}
+/* La fila 1 es la más cercana al instructor: marcarla con acento teal */
+.row-labels span:first-child {
+  color: rgba(78, 205, 196, 0.55);
+}
+.row-labels span:first-child::after {
+  background: rgba(78, 205, 196, 0.45);
+}
+
 .bike-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -1791,17 +1836,21 @@ section { padding: 100px 0; }
   color: rgba(255, 255, 255, 0.15);
 }
 
-/* Hover disponible */
-.bike-node:hover:not(.taken) {
-  border-color: rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.06);
-  transform: scale(1.08);
+/* Hover disponible — glow teal */
+.bike-node:hover:not(.taken):not(.selected) {
+  border-color: rgba(78, 205, 196, 0.6);
+  background: rgba(78, 205, 196, 0.08);
+  transform: scale(1.1);
+  box-shadow:
+    0 0 14px rgba(78, 205, 196, 0.35),
+    0 0 28px rgba(78, 205, 196, 0.15);
 }
-.bike-node:hover:not(.taken) .bike-icon-svg {
-  color: rgba(255, 255, 255, 0.7);
+.bike-node:hover:not(.taken):not(.selected) .bike-icon-svg {
+  color: var(--teal-primary);
+  filter: drop-shadow(0 0 4px rgba(78, 205, 196, 0.55));
 }
-.bike-node:hover:not(.taken) .bike-num {
-  color: rgba(255, 255, 255, 0.55);
+.bike-node:hover:not(.taken):not(.selected) .bike-num {
+  color: rgba(255, 255, 255, 0.75);
 }
 
 /* Ocupada */
@@ -1842,20 +1891,29 @@ section { padding: 100px 0; }
   pointer-events: none;
 }
 
-/* Seleccionada — rojo con glow */
+/* Seleccionada — rojo con pulso animado */
 .bike-node.selected {
   border-color: var(--red-primary);
-  background: rgba(225, 6, 0, 0.12);
-  box-shadow: 0 0 20px rgba(225, 6, 0, 0.5), 0 0 40px rgba(225, 6, 0, 0.15);
-  transform: scale(1.06);
+  background: rgba(225, 6, 0, 0.18);
+  animation: selectedPulse 1.8s ease-in-out infinite;
 }
 .bike-node.selected .bike-icon-svg {
   color: var(--red-primary);
-  filter: drop-shadow(0 0 6px rgba(225, 6, 0, 0.6));
+  filter: drop-shadow(0 0 8px rgba(225, 6, 0, 0.7));
 }
 .bike-node.selected .bike-num {
   color: var(--white);
   font-size: 10px;
+}
+/* Anillo exterior expansivo en la bici seleccionada */
+.bike-node.selected::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 13px;
+  border: 2px solid rgba(225, 6, 0, 0.55);
+  animation: selectedRing 1.8s ease-out infinite;
+  pointer-events: none;
 }
 
 @keyframes bikePulse {
@@ -1865,6 +1923,20 @@ section { padding: 100px 0; }
 @keyframes ringPulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0; transform: scale(1.08); }
+}
+@keyframes selectedPulse {
+  0%, 100% {
+    transform: scale(1.06);
+    box-shadow: 0 0 22px rgba(225, 6, 0, 0.55), 0 0 44px rgba(225, 6, 0, 0.18);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 32px rgba(225, 6, 0, 0.75), 0 0 64px rgba(225, 6, 0, 0.28);
+  }
+}
+@keyframes selectedRing {
+  0% { opacity: 0.85; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.25); }
 }
 
 .room-extras {
@@ -2987,7 +3059,15 @@ section { padding: 100px 0; }
 
   /* Bike arc: nodos más chicos en mobile */
   .bike-room { padding: 20px 16px; }
+  .bike-grid-wrap { gap: 8px; grid-template-columns: 24px 1fr; }
   .bike-grid { gap: 6px; }
+  .row-labels { gap: 6px; padding-right: 0; }
+  .row-labels span {
+    font-size: 7px;
+    letter-spacing: 1px;
+    padding-right: 6px;
+  }
+  .row-labels span::after { width: 4px; }
   .bike-node {
     max-width: 48px;
     padding: 3px;

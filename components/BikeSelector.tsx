@@ -243,8 +243,15 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
             </div>
           )}
 
-          {/* Arc grid de bicis */}
-          <div className="bike-grid">
+          {/* Arc grid de bicis con labels de fila */}
+          <div className="bike-grid-wrap">
+            <div className="row-labels" aria-hidden="true">
+              <span>FILA 1</span>
+              <span>FILA 2</span>
+              <span>FILA 3</span>
+              <span>FILA 4</span>
+            </div>
+            <div className="bike-grid">
             {Array.from({ length: totalBikes }, (_, i) => i + 1).map((num) => {
               const taken = BIKE_CONFIG.taken.includes(num);
               const popular = BIKE_CONFIG.popular.includes(num);
@@ -286,6 +293,7 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
                 </div>
               );
             })}
+            </div>
           </div>
           <div className="room-extras">
             <span className="extra fan-left"><FanIcon /> ventilador</span>
