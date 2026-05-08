@@ -1493,6 +1493,18 @@ section { padding: 100px 0; }
   0%, 100% { transform: translateX(0); }
   50%      { transform: translateX(5px); }
 }
+@keyframes emptyHintNudgeDown {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(5px); }
+}
+/* En mobile (layout stackeado) las bicis están debajo del summary,
+   por lo que la flecha apunta hacia abajo. */
+@media (max-width: 980px) {
+  .summary-empty::after {
+    content: '↓';
+    animation-name: emptyHintNudgeDown;
+  }
+}
 .summary-detail {
   display: flex;
   flex-direction: column;
