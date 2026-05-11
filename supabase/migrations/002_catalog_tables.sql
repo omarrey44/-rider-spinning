@@ -40,7 +40,7 @@ create table if not exists schedule_slots (
 
   -- Económico / capacidad
   price_cents int not null default 22000,                          -- 22000 = $220.00 MXN
-  capacity    int not null default 24,
+  capacity    int not null default 12,
 
   active boolean not null default true,
   created_at timestamptz default now()

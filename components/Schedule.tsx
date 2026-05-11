@@ -13,10 +13,10 @@ const dayKeyToDow: Record<DayKey, number> = {
   lun: 1, mar: 2, mie: 3, jue: 4, vie: 5, sab: 6,
 };
 
-function getCurrentDayKey(): DayKey {
+// Domingo (0) → null (estudio cerrado). Lun-Sáb → DayKey.
+function getCurrentDayKey(): DayKey | null {
   const d = new Date().getDay();
-  const key = jsDayToKey[d];
-  return key ?? 'lun';
+  return jsDayToKey[d] ?? null;
 }
 
 function slotTo24h(slot: ScheduleSlot): number {
@@ -77,7 +77,8 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
   // hidratación. Después de hidratar, useEffect los actualiza con valores
   // reales. Esto previene hydration errors (#418, #423, #425).
   const [activeDay, setActiveDay] = useState<DayKey>('lun');
-  const [todayKey, setTodayKey] = useState<DayKey>('lun');
+  // todayKey === null cuando es domingo (estudio cerrado)
+  const [todayKey, setTodayKey] = useState<DayKey | null>(null);
   const [animKey, setAnimKey] = useState(0);
   const [clockTime, setClockTime] = useState('--:--');
   const [currentHour24, setCurrentHour24] = useState<number | null>(null);
@@ -140,7 +141,8 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
   useEffect(() => {
     const today = getCurrentDayKey();
     setTodayKey(today);
-    setActiveDay(today);
+    // Domingo: dejar activeDay='lun' (próximo día con clases). Otros: forzar al día actual.
+    if (today !== null) setActiveDay(today);
 
     const updateNow = () => {
       const n = new Date();
@@ -187,6 +189,10 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
     el?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Domingo: estudio cerrado. Solo mostrar banner cuando ya hidrató (currentHour24 !== null)
+  // para evitar mismatch SSR.
+  const isSunday = currentHour24 !== null && todayKey === null;
+
   return (
     <section className="schedule" id="horarios">
       <div className="container">
@@ -200,6 +206,16 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
           </div>
           <p>Selecciona un día y reserva tu lugar antes de que se llene.</p>
         </div>
+
+        {isSunday && (
+          <div className="sunday-banner" role="status">
+            <MoonIcon />
+            <div className="sunday-banner-text">
+              <strong>Hoy domingo cerramos</strong>
+              <span>Próxima clase: <em>lunes 06:00 AM con Rosario</em></span>
+            </div>
+          </div>
+        )}
 
         <div className="day-tabs" role="tablist" aria-label="Selecciona un día">
           {days.map((d) => (

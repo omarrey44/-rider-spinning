@@ -109,8 +109,7 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
     if (row === 2) return isPopular
       ? 'Fila 2 · Centro · Posición popular ⭐'
       : 'Fila 2 · Centro · Visibilidad balanceada';
-    if (row === 3) return 'Fila 3 · Distancia cómoda · Buena para empezar';
-    if (row === 4) return 'Fila 4 · Más espacio · Cerca de salida';
+    if (row === 3) return 'Fila 3 · Espacio amplio · Cerca de salida';
     return null;
   };
 
@@ -311,7 +310,6 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
               <span>FILA 1</span>
               <span>FILA 2</span>
               <span>FILA 3</span>
-              <span>FILA 4</span>
             </div>
             <div className="bike-grid">
             {Array.from({ length: totalBikes }, (_, i) => i + 1).map((num) => {
