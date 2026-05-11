@@ -10,6 +10,7 @@ import BikeSelector from '@/components/BikeSelector';
 import Instructors from '@/components/Instructors';
 import Pricing from '@/components/Pricing';
 import FAQ from '@/components/FAQ';
+import Waitlist from '@/components/Waitlist';
 import FindBooking from '@/components/FindBooking';
 import Footer from '@/components/Footer';
 import SmoothScroll from '@/components/SmoothScroll';
@@ -133,6 +134,7 @@ export default function Home() {
         <RevealSection delay={100}><Instructors /></RevealSection>
         <RevealSection delay={150}><Pricing /></RevealSection>
         <RevealSection delay={100}><FAQ /></RevealSection>
+        <RevealSection delay={100}><Waitlist /></RevealSection>
         <RevealSection delay={100}><FindBooking /></RevealSection>
 
         <RevealSection delay={100}>
