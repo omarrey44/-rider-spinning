@@ -107,26 +107,23 @@ export default function Hero() {
                   <p>Lun a Sáb · 6 instructores · 32 clases por semana</p>
                 </>
               )}
-              {/* Mini grid 6×3: matchea el ancho del salón real (6 cols), versión compacta */}
+              {/* Mini grid 4×3: matchea salón real (12 bikes) */}
               <div className="bike-preview">
                 <div className="bike-row">
                   <span className="bike free"></span><span className="bike taken"></span>
                   <span className="bike free"></span><span className="bike free"></span>
-                  <span className="bike taken"></span><span className="bike free"></span>
                 </div>
                 <div className="bike-row">
-                  <span className="bike taken"></span><span className="bike free"></span>
-                  <span className="bike selected"></span><span className="bike free"></span>
+                  <span className="bike free"></span><span className="bike selected"></span>
                   <span className="bike free"></span><span className="bike taken"></span>
                 </div>
                 <div className="bike-row">
-                  <span className="bike free"></span><span className="bike taken"></span>
+                  <span className="bike taken"></span><span className="bike free"></span>
                   <span className="bike free"></span><span className="bike free"></span>
-                  <span className="bike taken"></span><span className="bike free"></span>
                 </div>
               </div>
               <div className="hero-card-footer">
-                <span>Bike #08 · Fila 2 centro</span>
+                <span>Bike #06 · Fila 2 centro</span>
                 <strong>{nextClass ? nextClass.slot.price : '$220'} MXN</strong>
               </div>
             </div>

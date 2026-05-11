@@ -2990,14 +2990,18 @@ section { padding: 100px 0; }
   to { opacity: 1; }
 }
 .modal {
-  background: var(--white);
+  background: linear-gradient(180deg, #161616 0%, #0d0d0d 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 24px;
   width: 100%;
   max-width: 480px;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+  color: var(--white);
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.6),
+    0 0 60px rgba(78, 205, 196, 0.05);
   animation: slideUp 0.3s ease;
 }
 @keyframes slideUp {
@@ -3015,18 +3019,20 @@ section { padding: 100px 0; }
   align-items: center;
   justify-content: center;
   font-size: 18px;
-  color: var(--text-muted);
-  background: var(--gray-soft);
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.2s ease;
   z-index: 2;
 }
 .modal-close:hover {
-  background: var(--gray-mid);
-  color: var(--text-dark);
+  background: rgba(225, 6, 0, 0.18);
+  border-color: rgba(225, 6, 0, 0.4);
+  color: var(--white);
 }
 .modal-header {
   padding: 32px 32px 24px;
-  border-bottom: 1px solid var(--gray-mid);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 .modal-eyebrow {
   font-family: var(--font-display);
@@ -3034,7 +3040,7 @@ section { padding: 100px 0; }
   font-size: 11px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--teal-dark);
+  color: var(--teal-primary);
   display: block;
   margin-bottom: 8px;
 }
@@ -3042,35 +3048,41 @@ section { padding: 100px 0; }
   font-family: var(--font-display);
   font-size: 24px;
   font-weight: 800;
+  color: var(--white);
 }
 .modal-summary {
   padding: 20px 32px;
-  background: var(--gray-soft);
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 .summary-row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 8px 0;
   font-size: 14px;
 }
 .summary-icon-label {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: var(--text-muted);
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.55);
 }
 .summary-icon {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
-  color: var(--accent);
+  color: var(--teal-primary);
 }
-.summary-row span { color: var(--text-muted); }
-.summary-row strong { font-weight: 600; }
+.summary-row strong {
+  font-weight: 600;
+  color: var(--white);
+  text-align: right;
+}
 .summary-divider {
   height: 1px;
-  background: var(--gray-mid);
-  margin: 8px 0;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 10px 0;
 }
 .summary-row.total {
   padding: 12px 0 4px;
@@ -3080,6 +3092,7 @@ section { padding: 100px 0; }
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 18px;
+  color: var(--white);
 }
 .modal-form {
   padding: 24px 32px 32px;
@@ -3089,35 +3102,42 @@ section { padding: 100px 0; }
 }
 .form-group label {
   display: block;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   margin-bottom: 8px;
-  color: var(--text-dark);
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
 }
 .form-group .optional {
   font-weight: 400;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: none;
+  letter-spacing: 0;
 }
 .form-group input {
   width: 100%;
-  padding: 14px 16px;
-  border: 1.5px solid var(--gray-mid);
+  padding: 13px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
   font-size: 15px;
   font-family: var(--font-body);
-  transition: border-color 0.2s ease;
-  background: var(--white);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--white);
+  transition: border-color 0.2s ease, background 0.2s ease;
 }
 .form-group input:focus {
   outline: none;
   border-color: var(--teal-primary);
+  background: rgba(78, 205, 196, 0.06);
 }
 .form-group input::placeholder {
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.3);
 }
 .form-error {
-  background: var(--red-soft);
-  color: var(--red-primary);
+  background: rgba(225, 6, 0, 0.14);
+  border: 1px solid rgba(225, 6, 0, 0.35);
+  color: #ff8a85;
   padding: 12px 16px;
   border-radius: 10px;
   font-size: 13px;
@@ -3125,8 +3145,8 @@ section { padding: 100px 0; }
   margin-bottom: 16px;
 }
 .form-note {
-  font-size: 13px;
-  color: var(--text-muted);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
   margin-bottom: 20px;
   line-height: 1.5;
 }
@@ -4014,6 +4034,68 @@ section { padding: 100px 0; }
     padding-bottom: 76px;
   }
 }
+
+/* =====================================================
+   404 NOT FOUND
+   ===================================================== */
+.notfound-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(225, 6, 0, 0.12), transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(78, 205, 196, 0.08), transparent 50%),
+    #0a0a0a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  color: var(--white);
+}
+.notfound-container {
+  max-width: 540px;
+  text-align: center;
+}
+.notfound-code {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(96px, 16vw, 180px);
+  letter-spacing: -8px;
+  line-height: 1;
+  background: linear-gradient(180deg, var(--white) 0%, var(--red-primary) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 12px;
+}
+.notfound-page h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(24px, 3.5vw, 36px);
+  letter-spacing: -0.5px;
+  margin-bottom: 14px;
+}
+.notfound-page p {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.65);
+  margin-bottom: 32px;
+  line-height: 1.55;
+}
+.notfound-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin-top: 36px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+}
+.notfound-links a {
+  color: var(--teal-primary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+.notfound-links a:hover { color: var(--white); }
 
 /* =====================================================
    SUNDAY BANNER — domingo estudio cerrado
