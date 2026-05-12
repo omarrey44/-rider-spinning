@@ -20,6 +20,32 @@ interface CheckoutModalProps {
   currency: string;
 }
 
+interface ConfirmCloseProps {
+  hasData: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+function ConfirmCloseDialog({ hasData, onConfirm, onCancel }: ConfirmCloseProps) {
+  if (!hasData) return null;
+  return (
+    <div className="confirm-dialog-overlay" onClick={onConfirm}>
+      <div className="confirm-dialog" onClick={(e) => e.stopPropagation()}>
+        <h3>¿Cerrar reserva?</h3>
+        <p>Se perderán los datos que ingresaste.</p>
+        <div className="confirm-actions">
+          <button className="btn btn-outline" onClick={onCancel}>
+            Continuar
+          </button>
+          <button className="btn btn-primary" onClick={onConfirm}>
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function CheckoutModal({
   open,
   onClose,
@@ -39,7 +65,12 @@ export default function CheckoutModal({
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showConfirmClose, setShowConfirmClose] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
+
+  const hasData = !!(name.trim() || email.trim() || phone.trim());
+
+  const isEmailValid = email.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const reset = useCallback(() => {
     setName('');
@@ -131,7 +162,7 @@ export default function CheckoutModal({
       <div className="modal">
         <button
           className="modal-close"
-          onClick={onClose}
+          onClick={() => hasData ? setShowConfirmClose(true) : onClose()}
           aria-label="Cerrar"
         >
           ✕
@@ -201,15 +232,22 @@ export default function CheckoutModal({
 
           <div className="form-group">
             <label htmlFor="guest-email">Correo electrónico</label>
-            <input
-              id="guest-email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu@correo.com"
-              required
-              autoComplete="email"
-            />
+            <div className="input-wrapper">
+              <input
+                id="guest-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="tu@correo.com"
+                required
+                autoComplete="email"
+              />
+              {email && (
+                <div className={`input-validation-icon ${isEmailValid ? 'valid' : 'invalid'}`}>
+                  {isEmailValid ? '✓' : '✕'}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="form-group">
@@ -244,6 +282,12 @@ export default function CheckoutModal({
           </button>
         </form>
       </div>
+
+      <ConfirmCloseDialog
+        hasData={hasData}
+        onConfirm={onClose}
+        onCancel={() => setShowConfirmClose(false)}
+      />
     </div>
   );
 }

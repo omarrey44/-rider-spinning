@@ -6,7 +6,9 @@
       "Bash(curl -s http://localhost:3000/)",
       "Bash(curl -s -L http://localhost:3000/)",
       "Bash(git add *)",
-      "PowerShell(Get-Process | Where-Object {$_.Name -like \"node\"} | Stop-Process -Force)"
+      "PowerShell(Get-Process | Where-Object {$_.Name -like \"node\"} | Stop-Process -Force)",
+      "Bash(Start-Sleep -Seconds 4)",
+      "Bash(Write-Output \"Dev server should be ready\")"
     ]
   }
 }

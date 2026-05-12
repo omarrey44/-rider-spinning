@@ -335,6 +335,7 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
                   <button
                     className={cls}
                     disabled={taken}
+                    title={taken ? `Bicicleta ${num} - Ocupada` : `Bicicleta ${num}${tooltip ? ' - ' + tooltip : ''}`}
                     aria-label={taken ? `Bicicleta ${num}, ocupada` : `Bicicleta ${num}${tooltip ? ', popular: ' + tooltip : ''}`}
                     aria-pressed={selected}
                     onClick={() => handleBikeClick(num)}
