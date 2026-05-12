@@ -143,21 +143,6 @@ export default function Home() {
         <RevealSection delay={100}><FAQ /></RevealSection>
         <RevealSection delay={100}><Waitlist /></RevealSection>
         <RevealSection delay={100}><FindBooking /></RevealSection>
-
-        <RevealSection delay={100}>
-        <section className="cta-final">
-          <div className="container cta-inner">
-            <h2>¿Listo para tu primer ride?</h2>
-            <p>
-              Sé de los <span className="text-red">primeros riders</span> en
-              Chihuahua. Reserva tu lugar antes de que abramos.
-            </p>
-            <a href="#horarios" className="btn btn-primary btn-lg">
-              Empezar ahora
-            </a>
-          </div>
-        </section>
-        </RevealSection>
       </main>
 
       <Footer />
