@@ -73,7 +73,7 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
 
   const availableCount = totalBikes - takenBikes.length;
 
-  // Reset bici si la actual quedó "ocupada" al cambiar de clase
+  // Solo resetear bici si está ocupada en nueva clase. Si sigue disponible, mantener selección.
   if (selectedBike !== null && takenBikes.includes(selectedBike)) {
     setSelectedBike(null);
   }

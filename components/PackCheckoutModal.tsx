@@ -154,7 +154,7 @@ export default function PackCheckoutModal({
 
         <div className="modal-header">
           <div className="modal-progress">
-            <span className="modal-progress-step">Paso 1 de 2</span>
+            <span className="modal-progress-step">Paso 1 de 1</span>
             <div className="modal-progress-bar">
               <div className="modal-progress-fill" />
             </div>

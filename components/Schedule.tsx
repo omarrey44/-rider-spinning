@@ -87,6 +87,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
   // Si la query falla o devuelve [], usamos los arrays estáticos como fallback.
   const [slotsByDow, setSlotsByDow] = useState<Record<number, ScheduleSlot[]>>({});
   const [usingDb, setUsingDb] = useState(false);
+  const [isLoadingSlots, setIsLoadingSlots] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -117,6 +118,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
         if (error || !data || data.length === 0) {
           // Sin DB / sin filas / error: nos quedamos con el fallback estático
           setUsingDb(false);
+          setIsLoadingSlots(false);
           return;
         }
 
@@ -127,6 +129,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
         }
         setSlotsByDow(grouped);
         setUsingDb(true);
+        setIsLoadingSlots(false);
       } catch {
         // Env vars faltan o red caída → fallback silencioso
         if (!cancelled) setUsingDb(false);
@@ -197,7 +200,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
     <section className="schedule" id="horarios">
       <div className="container">
         <div className="section-head">
-          <span className="eyebrow">Horarios</span>
+          <span className="eyebrow">Horarios {isLoadingSlots && <span style={{ opacity: 0.6 }}>cargando...</span>}</span>
           <div className="section-head-row">
             <h2>Esta semana en <span className="text-red">Rideon</span></h2>
             <span className="live-clock">
