@@ -213,7 +213,10 @@ button:focus:not(:focus-visible) {
 .btn-primary:hover {
   background: var(--red-hover);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-red);
+  box-shadow:
+    var(--shadow-red),
+    0 0 20px rgba(225, 6, 0, 0.5),
+    0 0 40px rgba(225, 6, 0, 0.25);
 }
 .btn-primary:active { transform: scale(0.97); }
 .btn-primary:focus {
@@ -1251,10 +1254,12 @@ section::before {
   overflow: hidden;
 }
 .slot:hover {
-  background: rgba(15, 15, 20, 0.5);
+  background: rgba(15, 15, 20, 0.6);
   transform: translateY(-6px);
+  border: 1px solid rgba(78, 205, 196, 0.6);
   box-shadow:
     0 20px 50px rgba(0, 0, 0, 0.5),
+    0 0 24px rgba(78, 205, 196, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 .slot[data-status="full"] { opacity: 0.5; pointer-events: none; }
@@ -1352,6 +1357,13 @@ section::before {
 .avatar-lucia   { background: linear-gradient(135deg, #FFE66D, #FF6B00); }
 .avatar-elmer   { background: linear-gradient(135deg, #4ECDC4, #1A8580); }
 
+.slot:hover .avatar-mini {
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+  transform: scale(1.15);
+  transition: all 0.3s var(--ease);
+}
+
 .slot-instructor .instructor-name {
   font-size: 14px;
   font-weight: 600;
@@ -1367,13 +1379,19 @@ section::before {
 
 /* Class-type accent colors */
 .class-type-tag {
-  padding: 2px 8px;
-  border-radius: 6px;
-  font-size: 10px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: var(--white);
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+.slot:hover .class-type-tag {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .class-type-tag--sunrise   { background: var(--accent-sunrise); }
@@ -1470,9 +1488,9 @@ section::before {
   transition: all 0.25s ease;
   margin-top: 4px;
 }
-.slot-cta:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(225, 6, 0, 0.55);
+.slot:hover .slot-cta {
+  transform: translateY(-2px) scale(1.08);
+  box-shadow: 0 8px 28px rgba(225, 6, 0, 0.6), 0 0 16px rgba(225, 6, 0, 0.4);
   color: var(--white);
 }
 .slot-cta svg {
@@ -2282,15 +2300,17 @@ section::before {
 /* Next/upcoming class highlight */
 .slot-next {
   overflow: visible;
-  border-color: rgba(78, 205, 196, 0.35);
-  background: rgba(78, 205, 196, 0.08);
+  border: 2px solid rgba(78, 205, 196, 0.6);
+  background: rgba(78, 205, 196, 0.12);
+  box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
 }
 .slot-next:hover {
-  border-color: rgba(78, 205, 196, 0.5);
-  background: rgba(78, 205, 196, 0.1);
+  border-color: rgba(78, 205, 196, 0.8);
+  background: rgba(78, 205, 196, 0.15);
   box-shadow:
-    0 0 0 1px rgba(78, 205, 196, 0.15),
-    0 12px 40px rgba(78, 205, 196, 0.18);
+    0 0 30px rgba(78, 205, 196, 0.5),
+    0 20px 50px rgba(78, 205, 196, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .next-badge {
@@ -2715,9 +2735,13 @@ section::before {
   border: 1px solid rgba(78, 205, 196, 0.2);
 }
 .instructor-card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-8px);
   border-color: var(--teal-primary);
-  box-shadow: 0 12px 40px rgba(78, 205, 196, 0.1);
+  border-width: 2px;
+  box-shadow:
+    0 20px 50px rgba(78, 205, 196, 0.2),
+    0 0 24px rgba(78, 205, 196, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 .instructor-photo {
   aspect-ratio: 4/5;
@@ -4564,6 +4588,37 @@ section::before {
 /* =====================================================
    RESERVA EXITOSA (success page post-Stripe)
    ===================================================== */
+.confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+.confetti {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--teal-primary);
+  border-radius: 2px;
+  top: -10px;
+  animation: confettiFall 3s ease-in forwards;
+}
+.confetti:nth-child(odd) {
+  background: var(--red-primary);
+}
+.confetti:nth-child(3n) {
+  background: #FFE66D;
+}
+@keyframes confettiFall {
+  to {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
 .success-page {
   min-height: 100vh;
   background:

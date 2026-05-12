@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getStripe } from '@/lib/stripe';
+import SuccessConfetti from '@/components/SuccessConfetti';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,6 +58,7 @@ export default async function SuccessPage({
 
   return (
     <main className="success-page">
+      <SuccessConfetti />
       <div className="success-card">
         <div className="success-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
