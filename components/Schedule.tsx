@@ -285,9 +285,14 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                       </div>
                     </div>
                     <div className="slot-side">
-                      <span className={`slot-status status-${slot.status}`}>
-                        <span className="status-dot"></span>{slot.spotsText}
-                      </span>
+                      <div className="slot-status-group">
+                        <span className={`slot-status status-${slot.status}`}>
+                          <span className="status-dot"></span>{slot.spotsText}
+                        </span>
+                        {slot.status === 'few' && (
+                          <span className="urgency-badge">⚡ Pocos lugares</span>
+                        )}
+                      </div>
                       <span className="slot-price">{slot.price}</span>
                       <button
                         className="slot-cta"

@@ -2,22 +2,9 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 
-interface CheckoutModalProps {
+interface PackCheckoutModalProps {
   open: boolean;
   onClose: () => void;
-  bikeNumber: number;
-  bikeRow: number;
-  className: string;
-  instructorName: string;
-  /** Display string para Stripe receipt (ej. "Lunes 5 mayo 06:00 AM") */
-  dateTime: string;
-  /** Día de la semana (ej. "Lunes") — se guarda en BD */
-  day: string;
-  /** Hora con AM/PM (ej. "06:00 AM") — se guarda en BD */
-  hour: string;
-  duration: string;
-  priceCents: number;
-  currency: string;
 }
 
 interface ConfirmCloseProps {
@@ -31,7 +18,7 @@ function ConfirmCloseDialog({ show, onConfirm, onCancel }: ConfirmCloseProps) {
   return (
     <div className="confirm-dialog-overlay" onClick={onCancel}>
       <div className="confirm-dialog" onClick={(e) => e.stopPropagation()}>
-        <h3>¿Cerrar reserva?</h3>
+        <h3>¿Cerrar compra?</h3>
         <p>Se perderán los datos que ingresaste.</p>
         <div className="confirm-actions">
           <button className="btn btn-outline" onClick={onCancel}>
@@ -46,20 +33,10 @@ function ConfirmCloseDialog({ show, onConfirm, onCancel }: ConfirmCloseProps) {
   );
 }
 
-export default function CheckoutModal({
+export default function PackCheckoutModal({
   open,
   onClose,
-  bikeNumber,
-  bikeRow,
-  className: classTitle,
-  instructorName,
-  dateTime,
-  day,
-  hour,
-  duration,
-  priceCents,
-  currency,
-}: CheckoutModalProps) {
+}: PackCheckoutModalProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -131,15 +108,10 @@ export default function CheckoutModal({
           customer_name: name.trim(),
           customer_email: email.trim(),
           customer_phone: phone.trim() || undefined,
-          bike_number: bikeNumber,
-          bike_row: bikeRow,
-          class_title: classTitle,
-          instructor_name: instructorName,
-          date_time: dateTime,
-          day,
-          hour,
-          amount_cents: priceCents,
-          currency,
+          pack_size: 5,
+          pack_price: 950,
+          amount_cents: 95000,
+          currency: 'MXN',
         }),
       });
 
@@ -173,7 +145,7 @@ export default function CheckoutModal({
       }}
       role="dialog"
       aria-modal="true"
-      aria-label="Reservar clase"
+      aria-label="Comprar pack"
     >
       <div className="modal">
         <button
@@ -191,58 +163,37 @@ export default function CheckoutModal({
               <div className="modal-progress-fill" />
             </div>
           </div>
-          <span className="modal-eyebrow">Checkout rápido</span>
-          <h3>Tu reserva</h3>
+          <span className="modal-eyebrow">Compra de pack</span>
+          <h3>Pack 5 clases</h3>
         </div>
 
         <div className="modal-summary">
           <div className="summary-row">
             <span className="summary-icon-label">
-              <svg className="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              Clase
+              <svg className="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12" /></svg>
+              Producto
             </span>
-            <strong>{classTitle}</strong>
+            <strong>5 clases · 30 días</strong>
           </div>
           <div className="summary-row">
             <span className="summary-icon-label">
-              <svg className="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              Instructor
+              <svg className="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              Beneficios
             </span>
-            <strong>{instructorName}</strong>
-          </div>
-          <div className="summary-row">
-            <span className="summary-icon-label">
-              <svg className="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              Fecha
-            </span>
-            <strong>{dateTime}</strong>
-          </div>
-          <div className="summary-row">
-            <span className="summary-icon-label">
-              <svg className="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              Duración
-            </span>
-            <strong>{duration}</strong>
-          </div>
-          <div className="summary-row">
-            <span className="summary-icon-label">
-              <svg className="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 17.5V8l4-3v12.5"/><path d="M5.5 17.5L9 8h6l3-3"/></svg>
-              Bici
-            </span>
-            <strong>#{String(bikeNumber).padStart(2, '0')} · Fila {bikeRow}</strong>
+            <strong>Cancela hasta 2h antes</strong>
           </div>
           <div className="summary-divider" />
           <div className="summary-row total">
             <span>Total</span>
-            <strong>${(priceCents / 100).toLocaleString('es-MX')} {currency}</strong>
+            <strong>$950 MXN</strong>
           </div>
         </div>
 
         <form className="modal-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="guest-name">Nombre completo</label>
+            <label htmlFor="pack-name">Nombre completo</label>
             <input
-              id="guest-name"
+              id="pack-name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -253,10 +204,10 @@ export default function CheckoutModal({
           </div>
 
           <div className="form-group">
-            <label htmlFor="guest-email">Correo electrónico</label>
+            <label htmlFor="pack-email">Correo electrónico</label>
             <div className="input-wrapper">
               <input
-                id="guest-email"
+                id="pack-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -273,7 +224,7 @@ export default function CheckoutModal({
           </div>
 
           <div className="form-group">
-            <label htmlFor="guest-phone">Teléfono <span className="optional">(opcional)</span></label>
+            <label htmlFor="pack-phone">Teléfono <span className="optional">(opcional)</span></label>
             <div className="phone-input-wrapper">
               <button
                 type="button"
@@ -285,7 +236,7 @@ export default function CheckoutModal({
                 <span className="country-code">{countryCode}</span>
               </button>
               <input
-                id="guest-phone"
+                id="pack-phone"
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
@@ -321,7 +272,7 @@ export default function CheckoutModal({
           )}
 
           <p className="form-note">
-            Te enviaremos la confirmación de tu reserva por correo.
+            Te enviaremos la confirmación de tu compra por correo.
           </p>
 
           <button
@@ -330,7 +281,7 @@ export default function CheckoutModal({
             disabled={loading}
           >
             {loading && <span className="loading-spinner" />}
-            {loading ? 'Redirigiendo a pago...' : 'Pagar y reservar'}
+            {loading ? 'Redirigiendo a pago...' : 'Pagar pack'}
           </button>
         </form>
       </div>

@@ -105,9 +105,10 @@ export default function FindBooking() {
 
         {hasSearched && bookings.length === 0 && !error && (
           <div className="lookup-empty">
-            <span className="lookup-empty-icon" aria-hidden="true"><BikeIcon size={32} /></span>
+            <div className="lookup-empty-icon" aria-hidden="true">🚴</div>
             <h4>Sin reservas con ese correo</h4>
-            <p>Verifica que el email sea el mismo que usaste al pagar.</p>
+            <p>Aún no tienes clases reservadas.</p>
+            <p className="lookup-empty-cta">Verifica que el email sea el mismo que usaste al pagar o <a href="/#reservar">reserva una clase ahora</a>.</p>
           </div>
         )}
 

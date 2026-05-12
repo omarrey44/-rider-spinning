@@ -1425,6 +1425,24 @@ section::before {
     0 0 0 4px rgba(225, 6, 0, 0.15),
     0 0 12px rgba(225, 6, 0, 0.6);
 }
+.slot-status-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
+.urgency-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #EAB308;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  animation: urgencyPulse 2s ease-in-out infinite;
+}
+@keyframes urgencyPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
 
 .slot-price {
   font-family: var(--font-display);
@@ -2465,33 +2483,46 @@ section::before {
 /* Empty state */
 .lookup-empty {
   text-align: center;
-  padding: 48px 24px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px dashed rgba(255, 255, 255, 0.12);
-  border-radius: 18px;
+  padding: 56px 32px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(78,205,196,0.05) 100%);
+  border: 1px solid rgba(78, 205, 196, 0.2);
+  border-radius: 20px;
 }
 .lookup-empty-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  background: rgba(78, 205, 196, 0.1);
-  color: var(--teal-primary);
-  margin-bottom: 16px;
+  background: rgba(78, 205, 196, 0.15);
+  font-size: 40px;
+  margin-bottom: 20px;
 }
 .lookup-empty h4 {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 18px;
+  font-size: 20px;
   color: var(--white);
-  margin: 0 0 6px;
+  margin: 0 0 8px;
 }
 .lookup-empty p {
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 14px;
-  margin: 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 15px;
+  margin: 0 0 6px;
+}
+.lookup-empty-cta {
+  margin-top: 16px !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+.lookup-empty-cta a {
+  color: var(--teal-primary);
+  font-weight: 600;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+.lookup-empty-cta a:hover {
+  color: var(--teal-light);
 }
 
 /* Resultados */
@@ -3135,6 +3166,31 @@ section::before {
   font-size: 24px;
   font-weight: 800;
   color: var(--white);
+}
+.modal-progress {
+  margin-bottom: 20px;
+}
+.modal-progress-step {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.modal-progress-bar {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.modal-progress-fill {
+  width: 50%;
+  height: 100%;
+  background: var(--teal-primary);
+  border-radius: 2px;
 }
 .modal-summary {
   padding: 20px 32px;

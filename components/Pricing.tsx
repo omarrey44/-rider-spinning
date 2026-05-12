@@ -1,4 +1,8 @@
-export default function Pricing() {
+interface PricingProps {
+  onPackClick?: () => void;
+}
+
+export default function Pricing({ onPackClick }: PricingProps) {
   return (
     <section className="pricing" id="precios">
       <div className="container">
@@ -55,7 +59,7 @@ export default function Pricing() {
               <li>Cancela hasta 2h antes</li>
               <li>Comparte con un amigo</li>
             </ul>
-            <a href="#horarios" className="btn btn-primary btn-block">Comprar pack</a>
+            <button onClick={onPackClick || (() => {})} className="btn btn-primary btn-block">Comprar pack</button>
           </article>
 
           <article className="price-card">
