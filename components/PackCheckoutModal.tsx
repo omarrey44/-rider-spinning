@@ -39,28 +39,18 @@ export default function PackCheckoutModal({
 }: PackCheckoutModalProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [countryCode, setCountryCode] = useState('+52');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showConfirmClose, setShowConfirmClose] = useState(false);
-  const [showCountryPicker, setShowCountryPicker] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
 
-  const hasData = !!(name.trim() || email.trim() || phone.trim());
-
-  const countries = [
-    { code: '+52', flag: '🇲🇽', name: 'México' },
-    { code: '+1', flag: '🇺🇸', name: 'USA' },
-    { code: '+1', flag: '🇨🇦', name: 'Canada' },
-  ];
+  const hasData = !!(name.trim() || email.trim());
 
   const isEmailValid = email.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const reset = useCallback(() => {
     setName('');
     setEmail('');
-    setPhone('');
     setError(null);
     setLoading(false);
   }, []);
@@ -114,7 +104,6 @@ export default function PackCheckoutModal({
         body: JSON.stringify({
           customer_name: name.trim(),
           customer_email: email.trim(),
-          customer_phone: phone.trim() || undefined,
           pack_size: 5,
           pack_price: 950,
           amount_cents: 95000,
@@ -225,48 +214,6 @@ export default function PackCheckoutModal({
               {email && (
                 <div className={`input-validation-icon ${isEmailValid ? 'valid' : 'invalid'}`}>
                   {isEmailValid ? '✓' : '✕'}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="pack-phone">Teléfono <span className="optional">(opcional)</span></label>
-            <div className="phone-input-wrapper">
-              <button
-                type="button"
-                className="country-code-btn"
-                onClick={() => setShowCountryPicker(!showCountryPicker)}
-                aria-label="Seleccionar país"
-              >
-                {countries.find(c => c.code === countryCode)?.flag || '🇲🇽'}
-                <span className="country-code">{countryCode}</span>
-              </button>
-              <input
-                id="pack-phone"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="614 123 4567"
-                autoComplete="tel"
-              />
-              {showCountryPicker && (
-                <div className="country-picker-dropdown">
-                  {countries.map((c) => (
-                    <button
-                      key={c.code + c.name}
-                      type="button"
-                      className="country-option"
-                      onClick={() => {
-                        setCountryCode(c.code);
-                        setShowCountryPicker(false);
-                      }}
-                    >
-                      <span>{c.flag}</span>
-                      <span>{c.name}</span>
-                      <span className="code">{c.code}</span>
-                    </button>
-                  ))}
                 </div>
               )}
             </div>
