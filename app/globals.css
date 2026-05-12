@@ -2413,7 +2413,7 @@ section::before {
   min-width: 240px;
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.10);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -3210,7 +3210,7 @@ section::before {
   border-radius: 12px;
   font-size: 15px;
   font-family: var(--font-body);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.08);
   color: var(--white);
   transition: border-color 0.2s ease, background 0.2s ease;
 }
@@ -3258,7 +3258,7 @@ section::before {
   align-items: center;
   gap: 6px;
   padding: 13px 12px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 10px 0 0 10px;
   color: var(--white);
@@ -3290,7 +3290,7 @@ section::before {
   border-left: none;
   font-size: 15px;
   font-family: var(--font-body);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.08);
   color: var(--white);
   transition: border-color 0.2s ease, background 0.2s ease;
 }
@@ -4407,7 +4407,7 @@ section::before {
   min-width: 220px;
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.10);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
   transition: border-color 0.2s ease, background 0.2s ease;
