@@ -153,12 +153,6 @@ export default function PackCheckoutModal({
         </button>
 
         <div className="modal-header">
-          <div className="modal-progress">
-            <span className="modal-progress-step">Paso 1 de 1</span>
-            <div className="modal-progress-bar">
-              <div className="modal-progress-fill" />
-            </div>
-          </div>
           <span className="modal-eyebrow">Compra de pack</span>
           <h3>Pack 5 clases</h3>
         </div>

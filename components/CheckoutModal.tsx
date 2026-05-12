@@ -181,12 +181,6 @@ export default function CheckoutModal({
         </button>
 
         <div className="modal-header">
-          <div className="modal-progress">
-            <span className="modal-progress-step">Paso 1 de 1</span>
-            <div className="modal-progress-bar">
-              <div className="modal-progress-fill" />
-            </div>
-          </div>
           <span className="modal-eyebrow">Checkout rápido</span>
           <h3>Tu reserva</h3>
         </div>
