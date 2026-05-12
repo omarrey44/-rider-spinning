@@ -11,13 +11,14 @@
   */
   --teal-primary: #4ECDC4;
   --teal-hover: #3BB8AF;
-  --teal-soft: rgba(78, 205, 196, 0.15);
-  --teal-glow: rgba(78, 205, 196, 0.4);
-  --teal-dark: #2A9D8F;  /* WCAG AA-compliant teal for text on light backgrounds */
+  --teal-light: #A8E6E3;
+  --teal-soft: rgba(78, 205, 196, 0.12);
+  --teal-glow: rgba(78, 205, 196, 0.5);
+  --teal-dark: #2A9D8F;
 
-  --red-primary: #E10600;
-  --red-hover: #B80500;
-  --red-soft: rgba(225, 6, 0, 0.12);
+  --red-primary: #E63946;
+  --red-hover: #D62828;
+  --red-soft: rgba(230, 57, 70, 0.12);
 
   --black: #0A0A0A;
   --black-soft: #141414;
@@ -28,7 +29,8 @@
 
   --text-dark: #141414;
   --text-muted: #6B6B6B;
-  --text-light: rgba(255, 255, 255, 0.78);
+  --text-light: rgba(255, 255, 255, 0.87);
+  --text-dimmer: rgba(255, 255, 255, 0.65);
 
   /* === Tipografía === */
   --font-display: 'Montserrat', system-ui, sans-serif;
@@ -41,9 +43,10 @@
   --radius-pill: 999px;
 
   /* === Sombras === */
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.08);
-  --shadow-red: 0 8px 25px rgba(225, 6, 0, 0.35);
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.14);
+  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.18);
+  --shadow-red: 0 8px 25px rgba(230, 57, 70, 0.4);
 
   /* === Class Type Accents — un color por clase, identidad propia === */
   --accent-sunrise:   #FF9A3C;  /* amanecer */
@@ -276,7 +279,7 @@ button:focus:not(:focus-visible) {
   background: rgba(10, 10, 10, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   padding: 12px 0;
 }
 .nav-inner {
@@ -416,8 +419,8 @@ button:focus:not(:focus-visible) {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 70% 30%, rgba(78, 205, 196, 0.28), transparent 60%),
-    radial-gradient(ellipse at 20% 80%, rgba(78, 205, 196, 0.12), transparent 50%),
+    radial-gradient(ellipse at 70% 30%, rgba(78, 205, 196, 0.32), transparent 60%),
+    radial-gradient(ellipse at 20% 80%, rgba(78, 205, 196, 0.15), transparent 50%),
     var(--black);
 }
 .hero-overlay {
@@ -1593,6 +1596,8 @@ section { padding: 100px 0; }
   align-items: center;
   justify-content: center;
   gap: 6px;
+  flex-wrap: wrap;
+  line-height: 1.5;
 }
 .tag-popular {
   color: var(--teal-primary);
@@ -3023,7 +3028,7 @@ section { padding: 100px 0; }
 }
 .modal {
   background: linear-gradient(180deg, #161616 0%, #0d0d0d 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 24px;
   width: 100%;
   max-width: 480px;
@@ -3033,7 +3038,7 @@ section { padding: 100px 0; }
   color: var(--white);
   box-shadow:
     0 30px 80px rgba(0, 0, 0, 0.6),
-    0 0 60px rgba(78, 205, 196, 0.05);
+    0 0 60px rgba(78, 205, 196, 0.1);
   animation: slideUp 0.3s ease;
 }
 @keyframes slideUp {
@@ -4086,6 +4091,7 @@ section { padding: 100px 0; }
   display: flex;
   flex-direction: column;
   min-width: 0;
+  gap: 0;
 }
 .sticky-class {
   font-family: var(--font-display);
@@ -4096,6 +4102,14 @@ section { padding: 100px 0; }
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.2;
+}
+.sticky-position {
+  font-size: 11px;
+  color: var(--teal-primary);
+  font-weight: 500;
+  margin-top: 1px;
+  white-space: normal;
+  line-height: 1.3;
 }
 .sticky-meta {
   font-size: 11px;
@@ -4138,7 +4152,7 @@ section { padding: 100px 0; }
   background: rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 24px;
   padding: 44px 40px;
   text-align: center;

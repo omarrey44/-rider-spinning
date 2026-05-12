@@ -169,10 +169,7 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
                   </div>
                   <h4>Bicicleta #{String(selectedBike).padStart(2, '0')} seleccionada</h4>
                   <p className="summary-position">
-                    Fila {Math.ceil(selectedBike / BIKE_CONFIG.cols)}
-                    {BIKE_CONFIG.popular.includes(selectedBike) && (
-                      <span className="tag-popular">· Posición popular</span>
-                    )}
+                    {getBikeTooltip(selectedBike)}
                   </p>
                   <button
                     type="button"
@@ -375,6 +372,7 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
             <span className="sticky-bike">#{String(selectedBike).padStart(2, '0')}</span>
             <div className="sticky-text">
               <span className="sticky-class">{selectedSlot.className}</span>
+              <span className="sticky-position">{getBikeTooltip(selectedBike)}</span>
               <span className="sticky-meta">{selectedSlot.hour} {selectedSlot.period} · {selectedSlot.price}</span>
             </div>
           </div>
