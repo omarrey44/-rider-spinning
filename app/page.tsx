@@ -48,6 +48,7 @@ function RevealSection({ children, delay = 0 }: { children: React.ReactNode; del
   );
 }
 
+
 export default function Home() {
   const [selectedSlot, setSelectedSlot] = useState<{
     slot: ScheduleSlot;

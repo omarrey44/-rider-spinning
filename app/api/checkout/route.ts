@@ -26,15 +26,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const baseUrl =
+      process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+
     if (!process.env.STRIPE_SECRET_KEY) {
       return NextResponse.json(
         { error: 'Stripe no está configurado. Define STRIPE_SECRET_KEY' },
         { status: 500 }
       );
     }
-
-    const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
     const session = await getStripe().checkout.sessions.create({
       mode: 'payment',

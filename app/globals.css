@@ -3207,7 +3207,7 @@ section { padding: 100px 0; }
 /* Success Message Component */
 .success-message {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 14px;
   text-align: left;
   background: rgba(34, 197, 94, 0.1);
