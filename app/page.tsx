@@ -16,6 +16,7 @@ import Footer from '@/components/Footer';
 import SmoothScroll from '@/components/SmoothScroll';
 import CheckoutModal from '@/components/CheckoutModal';
 import PackCheckoutModal from '@/components/PackCheckoutModal';
+import SubscriptionCheckoutModal from '@/components/SubscriptionCheckoutModal';
 import BackToTop from '@/components/BackToTop';
 import { DayKey, ScheduleSlot } from '@/data/schedule';
 
@@ -59,6 +60,7 @@ export default function Home() {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [checkoutBike, setCheckoutBike] = useState<{ number: number; row: number } | null>(null);
   const [packCheckoutOpen, setPackCheckoutOpen] = useState(false);
+  const [subscriptionCheckoutOpen, setSubscriptionCheckoutOpen] = useState(false);
 
   const handleSelectSlot = useCallback((slot: ScheduleSlot, day: DayKey) => {
     setSelectedSlot({ slot, day });
@@ -135,7 +137,7 @@ export default function Home() {
           onCheckout={handleCheckout}
         /></RevealSection>
         <RevealSection delay={100}><Instructors /></RevealSection>
-        <RevealSection delay={150}><Pricing onPackClick={() => setPackCheckoutOpen(true)} /></RevealSection>
+        <RevealSection delay={150}><Pricing onPackClick={() => setPackCheckoutOpen(true)} onSubscribeClick={() => setSubscriptionCheckoutOpen(true)} /></RevealSection>
         <RevealSection delay={100}><FAQ /></RevealSection>
         <RevealSection delay={100}><Waitlist /></RevealSection>
         <RevealSection delay={100}><FindBooking /></RevealSection>
@@ -179,6 +181,11 @@ export default function Home() {
       <PackCheckoutModal
         open={packCheckoutOpen}
         onClose={() => setPackCheckoutOpen(false)}
+      />
+
+      <SubscriptionCheckoutModal
+        open={subscriptionCheckoutOpen}
+        onClose={() => setSubscriptionCheckoutOpen(false)}
       />
     </>
   );

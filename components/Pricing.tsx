@@ -1,8 +1,9 @@
 interface PricingProps {
   onPackClick?: () => void;
+  onSubscribeClick?: () => void;
 }
 
-export default function Pricing({ onPackClick }: PricingProps) {
+export default function Pricing({ onPackClick, onSubscribeClick }: PricingProps) {
   return (
     <section className="pricing" id="precios">
       <div className="container">
@@ -84,7 +85,7 @@ export default function Pricing({ onPackClick }: PricingProps) {
               <li>Botella + toalla cortesía</li>
               <li>Acceso a eventos exclusivos</li>
             </ul>
-            <a href="#horarios" className="btn btn-outline btn-block">Suscribirme</a>
+            <button onClick={onSubscribeClick || (() => {})} className="btn btn-outline btn-block">Suscribirme</button>
           </article>
         </div>
       </div>
