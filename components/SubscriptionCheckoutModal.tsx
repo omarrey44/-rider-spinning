@@ -101,6 +101,13 @@ export default function SubscriptionCheckoutModal({
     setLoading(true);
 
     try {
+      const testMode = typeof window !== 'undefined' && sessionStorage.getItem('test_mode') === 'true';
+
+      if (testMode) {
+        window.location.href = `/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&class_title=Mensualidad Ilimitada&amount=2400`;
+        return;
+      }
+
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

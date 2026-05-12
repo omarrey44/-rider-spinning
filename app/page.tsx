@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
+import TestModeDetector from '@/components/TestModeDetector';
 import Launch from '@/components/Launch';
 import HowItWorks from '@/components/HowItWorks';
 import Schedule from '@/components/Schedule';
@@ -113,6 +114,7 @@ export default function Home() {
       <a href="#main" className="skip-link">
         Saltar al contenido
       </a>
+      <TestModeDetector />
       <SmoothScroll />
       <Navbar />
       <Hero />

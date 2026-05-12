@@ -7,7 +7,19 @@ export const dynamic = 'force-dynamic';
 export default async function SuccessPage({
   searchParams,
 }: {
-  searchParams: { session_id?: string };
+  searchParams: {
+    session_id?: string;
+    test?: string;
+    customer_name?: string;
+    customer_email?: string;
+    class_title?: string;
+    instructor_name?: string;
+    day?: string;
+    hour?: string;
+    bike_number?: string;
+    bike_row?: string;
+    amount?: string;
+  };
 }) {
   let sessionData: {
     customerName: string;
@@ -22,7 +34,20 @@ export default async function SuccessPage({
     customerEmail: string;
   } | null = null;
 
-  if (searchParams?.session_id && process.env.STRIPE_SECRET_KEY) {
+  if (searchParams?.test === 'true') {
+    sessionData = {
+      customerName: (searchParams.customer_name as string) || 'Rider',
+      customerEmail: (searchParams.customer_email as string) || '',
+      className: (searchParams.class_title as string) || '',
+      instructorName: (searchParams.instructor_name as string) || '',
+      day: (searchParams.day as string) || '',
+      hour: (searchParams.hour as string) || '',
+      bikeNumber: (searchParams.bike_number as string) || '',
+      bikeRow: (searchParams.bike_row as string) || '',
+      amountTotal: (searchParams.amount as string) || '',
+      currency: 'MXN',
+    };
+  } else if (searchParams?.session_id && process.env.STRIPE_SECRET_KEY) {
     try {
       const stripe = getStripe();
       const session = await stripe.checkout.sessions.retrieve(
