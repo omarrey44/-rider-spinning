@@ -236,7 +236,7 @@ export default function CheckoutModal({
 
           <button
             type="submit"
-            className="btn btn-primary btn-lg btn-block"
+            className="btn btn-primary btn-lg btn-block btn-shimmer"
             disabled={loading}
           >
             {loading && <span className="loading-spinner" />}

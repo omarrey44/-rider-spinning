@@ -77,6 +77,18 @@ a { color: inherit; text-decoration: none; }
 button { font: inherit; cursor: pointer; border: none; background: none; }
 ul { list-style: none; }
 
+/* Autofill styling para inputs */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px rgba(255, 255, 255, 0.04) inset !important;
+  -webkit-text-fill-color: var(--white) !important;
+}
+input:-webkit-autofill::first-line {
+  font-family: var(--font-body);
+}
+
 /* Skip to content link */
 .skip-link {
   position: absolute;
@@ -228,6 +240,26 @@ button:focus:not(:focus-visible) {
 .btn-outline:hover {
   background: var(--text-dark);
   color: var(--white);
+}
+
+/* Button shimmer effect */
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shimmer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  animation: shimmer 2s infinite;
+}
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
 }
 
 /* =====================================================
@@ -3019,7 +3051,7 @@ section { padding: 100px 0; }
   align-items: center;
   justify-content: center;
   font-size: 18px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.6);
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.2s ease;
@@ -3029,9 +3061,10 @@ section { padding: 100px 0; }
   background: rgba(225, 6, 0, 0.18);
   border-color: rgba(225, 6, 0, 0.4);
   color: var(--white);
+  opacity: 1;
 }
 .modal-header {
-  padding: 32px 32px 24px;
+  padding: 32px 32px 32px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 .modal-eyebrow {
@@ -3059,7 +3092,7 @@ section { padding: 100px 0; }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
+  padding: 14px 0;
   font-size: 14px;
 }
 .summary-icon-label {
@@ -3111,9 +3144,11 @@ section { padding: 100px 0; }
 }
 .form-group .optional {
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--teal-primary);
   text-transform: none;
   letter-spacing: 0;
+  font-size: 0.85em;
+  opacity: 0.9;
 }
 .form-group input {
   width: 100%;
@@ -3130,6 +3165,7 @@ section { padding: 100px 0; }
   outline: none;
   border-color: var(--teal-primary);
   background: rgba(78, 205, 196, 0.06);
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.15);
 }
 .form-group input::placeholder {
   color: rgba(255, 255, 255, 0.3);
@@ -3138,11 +3174,19 @@ section { padding: 100px 0; }
   background: rgba(225, 6, 0, 0.14);
   border: 1px solid rgba(225, 6, 0, 0.35);
   color: #ff8a85;
-  padding: 12px 16px;
+  padding: 12px 16px 12px 40px;
   border-radius: 10px;
   font-size: 13px;
   font-weight: 600;
   margin-bottom: 16px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.form-error::before {
+  content: '⚠️';
+  position: absolute;
+  left: 12px;
 }
 .form-note {
   font-size: 12px;
@@ -3153,6 +3197,44 @@ section { padding: 100px 0; }
 .btn-block {
   width: 100%;
   justify-content: center;
+}
+
+/* Success Message Component */
+.success-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  text-align: left;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 14px;
+  animation: slideUp 0.3s ease;
+}
+.success-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  flex-shrink: 0;
+}
+.success-message strong {
+  display: block;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+.success-message span {
+  display: block;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
 }
 .btn:disabled {
   opacity: 0.6;
@@ -4117,7 +4199,7 @@ section { padding: 100px 0; }
 }
 .waitlist-input {
   flex: 1;
-  padding: 14px 16px 14px 0;
+  padding: 14px 16px;
   background: transparent;
   border: none;
   outline: none;

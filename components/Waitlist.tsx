@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MailIcon, CheckIcon } from './Icons';
+import SuccessMessage from './SuccessMessage';
 
 export default function Waitlist() {
   const [email, setEmail] = useState('');
@@ -51,23 +51,15 @@ export default function Waitlist() {
           </p>
 
           {done ? (
-            <div className="waitlist-done" role="status">
-              <span className="waitlist-done-icon"><CheckIcon size={20} /></span>
-              <div>
-                <strong>
-                  {done === 'duplicate' ? 'Ya estás en la lista' : '¡Listo, estás dentro!'}
-                </strong>
-                <span>
-                  {done === 'duplicate'
-                    ? 'Tu correo ya estaba registrado. Te avisamos cuando abramos.'
-                    : 'Te enviaremos el aviso de apertura a tu correo.'}
-                </span>
-              </div>
-            </div>
+            <SuccessMessage
+              title={done === 'duplicate' ? 'Ya estás en la lista' : '¡Listo, estás dentro!'}
+              subtitle={done === 'duplicate'
+                ? 'Tu correo ya estaba registrado. Te avisamos cuando abramos.'
+                : 'Te enviaremos el aviso de apertura a tu correo.'}
+            />
           ) : (
             <form onSubmit={handleSubmit} className="waitlist-form">
               <div className="waitlist-input-wrap">
-                <span className="waitlist-input-icon" aria-hidden="true"><MailIcon /></span>
                 <input
                   type="email"
                   value={email}
