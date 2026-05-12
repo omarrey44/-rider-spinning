@@ -9,12 +9,12 @@
      - RED:  acción (CTAs, featured, estados seleccionados)
      - BLACK: base
   */
-  --teal-primary: #4ECDC4;
-  --teal-hover: #3BB8AF;
+  --teal-primary: #2A9D8F;
+  --teal-hover: #1E8B83;
   --teal-light: #A8E6E3;
-  --teal-soft: rgba(78, 205, 196, 0.12);
-  --teal-glow: rgba(78, 205, 196, 0.5);
-  --teal-dark: #2A9D8F;
+  --teal-soft: rgba(42, 157, 143, 0.12);
+  --teal-glow: rgba(42, 157, 143, 0.5);
+  --teal-dark: #1E8B83;
 
   --red-primary: #E63946;
   --red-hover: #D62828;
