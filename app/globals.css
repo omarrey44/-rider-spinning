@@ -3512,9 +3512,9 @@ section::before {
 
 @media (max-width: 640px) {
   .country-select {
-    flex: 0 0 95px;
-    font-size: 13px;
-    padding: 10px 8px;
+    flex: 0 0 75px;
+    font-size: 12px;
+    padding: 10px 6px;
   }
 }
 
