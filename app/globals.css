@@ -3510,6 +3510,14 @@ section::before {
   flex: 1;
 }
 
+@media (max-width: 640px) {
+  .country-select {
+    flex: 0 0 95px;
+    font-size: 13px;
+    padding: 10px 8px;
+  }
+}
+
 .btn-block {
   width: 100%;
   justify-content: center;
