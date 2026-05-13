@@ -3597,17 +3597,18 @@ section::before {
 
   /* Hero */
   .hero { min-height: auto; }
-  .hero-content { padding: 24px 20px 60px; gap: 32px; }
+  .hero-content { display: flex; flex-direction: column; padding: 24px 20px 40px; gap: 24px; }
+  .hero-text { order: 2; }
+  .hero-ctas { order: 1; margin-bottom: 16px; flex-direction: column; gap: 10px; }
+  .hero-ctas .btn { width: 100%; justify-content: center; padding: 14px 20px; }
+  .hero-visual { order: 3; max-width: 100%; margin: 0 auto; }
   .hero-title { font-size: clamp(32px, 9vw, 48px); letter-spacing: -1px; margin-bottom: 24px; }
   .hero-title::after { width: 60px; height: 2px; }
-  .hero-sub { font-size: 15px; margin-bottom: 28px; max-width: 100%; }
-  .hero-ctas { flex-direction: column; gap: 10px; margin-bottom: 32px; }
-  .hero-ctas .btn { width: 100%; justify-content: center; padding: 14px 20px; }
+  .hero-sub { font-size: 15px; margin-bottom: 24px; max-width: 100%; }
   .hero-proof { gap: 18px; padding: 14px 16px; max-width: 100%; }
-  .hero-bike-visual { width: 200px; }
+  .hero-bike-visual { width: 180px; }
   .proof-text .km-headline { font-size: 17px; }
   .proof-text .km-label { font-size: 12px; }
-  .hero-visual { max-width: 280px; }
   .hero-card { padding: 20px; border-radius: 18px; }
 
   /* How it works — mobile bg swap */
@@ -3769,14 +3770,14 @@ section::before {
   .mobile-menu a { padding: 14px 0; font-size: 16px; }
 
   /* Hero */
-  .hero-content { padding: 24px 16px 60px; }
+  .hero-content { padding: 20px 16px 40px; }
   .hero-badge { padding: 6px 14px; font-size: 12px; margin-bottom: 20px; }
   .hero-title { font-size: 32px; line-height: 1.1; }
   .hero-tagline { font-size: 15px; }
-  .hero-visual { max-width: 260px; }
-  .hero-visual svg { max-width: 260px; }
+  .hero-visual { max-width: 100%; }
+  .hero-visual svg { max-width: 100%; }
   .hero-proof { flex-direction: column; gap: 14px; padding: 16px; }
-  .hero-bike-visual { width: 240px; }
+  .hero-bike-visual { width: 160px; }
   .proof-text { text-align: center; }
   .proof-text .km-headline { font-size: 16px; }
   .stat-value { font-size: 30px; }
