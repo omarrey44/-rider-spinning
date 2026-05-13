@@ -82,6 +82,7 @@ export default function Navbar() {
               {label}
             </a>
           ))}
+          <a href="/#mis-reservas" onClick={() => setMobileOpen(false)}>Mis reservas</a>
           <a href="#reservar" className="btn btn-primary mobile-reserve-btn" onClick={() => setMobileOpen(false)}>Reservar ahora</a>
         </div>
       </nav>
