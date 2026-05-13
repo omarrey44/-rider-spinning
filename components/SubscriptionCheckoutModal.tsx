@@ -2,6 +2,12 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 
+const COUNTRIES = [
+  { flag: '🇲🇽', name: 'México', code: '+52' },
+  { flag: '🇺🇸', name: 'Estados Unidos', code: '+1' },
+  { flag: '🇨🇦', name: 'Canadá', code: '+1' },
+];
+
 interface SubscriptionCheckoutModalProps {
   open: boolean;
   onClose: () => void;
@@ -39,18 +45,22 @@ export default function SubscriptionCheckoutModal({
 }: SubscriptionCheckoutModalProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [countryCode, setCountryCode] = useState('+52');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showConfirmClose, setShowConfirmClose] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
 
-  const hasData = !!(name.trim() || email.trim());
+  const hasData = !!(name.trim() || email.trim() || phone.trim());
 
   const isEmailValid = email.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const reset = useCallback(() => {
     setName('');
     setEmail('');
+    setPhone('');
+    setCountryCode('+52');
     setError(null);
     setLoading(false);
   }, []);
@@ -78,8 +88,8 @@ export default function SubscriptionCheckoutModal({
     e.preventDefault();
     setError(null);
 
-    if (!name.trim() || !email.trim()) {
-      setError('Nombre y correo son obligatorios');
+    if (!name.trim() || !email.trim() || !phone.trim()) {
+      setError('Nombre, correo y teléfono son obligatorios');
       return;
     }
 
@@ -88,13 +98,19 @@ export default function SubscriptionCheckoutModal({
       return;
     }
 
+    if (!/^\d{10}$/.test(phone.trim())) {
+      setError('Ingresa un teléfono válido (10 dígitos)');
+      return;
+    }
+
     setLoading(true);
 
     try {
       const testMode = typeof window !== 'undefined' && sessionStorage.getItem('test_mode') === 'true';
+      const fullPhone = `${countryCode}${phone.trim()}`;
 
       if (testMode) {
-        window.location.href = `/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&class_title=Mensualidad Ilimitada&amount=2400`;
+        window.location.href = `/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=Mensualidad Ilimitada&amount=2400`;
         return;
       }
 
@@ -104,6 +120,7 @@ export default function SubscriptionCheckoutModal({
         body: JSON.stringify({
           customer_name: name.trim(),
           customer_email: email.trim(),
+          customer_phone: fullPhone,
           subscription_type: 'monthly',
           amount_cents: 240000,
           currency: 'MXN',
@@ -209,6 +226,32 @@ export default function SubscriptionCheckoutModal({
                   {isEmailValid ? '✓' : '✕'}
                 </div>
               )}
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Teléfono</label>
+            <div className="phone-input-group">
+              <select
+                value={countryCode}
+                onChange={(e) => setCountryCode(e.target.value)}
+                className="country-select"
+              >
+                {COUNTRIES.map((country) => (
+                  <option key={country.code} value={country.code}>
+                    {country.flag} {country.name} ({country.code})
+                  </option>
+                ))}
+              </select>
+              <input
+                id="sub-phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                placeholder="1234567890"
+                required
+                maxLength={10}
+              />
             </div>
           </div>
 

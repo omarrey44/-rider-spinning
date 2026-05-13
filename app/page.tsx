@@ -106,6 +106,17 @@ export default function Home() {
     return `${dayNames[dayKey]} ${dateStr} ${hourStr} ${periodStr}`;
   };
 
+  const getClassDateISO = (dayKey: DayKey): string => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const offsets: Record<DayKey, number> = { lun: 0, mar: 1, mie: 2, jue: 3, vie: 4, sab: 5 };
+    const target = new Date(today);
+    target.setDate(today.getDate() + mondayOffset + (offsets[dayKey] ?? 0));
+    if (target < today) target.setDate(target.getDate() + 7);
+    return target.toISOString().split('T')[0];
+  };
+
   const priceStr = selectedSlot?.slot.price.replace('$', '') ?? '220';
   const priceCents = parseInt(priceStr, 10) * 100;
 
@@ -161,6 +172,7 @@ export default function Home() {
           hour={`${selectedSlot.slot.hour} ${selectedSlot.slot.period}`}
           duration={selectedSlot.slot.duration}
           priceCents={priceCents}
+          classDate={getClassDateISO(selectedSlot.day)}
           currency="MXN"
         />
       )}

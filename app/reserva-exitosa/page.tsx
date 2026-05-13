@@ -1,165 +1,198 @@
-import Link from 'next/link';
-import { getStripe } from '@/lib/stripe';
-import SuccessConfetti from '@/components/SuccessConfetti';
+'use client';
 
-export const dynamic = 'force-dynamic';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-export default async function SuccessPage({
-  searchParams,
-}: {
-  searchParams: {
-    session_id?: string;
-    test?: string;
-    customer_name?: string;
-    customer_email?: string;
-    class_title?: string;
-    instructor_name?: string;
-    day?: string;
-    hour?: string;
-    bike_number?: string;
-    bike_row?: string;
-    amount?: string;
-  };
-}) {
-  let sessionData: {
-    customerName: string;
-    className: string;
-    instructorName: string;
-    day: string;
-    hour: string;
-    bikeNumber: string;
-    bikeRow: string;
-    amountTotal: string;
-    currency: string;
-    customerEmail: string;
-  } | null = null;
+export default function ReservaExitosa() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
 
-  if (searchParams?.test === 'true') {
-    sessionData = {
-      customerName: (searchParams.customer_name as string) || 'Rider',
-      customerEmail: (searchParams.customer_email as string) || '',
-      className: (searchParams.class_title as string) || '',
-      instructorName: (searchParams.instructor_name as string) || '',
-      day: (searchParams.day as string) || '',
-      hour: (searchParams.hour as string) || '',
-      bikeNumber: (searchParams.bike_number as string) || '',
-      bikeRow: (searchParams.bike_row as string) || '',
-      amountTotal: (searchParams.amount as string) || '',
-      currency: 'MXN',
-    };
-  } else if (searchParams?.session_id && process.env.STRIPE_SECRET_KEY) {
-    try {
-      const stripe = getStripe();
-      const session = await stripe.checkout.sessions.retrieve(
-        searchParams.session_id
-      );
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
-      if (session.payment_status === 'paid') {
-        sessionData = {
-          customerName:
-            session.metadata?.customer_name ||
-            session.customer_details?.name ||
-            'Rider',
-          customerEmail:
-            session.customer_details?.email ||
-            session.metadata?.customer_email ||
-            '',
-          className: session.metadata?.class_title || '',
-          instructorName: session.metadata?.instructor_name || '',
-          day: session.metadata?.day || '',
-          hour: session.metadata?.hour || '',
-          bikeNumber: session.metadata?.bike_number || '',
-          bikeRow: session.metadata?.bike_row || '',
-          amountTotal: session.amount_total
-            ? (session.amount_total / 100).toLocaleString('es-MX')
-            : '',
-          currency: session.currency?.toUpperCase() || 'MXN',
-        };
-      }
-    } catch {
-      // Session not found or error retrieving
-    }
-  }
+  const customerName = searchParams.get('customer_name') || 'Ciclista';
+  const customerEmail = searchParams.get('customer_email') || '';
+  const customerPhone = searchParams.get('customer_phone') || '';
+  const classTitle = searchParams.get('class_title') || '';
+  const instructorName = searchParams.get('instructor_name') || '';
+  const day = searchParams.get('day') || '';
+  const hour = searchParams.get('hour') || '';
+  const amount = searchParams.get('amount') || '';
+  const bikeNumber = searchParams.get('bike_number') || '';
+  const bikeRow = searchParams.get('bike_row') || '';
+  const testMode = searchParams.get('test') === 'true';
+
+  if (!isClient) return null;
+
+  const hasClassDetails = classTitle && day && hour;
+  const displayAmount = amount ? `$${parseFloat(amount).toLocaleString('es-MX')} MXN` : '';
 
   return (
     <main className="success-page">
-      <SuccessConfetti />
-      <div className="success-card">
-        <div className="success-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
+      <div className="success-container">
+        {/* Header visual con animación */}
+        <div className="success-header">
+          <div className="success-icon">
+            <svg
+              viewBox="0 0 100 100"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="checkmark-icon"
+            >
+              <path d="M20 60L40 75L75 25" />
+            </svg>
+          </div>
+          <h1>¡Tu reserva está confirmada!</h1>
+          <p className="success-subtitle">
+            Revisa tu correo para los detalles de tu {hasClassDetails ? 'clase' : 'compra'}
+          </p>
         </div>
 
-        <span className="success-eyebrow">● Reserva confirmada</span>
-
-        <h1 className="success-title">
-          Nos vemos en <span className="text-red">clase</span>
-        </h1>
-
-        {sessionData && (
-          <p className="success-greeting">
-            Hola <strong>{sessionData.customerName}</strong> — listo, tu lugar está apartado.
-          </p>
-        )}
-
-        {sessionData ? (
-          <div className="success-details">
-            <div className="success-row">
-              <span>Clase</span>
-              <strong>{sessionData.className}</strong>
+        {/* Email visual confirmation */}
+        <div className="email-visual">
+          <div className="email-header">
+            <div className="email-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <path d="M22 6l-10 7L2 6" />
+              </svg>
             </div>
-            <div className="success-row">
-              <span>Instructor</span>
-              <strong>{sessionData.instructorName}</strong>
-            </div>
-            <div className="success-row">
-              <span>Día</span>
-              <strong>{sessionData.day}</strong>
-            </div>
-            <div className="success-row">
-              <span>Hora</span>
-              <strong>{sessionData.hour}</strong>
-            </div>
-            <div className="success-row">
-              <span>Bici</span>
-              <strong>#{String(sessionData.bikeNumber).padStart(2, '0')} · Fila {sessionData.bikeRow}</strong>
-            </div>
-            <div className="success-divider" />
-            <div className="success-row success-row-total">
-              <span>Pagado</span>
-              <strong>${sessionData.amountTotal} {sessionData.currency}</strong>
+            <div>
+              <p className="email-label">Confirmación enviada a</p>
+              <p className="email-address">{customerEmail}</p>
             </div>
           </div>
-        ) : (
-          <div className="success-fallback">
-            <p>Pago procesado correctamente. Recibirás la confirmación por correo.</p>
-          </div>
-        )}
 
-        <div className="success-tips">
-          <h3>Antes de tu clase</h3>
-          <ul>
-            <li><strong>Llega 10 min antes</strong> — ajustamos la bici a tu altura</li>
-            <li><strong>Trae toalla y agua</strong> — vas a sudar</li>
-            <li><strong>Ropa cómoda y tenis</strong> — los cleats SPD también funcionan</li>
-            <li><strong>Cancelación gratuita</strong> hasta 4h antes</li>
+          {/* Booking details card */}
+          <div className="booking-details">
+            <div className="detail-row">
+              <span className="detail-label">Nombre</span>
+              <span className="detail-value">{customerName}</span>
+            </div>
+
+            {customerEmail && (
+              <div className="detail-row">
+                <span className="detail-label">Correo</span>
+                <span className="detail-value">{customerEmail}</span>
+              </div>
+            )}
+
+            {customerPhone && (
+              <div className="detail-row">
+                <span className="detail-label">Teléfono</span>
+                <span className="detail-value">{customerPhone}</span>
+              </div>
+            )}
+
+            {hasClassDetails && (
+              <>
+                <div className="detail-row">
+                  <span className="detail-label">Clase</span>
+                  <span className="detail-value">{classTitle}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Instructor</span>
+                  <span className="detail-value">{instructorName || 'Por definir'}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Fecha y hora</span>
+                  <span className="detail-value">{day} · {hour}</span>
+                </div>
+                {bikeNumber && bikeRow && (
+                  <div className="detail-row">
+                    <span className="detail-label">Tu bici</span>
+                    <span className="detail-value">#{String(bikeNumber).padStart(2, '0')} · Fila {bikeRow}</span>
+                  </div>
+                )}
+              </>
+            )}
+
+            {displayAmount && (
+              <div className="detail-row amount">
+                <span className="detail-label">Monto</span>
+                <span className="detail-value">{displayAmount}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Test mode indicator */}
+          {testMode && (
+            <div className="test-mode-banner">
+              <p>Modo prueba — Este es un pago de prueba</p>
+            </div>
+          )}
+        </div>
+
+        {/* Next steps */}
+        <div className="success-next-steps">
+          <h2>¿Qué sigue?</h2>
+          <ul className="steps-list">
+            <li>
+              <span className="step-icon">1</span>
+              <div>
+                <p className="step-title">Revisa tu correo</p>
+                <p className="step-desc">Recibirás la confirmación con los detalles en los próximos minutos</p>
+              </div>
+            </li>
+            {hasClassDetails && (
+              <li>
+                <span className="step-icon">2</span>
+                <div>
+                  <p className="step-title">Llega 15 minutos antes</p>
+                  <p className="step-desc">Estacionamiento disponible · Vestiarios con duchas · Casilleros</p>
+                </div>
+              </li>
+            )}
+            <li>
+              <span className="step-icon">{hasClassDetails ? 3 : 2}</span>
+              <div>
+                <p className="step-title">¡Prepárate a pedalear!</p>
+                <p className="step-desc">Trae tu botella de agua y prepárate para una clase épica</p>
+              </div>
+            </li>
           </ul>
         </div>
 
-        {sessionData?.customerEmail && (
-          <p className="success-email-note">
-            Confirmación enviada a <strong>{sessionData.customerEmail}</strong>
-          </p>
-        )}
-
+        {/* Action buttons */}
         <div className="success-actions">
-          <Link href="/" className="btn btn-primary btn-lg">
+          {hasClassDetails && (
+            <button
+              onClick={() => router.push('/#horarios')}
+              className="btn btn-outline"
+            >
+              Ver más clases
+            </button>
+          )}
+          <button
+            onClick={() => router.push('/')}
+            className="btn btn-primary"
+          >
             Volver al inicio
-          </Link>
-          <Link href="/#mis-reservas" className="btn btn-outline-on-dark">
-            Ver mis reservas
-          </Link>
+          </button>
+        </div>
+
+        {/* FAQ callout */}
+        <div className="success-faq">
+          <p className="faq-title">¿Preguntas frecuentes?</p>
+          <div className="faq-items">
+            <details>
+              <summary>¿Cómo cancelo mi {hasClassDetails ? 'reserva' : 'compra'}?</summary>
+              <p>Puedes cancelar directamente desde tu email o contactando a nuestro equipo con 2 horas de anticipación mínimo.</p>
+            </details>
+            <details>
+              <summary>¿Puedo modificar mi {hasClassDetails ? 'reserva' : 'compra'}?</summary>
+              <p>Sí, contáctanos en contacto@rideonstudio.com y haremos el cambio por ti.</p>
+            </details>
+            <details>
+              <summary>¿Dónde está el estudio?</summary>
+              <p>Estamos ubicados en Polanco, CDMX. Los detalles completos van en tu email de confirmación.</p>
+            </details>
+          </div>
         </div>
       </div>
     </main>

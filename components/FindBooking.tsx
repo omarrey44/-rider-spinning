@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MailIcon, BikeIcon, UserIcon, CalendarIcon, AlarmClockIcon, CheckIcon } from './Icons';
 
 interface Booking {
@@ -12,6 +12,7 @@ interface Booking {
   instructor_name: string;
   day: string;
   hour: string;
+  class_date: string | null;
   status: string;
   created_at: string;
 }
@@ -23,12 +24,37 @@ const STATUS_LABELS: Record<string, string> = {
   refunded: 'Reembolsada',
 };
 
+const formatFullDate = (classDate: string | null, day: string): string => {
+  if (!classDate) return day;
+  try {
+    const date = new Date(classDate + 'T00:00:00');
+    return date.toLocaleDateString('es-MX', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  } catch {
+    return day;
+  }
+};
+
 export default function FindBooking() {
-  const [email, setEmail] = useState('');
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const emailParam = params.get('email');
+      if (emailParam) {
+        setSearch(decodeURIComponent(emailParam));
+      }
+    }
+  }, []);
 
   const handleLookup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,18 +62,32 @@ export default function FindBooking() {
     setBookings([]);
     setHasSearched(false);
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Ingresa un correo válido');
+    const searchTrimmed = search.trim();
+    if (!searchTrimmed) {
+      setError('Ingresa un correo o número de confirmación');
       return;
     }
 
     setLoading(true);
 
     try {
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(searchTrimmed);
+      const isConfirmation = /^[a-f0-9]{8}$/i.test(searchTrimmed);
+
+      if (!isEmail && !isConfirmation) {
+        setError('Ingresa un correo válido o número de confirmación (8 caracteres)');
+        setLoading(false);
+        return;
+      }
+
       const res = await fetch('/api/bookings/lookup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify(
+          isEmail
+            ? { email: searchTrimmed.toLowerCase() }
+            : { confirmation: searchTrimmed.toUpperCase() }
+        ),
       });
 
       const data = await res.json();
@@ -79,12 +119,12 @@ export default function FindBooking() {
           <div className="lookup-input-wrap">
             <span className="lookup-input-icon" aria-hidden="true"><MailIcon /></span>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => { setEmail(e.target.value); setError(null); }}
-              placeholder="tu@correo.com"
+              type="text"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setError(null); }}
+              placeholder="tu@correo.com o número de confirmación"
               required
-              aria-label="Correo electrónico"
+              aria-label="Correo o número de confirmación"
               className="lookup-input"
             />
           </div>
@@ -143,7 +183,7 @@ export default function FindBooking() {
                       <span className="booking-icon" aria-hidden="true"><CalendarIcon /></span>
                       <div className="booking-text">
                         <span className="booking-label">Día</span>
-                        <strong>{b.day}</strong>
+                        <strong>{formatFullDate(b.class_date, b.day)}</strong>
                       </div>
                     </div>
                     <div className="booking-card-item">

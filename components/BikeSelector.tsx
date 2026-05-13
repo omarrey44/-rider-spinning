@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { BIKE_CONFIG, getTakenBikes } from '@/data/schedule';
+import { useState, useMemo, useEffect } from 'react';
+import { BIKE_CONFIG } from '@/data/schedule';
 import { BoltIcon, UserIcon, CalendarIcon, CalendarDaysIcon, AlarmClockIcon, StopwatchIcon, FanIcon } from './Icons';
 
 interface BikeSelectorProps {
@@ -61,14 +61,32 @@ function LockIcon({ className }: { className?: string }) {
 export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorProps) {
   const [selectedBike, setSelectedBike] = useState<number | null>(null);
   const [tooltipBike, setTooltipBike] = useState<number | null>(null);
+  const [takenBikes, setTakenBikes] = useState<number[]>([]);
   const totalBikes = BIKE_CONFIG.rows * BIKE_CONFIG.cols;
 
-  // Bicis ocupadas: derivadas del slot seleccionado para que cada clase
-  // tenga su propio patrón. Se reemplazará por query a Supabase cuando
-  // tengamos realtime de bookings.
-  const takenBikes = useMemo(() => {
-    if (!selectedSlot) return [] as number[];
-    return getTakenBikes(`${selectedSlot.className}-${selectedSlot.dayName}-${selectedSlot.hour}`);
+  useEffect(() => {
+    if (!selectedSlot) {
+      setTakenBikes([]);
+      return;
+    }
+
+    const fetchTakenBikes = async () => {
+      try {
+        const params = new URLSearchParams({
+          class_title: selectedSlot.className,
+          day: selectedSlot.dayName,
+          hour: `${selectedSlot.hour} ${selectedSlot.period}`,
+        });
+        const res = await fetch(`/api/bookings/available-bikes?${params}`);
+        const data = await res.json();
+        setTakenBikes(data.takenBikes || []);
+      } catch (err) {
+        console.error('Error fetching taken bikes:', err);
+        setTakenBikes([]);
+      }
+    };
+
+    fetchTakenBikes();
   }, [selectedSlot]);
 
   const availableCount = totalBikes - takenBikes.length;
@@ -289,10 +307,10 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
 
           {/* Counter de disponibilidad */}
           {selectedSlot && (
-            <div className={`availability-counter ${availableCount <= 5 ? 'low' : ''}`}>
+            <div className={`availability-counter ${availableCount <= 3 ? 'critical' : availableCount <= 5 ? 'low' : ''}`}>
               <span className="availability-dot" aria-hidden="true"></span>
               <strong>{availableCount}</strong> de {totalBikes} disponibles
-              {availableCount <= 5 && <span className="availability-warn">¡Pocos lugares!</span>}
+              {availableCount <= 5 && <span className="availability-warn">{availableCount <= 3 ? '⚠️ ¡Últimos lugares!' : '⚡ Pocos lugares'}</span>}
             </div>
           )}
 
@@ -320,7 +338,7 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
               const cls = [
                 'bike-node',
                 taken && 'taken',
-                popular && !selected && 'popular',
+                popular && !taken && !selected && 'popular',
                 selected && 'selected',
               ].filter(Boolean).join(' ');
 

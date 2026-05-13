@@ -13,8 +13,10 @@ export async function POST(req: NextRequest) {
       class_title,
       instructor_name,
       date_time,
+      class_date,
       day,
       hour,
+      duration = '45 min',
       amount_cents,
       currency,
     } = body;
@@ -27,7 +29,7 @@ export async function POST(req: NextRequest) {
     }
 
     const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+      process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3004';
 
     if (!process.env.STRIPE_SECRET_KEY) {
       return NextResponse.json(
@@ -35,6 +37,20 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
+
+    const successParams = new URLSearchParams({
+      session_id: '{CHECKOUT_SESSION_ID}',
+      customer_name,
+      customer_email,
+      customer_phone: customer_phone || '',
+      class_title: class_title || '',
+      instructor_name: instructor_name || '',
+      day: day || '',
+      hour: hour || '',
+      bike_number: String(bike_number),
+      bike_row: String(bike_row),
+      amount: String(amount_cents / 100),
+    });
 
     const session = await getStripe().checkout.sessions.create({
       mode: 'payment',
@@ -45,8 +61,8 @@ export async function POST(req: NextRequest) {
           price_data: {
             currency: currency?.toLowerCase() || 'mxn',
             product_data: {
-              name: `Rideon - ${class_title}`,
-              description: `Bici #${String(bike_number).padStart(2, '0')} · Fila ${bike_row} · ${date_time}`,
+              name: class_title || 'Clase Rideon',
+              description: `👤 ${instructor_name || 'Por definir'} • 📅 ${date_time} • 🚴 Bici #${String(bike_number).padStart(2, '0')} Fila ${bike_row} • ⏱ ${duration || '45 min'} • 🎁 Bebida cortesía`,
               metadata: {
                 customer_name,
                 customer_phone: customer_phone || '',
@@ -73,11 +89,12 @@ export async function POST(req: NextRequest) {
         class_title,
         instructor_name,
         date_time,
+        class_date: class_date || '',
         day,
         hour,
       },
-      success_url: `${baseUrl}/reserva-exitosa?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/#reservar`,
+      success_url: `${baseUrl}/reserva-exitosa?${successParams}`,
+      cancel_url: baseUrl,
     });
 
     return NextResponse.json({ checkout_url: session.url });
