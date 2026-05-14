@@ -6,6 +6,7 @@ const SECTIONS = [
   { id: '#horarios', label: 'Horarios' },
   { id: '#instructores', label: 'Instructores' },
   { id: '#precios', label: 'Precios' },
+  { id: '#mis-reservas', label: 'Mis reservas' },
   { id: '#contacto', label: 'Contacto' },
 ];
 
@@ -82,7 +83,6 @@ export default function Navbar() {
               {label}
             </a>
           ))}
-          <a href="/#mis-reservas" onClick={() => setMobileOpen(false)}>Mis reservas</a>
           <a href="#reservar" className="btn btn-primary mobile-reserve-btn" onClick={() => setMobileOpen(false)}>Reservar ahora</a>
         </div>
       </nav>
