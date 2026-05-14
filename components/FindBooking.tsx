@@ -143,6 +143,13 @@ export default function FindBooking() {
           </div>
         )}
 
+        {!hasSearched && !error && (
+          <div className="lookup-prompt">
+            <div className="lookup-prompt-icon" aria-hidden="true">🔍</div>
+            <p>Ingresa el correo o número de confirmación para ver tus reservas</p>
+          </div>
+        )}
+
         {hasSearched && bookings.length === 0 && !error && (
           <div className="lookup-empty">
             <div className="lookup-empty-icon" aria-hidden="true">🚴</div>

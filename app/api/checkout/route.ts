@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/lib/stripe';
+import { createAdminClient } from '@/lib/supabase/server';
 
 export async function POST(req: NextRequest) {
   try {
@@ -37,6 +38,36 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
+
+    const supabase = createAdminClient();
+
+    const { data: booking, error: bookingError } = await supabase
+      .from('bookings')
+      .insert({
+        customer_name,
+        customer_email,
+        customer_phone: customer_phone || null,
+        bike_number,
+        bike_row,
+        class_title: class_title || '',
+        instructor_name: instructor_name || '',
+        day: day || '',
+        hour: hour || '',
+        class_date: class_date || null,
+        amount_paid: amount_cents,
+        status: 'pending',
+      })
+      .select();
+
+    if (bookingError || !booking || booking.length === 0) {
+      console.error('[checkout] Supabase insert error:', bookingError);
+      return NextResponse.json(
+        { error: 'Error al crear la reserva' },
+        { status: 500 }
+      );
+    }
+
+    const bookingId = booking[0].id;
 
     const successParams = new URLSearchParams({
       session_id: '{CHECKOUT_SESSION_ID}',
@@ -81,6 +112,7 @@ export async function POST(req: NextRequest) {
         },
       ],
       metadata: {
+        booking_id: bookingId,
         customer_name,
         customer_email,
         customer_phone: customer_phone || '',

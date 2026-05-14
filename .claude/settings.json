@@ -3,7 +3,8 @@
     "allow": [
       "Bash(git commit *)",
       "Bash(npm install *)",
-      "Bash(xargs grep -l \"Pack.*clases\\\\|AHORRAS\\\\|savings\")"
+      "Bash(xargs grep -l \"Pack.*clases\\\\|AHORRAS\\\\|savings\")",
+      "Bash(grep -E \"\\\\.ts$|\\\\.tsx$\")"
     ]
   }
 }

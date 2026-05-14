@@ -88,10 +88,36 @@ export default function CheckoutModal({
     setCountryCode('+52');
     setError(null);
     setLoading(false);
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('checkoutFormData');
+    }
   }, []);
+
+  const saveFormData = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('checkoutFormData', JSON.stringify({
+        name, email, phone, countryCode
+      }));
+    }
+  }, [name, email, phone, countryCode]);
 
   useEffect(() => {
     if (!open) return;
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('checkoutFormData');
+      if (saved) {
+        try {
+          const { name: n, email: e, phone: p, countryCode: c } = JSON.parse(saved);
+          setName(n || '');
+          setEmail(e || '');
+          setPhone(p || '');
+          setCountryCode(c || '+52');
+        } catch {
+          // Invalid data, ignore
+        }
+      }
+    }
+
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
@@ -105,9 +131,9 @@ export default function CheckoutModal({
 
   useEffect(() => {
     if (!open) {
-      reset();
+      saveFormData();
     }
-  }, [open, reset]);
+  }, [open, saveFormData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,6 +161,7 @@ export default function CheckoutModal({
       const fullPhone = `${countryCode}${phone.trim()}`;
 
       if (testMode) {
+        reset();
         window.location.href = `/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=${encodeURIComponent(classTitle)}&instructor_name=${encodeURIComponent(instructorName)}&day=${encodeURIComponent(day)}&hour=${encodeURIComponent(hour)}&bike_number=${bikeNumber}&bike_row=${bikeRow}&amount=${priceCents / 100}`;
         return;
       }
@@ -165,6 +192,7 @@ export default function CheckoutModal({
         throw new Error(data.error || 'Error al crear la sesión de pago');
       }
 
+      reset();
       window.location.href = data.checkout_url;
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error inesperado');
@@ -317,6 +345,11 @@ export default function CheckoutModal({
           <p className="form-note">
             Te enviaremos la confirmación de tu reserva por correo.
           </p>
+
+          <div className="trust-badges">
+            <span className="trust-badge">🔒 Pago seguro</span>
+            <span className="trust-badge">↩️ 100% reembolsable</span>
+          </div>
 
           <button
             type="submit"

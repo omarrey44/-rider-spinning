@@ -34,62 +34,38 @@ export async function POST(req: NextRequest) {
     const session = event.data.object;
     const metadata = session.metadata;
 
-    if (!metadata?.customer_name || !metadata?.bike_number) {
-      console.error('[webhook] Missing metadata for booking insertion');
+    if (!metadata?.booking_id) {
+      console.error('[webhook] Missing booking_id in metadata');
       return NextResponse.json({ received: true });
     }
 
     const supabase = createAdminClient();
+    const confirmationNumber = metadata.booking_id.substring(0, 8).toUpperCase();
 
-    const { data: booking, error: insertError } = await supabase
+    const { error: updateError } = await supabase
       .from('bookings')
-      .insert({
-        customer_name: metadata.customer_name,
-        customer_email: session.customer_details?.email || metadata.customer_email || '',
-        customer_phone: metadata.customer_phone || null,
-        bike_number: parseInt(metadata.bike_number, 10),
-        bike_row: parseInt(metadata.bike_row, 10),
-        class_title: metadata.class_title,
-        instructor_name: metadata.instructor_name,
-        day: metadata.day,
-        hour: metadata.hour,
-        class_date: metadata.class_date || null,
+      .update({
+        status: 'confirmed',
         stripe_session_id: session.id,
         stripe_payment_intent_id:
           typeof session.payment_intent === 'string'
             ? session.payment_intent
             : null,
         amount_paid: session.amount_total,
-        status: 'confirmed',
+        confirmation_number: confirmationNumber,
       })
-      .select();
-
-    if (insertError || !booking || booking.length === 0) {
-      console.error('[webhook] Supabase insert error:', insertError);
-      return NextResponse.json(
-        { error: 'Failed to insert booking' },
-        { status: 500 }
-      );
-    }
-
-    const bookingId = booking[0].id;
-    const confirmationNumber = bookingId.substring(0, 8).toUpperCase();
-
-    const { error: updateError } = await supabase
-      .from('bookings')
-      .update({ confirmation_number: confirmationNumber })
-      .eq('id', bookingId);
+      .eq('id', metadata.booking_id);
 
     if (updateError) {
       console.error('[webhook] Supabase update error:', updateError);
       return NextResponse.json(
-        { error: 'Failed to update confirmation number' },
+        { error: 'Failed to confirm booking' },
         { status: 500 }
       );
     }
 
     console.log(
-      `[webhook] Booking confirmed for ${metadata.customer_name} - Bici #${metadata.bike_number}`
+      `[webhook] Booking confirmed: ${metadata.booking_id} - ${metadata.customer_name} - Bici #${metadata.bike_number}`
     );
 
     await sendBookingConfirmation({

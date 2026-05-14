@@ -63,10 +63,36 @@ export default function SubscriptionCheckoutModal({
     setCountryCode('+52');
     setError(null);
     setLoading(false);
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('subscriptionCheckoutFormData');
+    }
   }, []);
+
+  const saveFormData = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('subscriptionCheckoutFormData', JSON.stringify({
+        name, email, phone, countryCode
+      }));
+    }
+  }, [name, email, phone, countryCode]);
 
   useEffect(() => {
     if (!open) return;
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('subscriptionCheckoutFormData');
+      if (saved) {
+        try {
+          const { name: n, email: e, phone: p, countryCode: c } = JSON.parse(saved);
+          setName(n || '');
+          setEmail(e || '');
+          setPhone(p || '');
+          setCountryCode(c || '+52');
+        } catch {
+          // Invalid data, ignore
+        }
+      }
+    }
+
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
@@ -80,9 +106,9 @@ export default function SubscriptionCheckoutModal({
 
   useEffect(() => {
     if (!open) {
-      reset();
+      saveFormData();
     }
-  }, [open, reset]);
+  }, [open, saveFormData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,6 +136,7 @@ export default function SubscriptionCheckoutModal({
       const fullPhone = `${countryCode}${phone.trim()}`;
 
       if (testMode) {
+        reset();
         window.location.href = `/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=Mensualidad Ilimitada&amount=2400`;
         return;
       }
@@ -133,6 +160,7 @@ export default function SubscriptionCheckoutModal({
         throw new Error(data.error || 'Error al crear la sesión de pago');
       }
 
+      reset();
       window.location.href = data.checkout_url;
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error inesperado');

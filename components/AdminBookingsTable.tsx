@@ -60,9 +60,10 @@ export default function AdminBookingsTable() {
     };
 
     const config = statusMap[status] || { label: status, color: '#666' };
+    const isPending = status === 'pending';
 
     return (
-      <div style={{
+      <div className={isPending ? 'status-badge-pending' : ''} style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'flex-start',

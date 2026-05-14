@@ -160,7 +160,18 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
       <div className="container bike-layout">
         <div className="bike-info">
           <span className="eyebrow">Selecciona tu lugar</span>
-          <h2>Tu bici, <span className="text-red">tu posición</span></h2>
+          <div className="bike-header-with-stock">
+            <h2>Tu bici, <span className="text-red">tu posición</span></h2>
+            {selectedSlot && (
+              <div className="stock-indicator">
+                {availableCount > 0 ? (
+                  <span className="stock-badge available">🟢 {availableCount} disponibles</span>
+                ) : (
+                  <span className="stock-badge sold-out">⚠️ Sin disponibilidad</span>
+                )}
+              </div>
+            )}
+          </div>
           <p>Vista del salón en tiempo real. Las primeras filas tienen mejor visibilidad del instructor; las laterales reciben más aire.</p>
 
           <ul className="bike-legend">

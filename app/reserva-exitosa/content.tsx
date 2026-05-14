@@ -163,14 +163,14 @@ export default function ReservaContent() {
           {hasClassDetails && (
             <button
               onClick={() => router.push('/#horarios')}
-              className="btn btn-outline"
+              className="btn btn-primary"
             >
               Ver más clases
             </button>
           )}
           <button
             onClick={() => router.push('/')}
-            className="btn btn-primary"
+            className="btn btn-outline"
           >
             Volver al inicio
           </button>

@@ -39,6 +39,25 @@ const FALLBACK: InstructorRow[] = [
 
 export default function Instructors() {
   const [instructors, setInstructors] = useState<InstructorRow[]>(FALLBACK);
+  const [expandedBios, setExpandedBios] = useState<Set<string>>(new Set());
+
+  const toggleBio = (id: string) => {
+    const newExpanded = new Set(expandedBios);
+    if (newExpanded.has(id)) {
+      newExpanded.delete(id);
+    } else {
+      newExpanded.add(id);
+    }
+    setExpandedBios(newExpanded);
+  };
+
+  const truncateBio = (bio: string, id: string): string => {
+    const maxLength = 100;
+    if (bio.length > maxLength && !expandedBios.has(id)) {
+      return bio.substring(0, maxLength) + '...';
+    }
+    return bio;
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -80,7 +99,20 @@ export default function Instructors() {
                 <div className="instructor-photo" style={{ background: style.gradient }}></div>
                 <h3>{ins.full_name}</h3>
                 <span>{style.shiftLabel}</span>
-                {ins.bio && <p>{ins.bio}</p>}
+                {ins.bio && (
+                  <div className="bio-wrapper">
+                    <p>{truncateBio(ins.bio, ins.id)}</p>
+                    {ins.bio.length > 100 && (
+                      <button
+                        className="bio-toggle-btn"
+                        onClick={() => toggleBio(ins.id)}
+                        aria-expanded={expandedBios.has(ins.id)}
+                      >
+                        {expandedBios.has(ins.id) ? 'Menos' : 'Más'}
+                      </button>
+                    )}
+                  </div>
+                )}
               </article>
             );
           })}
