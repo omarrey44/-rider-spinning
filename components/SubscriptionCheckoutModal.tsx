@@ -135,12 +135,6 @@ export default function SubscriptionCheckoutModal({
       const testMode = typeof window !== 'undefined' && sessionStorage.getItem('test_mode') === 'true';
       const fullPhone = `${countryCode}${phone.trim()}`;
 
-      if (testMode) {
-        reset();
-        window.location.href = `/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=Mensualidad Ilimitada&amount=2400`;
-        return;
-      }
-
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -148,9 +142,11 @@ export default function SubscriptionCheckoutModal({
           customer_name: name.trim(),
           customer_email: email.trim(),
           customer_phone: fullPhone,
+          class_title: 'Mensualidad Ilimitada',
           subscription_type: 'monthly',
           amount_cents: 240000,
           currency: 'MXN',
+          test_mode: testMode,
         }),
       });
 
@@ -161,7 +157,12 @@ export default function SubscriptionCheckoutModal({
       }
 
       reset();
-      window.location.href = data.checkout_url;
+
+      if (data.test_mode) {
+        window.location.href = `/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=Mensualidad Ilimitada&amount=2400`;
+      } else {
+        window.location.href = data.checkout_url;
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error inesperado');
       setLoading(false);

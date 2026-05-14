@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/lib/stripe';
 import { createAdminClient } from '@/lib/supabase/server';
+import { sendBookingConfirmation } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,6 +21,7 @@ export async function POST(req: NextRequest) {
       duration = '45 min',
       amount_cents,
       currency,
+      test_mode,
     } = body;
 
     if (!customer_name || !customer_email || !bike_number || !day || !hour) {
@@ -68,6 +70,45 @@ export async function POST(req: NextRequest) {
     }
 
     const bookingId = booking[0].id;
+    const confirmationNumber = bookingId.substring(0, 8).toUpperCase();
+
+    // Test mode: skip Stripe, send email immediately, return success
+    if (test_mode === true) {
+      // Update booking status to confirmed in test mode
+      const { error: updateError } = await supabase
+        .from('bookings')
+        .update({
+          status: 'confirmed',
+          confirmation_number: confirmationNumber,
+        })
+        .eq('id', bookingId);
+
+      if (updateError) {
+        console.error('[checkout] Test mode update error:', updateError);
+        return NextResponse.json(
+          { error: 'Error al confirmar reserva en modo test' },
+          { status: 500 }
+        );
+      }
+
+      // Send confirmation email in test mode
+      await sendBookingConfirmation({
+        customerName: customer_name,
+        customerEmail: customer_email,
+        classTitle: class_title,
+        instructorName: instructor_name,
+        day,
+        hour,
+        classDate: class_date || null,
+        bikeNumber: bike_number,
+        bikeRow: bike_row,
+        amount: amount_cents / 100,
+        confirmationNumber,
+      });
+
+      console.log(`[checkout] Test mode booking confirmed: ${bookingId}`);
+      return NextResponse.json({ test_mode: true, booking_id: bookingId });
+    }
 
     const successParams = new URLSearchParams({
       session_id: '{CHECKOUT_SESSION_ID}',

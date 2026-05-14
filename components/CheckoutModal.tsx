@@ -160,12 +160,6 @@ export default function CheckoutModal({
       const testMode = typeof window !== 'undefined' && sessionStorage.getItem('test_mode') === 'true';
       const fullPhone = `${countryCode}${phone.trim()}`;
 
-      if (testMode) {
-        reset();
-        window.location.href = `/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=${encodeURIComponent(classTitle)}&instructor_name=${encodeURIComponent(instructorName)}&day=${encodeURIComponent(day)}&hour=${encodeURIComponent(hour)}&bike_number=${bikeNumber}&bike_row=${bikeRow}&amount=${priceCents / 100}`;
-        return;
-      }
-
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -183,6 +177,7 @@ export default function CheckoutModal({
           hour,
           amount_cents: priceCents,
           currency,
+          test_mode: testMode,
         }),
       });
 
@@ -193,7 +188,12 @@ export default function CheckoutModal({
       }
 
       reset();
-      window.location.href = data.checkout_url;
+
+      if (data.test_mode) {
+        window.location.href = `/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=${encodeURIComponent(classTitle)}&instructor_name=${encodeURIComponent(instructorName)}&day=${encodeURIComponent(day)}&hour=${encodeURIComponent(hour)}&bike_number=${bikeNumber}&bike_row=${bikeRow}&amount=${priceCents / 100}`;
+      } else {
+        window.location.href = data.checkout_url;
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error inesperado');
       setLoading(false);
