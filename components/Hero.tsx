@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight } from './Icons';
 import { weekdaySlots, saturdaySlots, ScheduleSlot } from '@/data/schedule';
 
@@ -11,7 +12,6 @@ function slotTo24h(s: ScheduleSlot): number {
   return h + m / 60;
 }
 
-/* Próxima clase relativa a "ahora": hoy si quedan, sino primera de mañana */
 function getNextClass(): { slot: ScheduleSlot; whenLabel: string } | null {
   const now = new Date();
   const dow = now.getDay();
@@ -28,7 +28,6 @@ function getNextClass(): { slot: ScheduleSlot; whenLabel: string } | null {
     return { slot: remainingToday[0], whenLabel: 'Hoy' };
   }
 
-  // Sin clases hoy: tomar la primera del próximo día con slots
   const nextDow = (dow + 1) % 7;
   const nextSlots = nextDow === 6 ? saturdaySlots : nextDow === 0 ? [] : weekdaySlots;
   if (nextSlots.length > 0) {
@@ -37,41 +36,80 @@ function getNextClass(): { slot: ScheduleSlot; whenLabel: string } | null {
   return null;
 }
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0 },
+};
+
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+
 export default function Hero() {
   const [nextClass, setNextClass] = useState<ReturnType<typeof getNextClass>>(null);
+  const { scrollY } = useScroll();
+  const yParallax = useTransform(scrollY, [0, 400], [0, 80]);
 
   useEffect(() => {
     setNextClass(getNextClass());
-    // Re-evaluar cada minuto para que cambie cuando pase la siguiente clase
     const t = setInterval(() => setNextClass(getNextClass()), 60_000);
     return () => clearInterval(t);
   }, []);
 
   return (
-    <header className="hero">
-      <div className="hero-bg">
+    <motion.header className="hero" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
+      <motion.div className="hero-bg" style={{ y: yParallax }}>
         <div className="hero-overlay"></div>
+        <motion.div className="hero-fog-1" animate={{ x: [0, 10, 0] }} transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }} />
+        <motion.div className="hero-fog-2" animate={{ x: [0, -10, 0] }} transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }} />
+        <div className="hero-ambient"></div>
         <svg className="rabbit-trail" viewBox="0 0 1440 200" preserveAspectRatio="none" aria-hidden="true">
           <path d="M-50 150 Q 300 80 600 130 T 1500 60" stroke="var(--teal-primary)" strokeWidth="3" fill="none" strokeLinecap="round" strokeDasharray="8 12" />
         </svg>
-      </div>
+      </motion.div>
 
       <div className="container hero-content">
-        <div className="hero-text">
-          <span className="hero-eyebrow hero-anim-in">// SPINNING STUDIO · CHIHUAHUA</span>
-          <h1 className="hero-title">
-            <span className="title-line"><span className="hero-anim-in delay-1">Pedalea</span> <span className="text-red hero-anim-in delay-2">Rápido</span></span>
-            <span className="title-line"><span className="hero-anim-in delay-3">Llega</span> <span className="text-red hero-anim-in delay-4">Lejos</span></span>
-          </h1>
-          <p className="hero-sub hero-anim-in delay-4">
+        <motion.div className="hero-text" variants={containerVariants} initial="hidden" animate="visible">
+          <motion.span className="hero-eyebrow" variants={fadeUp} transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>
+            // SPINNING STUDIO · CHIHUAHUA
+          </motion.span>
+
+          <motion.h1 className="hero-title" variants={fadeUp} transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>
+            <span className="title-line">
+              <span style={{ fontWeight: 700 }}>Pedalea</span> <span className="text-red" style={{ fontWeight: 900, fontStyle: 'italic' }}>Rápido</span>
+            </span>
+            <span className="title-line">
+              <span style={{ fontWeight: 700 }}>Llega</span> <span className="text-red" style={{ fontWeight: 900, fontStyle: 'italic' }}>Lejos</span>
+            </span>
+          </motion.h1>
+
+          <motion.p className="hero-sub" variants={fadeUp} transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>
             Spinning de alta intensidad. Reserva tu bici, elige tu lugar y prepárate para sudar.
-          </p>
+          </motion.p>
 
-          <div className="hero-ctas hero-anim-in delay-5">
-            <a href="#horarios" className="btn btn-primary btn-lg btn-shimmer">Reservar Clase <ArrowRight /></a>
-          </div>
+          <motion.div className="hero-ctas" variants={fadeUp} transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>
+            <motion.a
+              href="#horarios"
+              className="btn btn-primary btn-lg btn-shimmer"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Reservar Clase <ArrowRight />
+            </motion.a>
+          </motion.div>
 
-          <div className="hero-proof hero-anim-in delay-6">
+          <motion.div
+            className="hero-proof"
+            variants={fadeUp}
+            transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
+          >
             <div className="hero-bike-visual">
               <img className="hero-bike-img" src="/bike-masked.png" alt="" aria-hidden="true" />
               <div className="speed-lines" aria-hidden="true">
@@ -87,11 +125,21 @@ export default function Hero() {
               <span className="km-headline">Sé parte del <strong>primer ride</strong></span>
               <span className="km-label">Reserva tu lugar antes de que abran las puertas</span>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
-        <div className="hero-visual">
-          <div className="hero-card">
+        <motion.div className="hero-visual" variants={fadeUp} initial="hidden" animate="visible" transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>
+          <motion.div
+            className="hero-card"
+            whileHover={{ rotate: 0, scale: 1.02 }}
+            initial={{ rotate: -1.5 }}
+            animate={{ boxShadow: [
+              '0 32px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(29, 212, 232, 0.08)',
+              '0 32px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(29, 212, 232, 0.15)',
+              '0 32px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(29, 212, 232, 0.08)',
+            ] }}
+            transition={{ duration: 4, repeat: Infinity, repeatType: 'loop' } as any}
+          >
             <div className="hero-card-bg"></div>
             <div className="hero-card-content">
               {nextClass ? (
@@ -107,7 +155,6 @@ export default function Hero() {
                   <p>Lun a Sáb · 6 instructores · 32 clases por semana</p>
                 </>
               )}
-              {/* Mini grid 4×3: matchea salón real (12 bikes) */}
               <div className="bike-preview">
                 <div className="bike-row">
                   <span className="bike free"></span><span className="bike taken"></span>
@@ -127,8 +174,8 @@ export default function Hero() {
                 <strong>{nextClass ? nextClass.slot.price : '$220'} MXN</strong>
               </div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
 
       <div className="hero-slash" aria-hidden="true">
@@ -137,6 +184,6 @@ export default function Hero() {
           <polygon points="0,100 1440,30 1440,40 0,100" fill="var(--teal-primary)" opacity="0.9" />
         </svg>
       </div>
-    </header>
+    </motion.header>
   );
 }

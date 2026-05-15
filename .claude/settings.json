@@ -4,7 +4,13 @@
       "Bash(git commit *)",
       "Bash(npm install *)",
       "Bash(xargs grep -l \"Pack.*clases\\\\|AHORRAS\\\\|savings\")",
-      "Bash(grep -E \"\\\\.ts$|\\\\.tsx$\")"
+      "Bash(grep -E \"\\\\.ts$|\\\\.tsx$\")",
+      "Bash(Start-Sleep -Seconds 5)",
+      "Bash(Get-Content \"C:\\\\Users\\\\omar_\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-omar--rideon-mockup\\\\446c49c8-2717-401d-a7fb-9e5d4ee76c4c\\\\tasks\\\\bwejthwyq.output\" -Tail 40)",
+      "Bash(sleep 5 && tail -40 \"/tmp/claude/c--Users-omar--rideon-mockup/446c49c8-2717-401d-a7fb-9e5d4ee76c4c/tasks/bwejthwyq.output\" 2>/dev/null || echo \"Esperando compilación...\")",
+      "Read(//tmp/claude/c--Users-omar--rideon-mockup/446c49c8-2717-401d-a7fb-9e5d4ee76c4c/tasks/**)",
+      "Bash(pkill -f \"npm run dev\")",
+      "Bash(npm run *)"
     ]
   }
 }

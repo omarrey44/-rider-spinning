@@ -25,7 +25,7 @@ const STYLE_MAP: Record<AvatarClass, { gradient: string; shiftLabel: string }> =
     shiftLabel: 'Turno tarde · Lunes a Viernes',
   },
   'avatar-elmer': {
-    gradient: 'linear-gradient(135deg,#0A0A0A,#4ECDC4)',
+    gradient: 'linear-gradient(135deg,#0A0A0A,#1dd4e8)',
     shiftLabel: 'Sábados · Sesiones especiales',
   },
 };
