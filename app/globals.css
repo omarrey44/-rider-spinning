@@ -466,12 +466,12 @@ button:focus:not(:focus-visible) {
 .hero-bg {
   position: absolute;
   inset: 0;
-  background-image: url('/Hero1.png');
+  background-image: url('/Hero.png');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  filter: brightness(0.80) saturate(0.8) blur(1.5px);
-  opacity: 0.6;
+  filter: brightness(0.85) saturate(1) blur(0.5px);
+  opacity: 0.8;
 }
 .hero-overlay {
   position: absolute;
@@ -621,12 +621,10 @@ button:focus:not(:focus-visible) {
   gap: 36px;
   max-width: 760px;
   width: 100%;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.02), transparent);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: transparent;
+  border: none;
   border-radius: 16px;
   padding: 16px 20px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 .hero-bike-visual {
   position: relative;
@@ -3878,6 +3876,7 @@ section::before {
 
   /* Hero */
   .hero { min-height: auto; }
+  .hero-bg { background-image: url('/Hero Mobile.png'); }
   .hero-content { display: flex; flex-direction: column; padding: 24px 20px 40px; gap: 24px; }
   .hero-text { order: 2; }
   .hero-ctas { order: 1; margin-bottom: 16px; flex-direction: column; gap: 10px; }
