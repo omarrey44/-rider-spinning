@@ -640,7 +640,7 @@ button:focus:not(:focus-visible) {
   width: 100%;
   height: auto;
   pointer-events: none;
-  animation: bikeFloat 4s ease-in-out infinite;
+  animation: bikeFloat 7s ease-in-out infinite;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
   position: relative;
   z-index: 1;
@@ -649,6 +649,7 @@ button:focus:not(:focus-visible) {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
 }
+
 /* Speed lines — visible teal streaks */
 .speed-lines {
   position: absolute;
@@ -666,11 +667,11 @@ button:focus:not(:focus-visible) {
   opacity: 0;
   box-shadow: 0 0 6px rgba(29, 212, 232, 0.5);
 }
-.sl-1 { top: 20%; width: 50px; animation: speedLine 2s ease-out 0s infinite; }
-.sl-2 { top: 35%; width: 35px; animation: speedLine 2.5s ease-out 0.4s infinite; }
-.sl-3 { top: 50%; width: 60px; animation: speedLine 1.8s ease-out 0.8s infinite; }
-.sl-4 { top: 65%; width: 40px; animation: speedLine 2.2s ease-out 1.2s infinite; }
-.sl-5 { top: 78%; width: 30px; animation: speedLine 2.8s ease-out 1.6s infinite; }
+.sl-1 { top: 20%; width: 50px; animation: speedLine 3.8s ease-out 0s infinite; }
+.sl-2 { top: 35%; width: 35px; animation: speedLine 4.5s ease-out 0.7s infinite; }
+.sl-3 { top: 50%; width: 60px; animation: speedLine 3.4s ease-out 1.4s infinite; }
+.sl-4 { top: 65%; width: 40px; animation: speedLine 4.2s ease-out 2.1s infinite; }
+.sl-5 { top: 78%; width: 30px; animation: speedLine 5s ease-out 2.8s infinite; }
 @keyframes speedLine {
   0% { opacity: 0; transform: translateX(0) scaleX(0.3); }
   10% { opacity: 0.9; }
