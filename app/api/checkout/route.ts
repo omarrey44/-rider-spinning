@@ -74,7 +74,10 @@ export async function POST(req: NextRequest) {
     const bookingId = booking[0].id;
     const confirmationNumber = bookingId.substring(0, 8).toUpperCase();
 
-    // Test mode: skip Stripe, send email immediately, return success
+    // Test mode: skip Stripe — only allowed outside production
+    if (test_mode === true && process.env.NODE_ENV === 'production') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     if (test_mode === true) {
       // Update booking status to confirmed in test mode
       const { error: updateError } = await supabase

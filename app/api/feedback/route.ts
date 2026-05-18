@@ -4,6 +4,15 @@ import { Resend } from 'resend';
 const OWNER_EMAIL = 'omar_reii4@hotmail.com';
 const OWNER_WHATSAPP = '526565929700';
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { email, message } = await req.json();
@@ -25,13 +34,13 @@ export async function POST(req: NextRequest) {
         await resend.emails.send({
           from: 'RideOn Feedback <onboarding@resend.dev>',
           to: OWNER_EMAIL,
-          subject: `💬 Nueva queja/sugerencia de ${email}`,
+          subject: `💬 Nueva queja/sugerencia de ${escapeHtml(email)}`,
           html: `
             <div style="font-family:sans-serif;max-width:560px;margin:0 auto;">
               <h2 style="color:#1dd4e8;">Nueva queja / sugerencia</h2>
-              <p><strong>De:</strong> ${email}</p>
+              <p><strong>De:</strong> ${escapeHtml(email)}</p>
               <hr style="border:1px solid #eee;" />
-              <p style="white-space:pre-wrap;line-height:1.6;">${message.trim()}</p>
+              <p style="white-space:pre-wrap;line-height:1.6;">${escapeHtml(message.trim())}</p>
               <hr style="border:1px solid #eee;" />
               <small style="color:#999;">RideOn Spinning · Sistema de feedback</small>
             </div>
