@@ -18,38 +18,21 @@ interface BikeSelectorProps {
   onCheckout: (bikeNumber: number, bikeRow: number) => void;
 }
 
-/* SVG inline de bici spinning — vista lateral, apunta derecha.
-   CSS rota -90deg para que el frente quede hacia arriba (instructor). */
-function BikeIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 56 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Rueda trasera (izquierda) */}
-      <circle cx="11" cy="24" r="9" stroke="currentColor" strokeWidth="2" opacity="0.65"/>
-      <circle cx="11" cy="24" r="1.2" fill="currentColor" opacity="0.4"/>
-      {/* Rueda delantera (derecha) */}
-      <circle cx="45" cy="24" r="9" stroke="currentColor" strokeWidth="2" opacity="0.65"/>
-      <circle cx="45" cy="24" r="1.2" fill="currentColor" opacity="0.4"/>
-      {/* Horquilla */}
-      <path d="M38 11 L45 24" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
-      {/* Tubo superior */}
-      <path d="M24 11 L38 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      {/* Tija del sillín */}
-      <path d="M24 11 L22 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      {/* Sillín */}
-      <rect x="17" y="4" width="11" height="3" rx="1.5" fill="currentColor" opacity="0.72"/>
-      {/* Tubo diagonal */}
-      <path d="M24 11 L11 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      {/* Tubo inferior */}
-      <path d="M24 11 L11 24" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" opacity="0.5"/>
-      {/* Potencia / manubrio stem */}
-      <path d="M38 11 L41 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      {/* Manubrio */}
-      <path d="M37 5 L45 5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
-      {/* Pedalier */}
-      <circle cx="24" cy="24" r="2.5" stroke="currentColor" strokeWidth="1.4" opacity="0.5"/>
-    </svg>
-  );
-}
+/* Coordenadas % por bici dentro de .s3d-floor — extraídas de la referencia
+   del circuito neón. Fila 1 (4 bicis arriba, espaciado angosto por perspectiva),
+   Fila 2 (3 bicis centro, popular = 06), Fila 3 (3 bicis abajo, espaciado amplio). */
+const BIKE_COORDS: { x: number; y: number }[] = [
+  { x: 22, y: 20 }, // 01
+  { x: 39, y: 20 }, // 02
+  { x: 61, y: 20 }, // 03
+  { x: 78, y: 20 }, // 04
+  { x: 28, y: 52 }, // 05
+  { x: 50, y: 52 }, // 06
+  { x: 72, y: 52 }, // 07
+  { x: 22, y: 83 }, // 08
+  { x: 50, y: 83 }, // 09
+  { x: 78, y: 83 }, // 10
+];
 
 function LockIcon({ className }: { className?: string }) {
   return (
@@ -290,19 +273,6 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
             </div>
           )}
 
-          {/* Instructor position */}
-          {selectedSlot ? (
-            <div className="instructor-stage instructor-stage-active">
-              <span className={`avatar-instructor ${selectedSlot.instructorClass}`}></span>
-              <div className="instructor-stage-text">
-                <span className="instructor-stage-label">CLASE CON</span>
-                <span className="instructor-stage-name">{selectedSlot.instructorName.toUpperCase()}</span>
-              </div>
-            </div>
-          ) : (
-            <div className="instructor-stage"><span>INSTRUCTOR</span></div>
-          )}
-
           {/* Class info banner */}
           {selectedSlot && (
             <div className="class-info-banner">
@@ -354,15 +324,19 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
             <div className="studio-floor-bg" aria-hidden="true" />
             <div className="stage-beam" aria-hidden="true" />
 
-            {/* Instructor platform */}
+            {/* Instructor platform — neon pedestal con bici 3D centrada */}
             <div className="studio-instructor-area">
               <p className="s3d-instructor-label" aria-hidden="true">INSTRUCTOR</p>
               <div className="s3d-stage-wrap" aria-hidden="true">
                 <div className="s3d-beam-l" />
                 <div className="s3d-beam-r" />
                 <div className="s3d-platform">
-                  <span className={`avatar-instructor${selectedSlot ? ` ${selectedSlot.instructorClass}` : ''}`}
-                    style={{ width: 52, height: 52, flexShrink: 0 }} />
+                  <img
+                    src="/Instructor-Bike.png"
+                    alt=""
+                    className="s3d-platform-bike"
+                    draggable={false}
+                  />
                 </div>
               </div>
             </div>
@@ -374,53 +348,47 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
               <div className="s3d-rl s3d-rl--3"><span className="s3d-fila">FILA 3</span><span className="s3d-desc">Más aire</span></div>
             </div>
 
-            {/* 3D floor with bikes — preserve-3d + rotateX for depth */}
+            {/* Iso 3D floor — bikes posicionadas con x/y % sobre los lanes del circuito */}
             <div className="s3d-floor">
-              {(() => {
-                let bikeNum = 0;
-                return BIKE_CONFIG.rowConfig.map((rowCount, rowIdx) => {
-                  const rowNum = rowIdx + 1;
-                  const rowBikes = Array.from({ length: rowCount }, () => ++bikeNum);
-                  return (
-                    <div key={rowNum} className={`s3d-row s3d-row--${rowNum}`}>
-                      {rowBikes.map((num, posInRow) => {
-                        const taken = takenBikes.includes(num);
-                        const popular = BIKE_CONFIG.popular.includes(num);
-                        const selected = selectedBike === num;
-                        const tooltip = getBikeTooltip(num);
-                        const arcDeg = rowCount > 1
-                          ? ((posInRow / (rowCount - 1)) - 0.5) * -20
-                          : 0;
-                        const cls = [
-                          'b3d',
-                          taken   && 'b3d--taken',
-                          popular && !taken && !selected && 'b3d--popular',
-                          selected && 'b3d--selected',
-                        ].filter(Boolean).join(' ');
+              {BIKE_COORDS.map((coord, idx) => {
+                const num = idx + 1;
+                const { row } = getBikePosition(num);
+                const taken = takenBikes.includes(num);
+                const popular = BIKE_CONFIG.popular.includes(num);
+                const selected = selectedBike === num;
+                const tooltip = getBikeTooltip(num);
+                const cls = [
+                  'b3d',
+                  `b3d--row${row}`,
+                  taken && 'b3d--taken',
+                  popular && !taken && !selected && 'b3d--popular',
+                  selected && 'b3d--selected',
+                ].filter(Boolean).join(' ');
 
-                        return (
-                          <button
-                            key={num}
-                            className={cls}
-                            disabled={taken}
-                            style={{ '--bike-arc': `${arcDeg}deg` } as React.CSSProperties}
-                            title={taken ? `Bicicleta ${num} - Ocupada` : tooltip || `Bicicleta ${num}`}
-                            aria-label={taken ? `Bicicleta ${num}, ocupada` : `Bicicleta ${num}`}
-                            aria-pressed={selected}
-                            onClick={() => handleBikeClick(num)}
-                          >
-                            <div className="b3d-glow" aria-hidden="true" />
-                            <BikeIcon className="b3d-icon" />
-                            <span className="b3d-num">{String(num).padStart(2, '0')}</span>
-                            {taken   && <LockIcon className="b3d-lock" />}
-                            {popular && !taken && <span className="b3d-star" aria-hidden="true">★</span>}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  );
-                });
-              })()}
+                return (
+                  <button
+                    key={num}
+                    className={cls}
+                    disabled={taken}
+                    style={{ left: `${coord.x}%`, top: `${coord.y}%` }}
+                    title={taken ? `Bicicleta ${num} - Ocupada` : tooltip || `Bicicleta ${num}`}
+                    aria-label={taken ? `Bicicleta ${num}, ocupada` : `Bicicleta ${num}`}
+                    aria-pressed={selected}
+                    onClick={() => handleBikeClick(num)}
+                  >
+                    <div className="b3d-glow" aria-hidden="true" />
+                    <img
+                      src="/bike-3d.png"
+                      alt=""
+                      className="b3d-img"
+                      draggable={false}
+                    />
+                    <span className="b3d-num">{String(num).padStart(2, '0')}</span>
+                    {taken && <LockIcon className="b3d-lock" />}
+                    {popular && !taken && <span className="b3d-star" aria-hidden="true">★</span>}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Icons — right */}
