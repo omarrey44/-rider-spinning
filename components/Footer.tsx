@@ -22,7 +22,7 @@ export default function Footer() {
           <a href="/politica-de-cancelacion">Política de cancelación</a>
           <a href="/#faq">Preguntas frecuentes</a>
           <a href="https://wa.me/526562929700" target="_blank" rel="noopener noreferrer">Contacto</a>
-          <a href="https://wa.me/526562929700?text=Queja%20o%20sugerencia%3A%20" target="_blank" rel="noopener noreferrer">Quejas y sugerencias</a>
+          <a href="/#feedback">Quejas y sugerencias</a>
         </div>
 
         <div className="footer-col">

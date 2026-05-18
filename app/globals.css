@@ -1119,22 +1119,20 @@ section::before {
 
 /* Cards en glassmorphism oscuro */
 .how-card {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   padding: 40px 32px;
   border-radius: var(--radius);
   position: relative;
   transition: all 0.4s ease;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: none;
 }
 .how-card:hover {
   transform: translateY(-6px);
-  background: rgba(255, 255, 255, 0.06);
-  border-color: var(--teal-primary);
-  box-shadow:
-    0 20px 50px rgba(0, 0, 0, 0.4),
-    0 0 60px rgba(29, 212, 232, 0.15);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 .how-num {
   position: absolute;
@@ -1143,11 +1141,11 @@ section::before {
   font-family: var(--font-display);
   font-weight: 900;
   font-size: 56px;
-  color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.35);
   line-height: 1;
   transition: color 0.3s ease;
 }
-.how-card:hover .how-num { color: var(--teal-soft); }
+.how-card:hover .how-num { color: rgba(29, 212, 232, 0.75); }
 .how-icon {
   width: 56px;
   height: 56px;
@@ -5391,6 +5389,41 @@ section::before {
   font-size: 13px;
   color: #ff8a85;
   margin: 0 0 12px;
+}
+
+/* === FEEDBACK (Quejas y Sugerencias) === */
+.feedback-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+.feedback-field { width: 100%; }
+.feedback-textarea {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 15px;
+  font-family: inherit;
+  line-height: 1.6;
+  padding: 14px 18px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+.feedback-textarea::placeholder { color: rgba(255, 255, 255, 0.3); }
+.feedback-textarea:focus {
+  border-color: var(--teal-primary);
+  box-shadow: 0 0 0 3px rgba(29, 212, 232, 0.15);
+}
+.feedback-textarea:disabled { opacity: 0.6; cursor: not-allowed; }
+.feedback-success {
+  text-align: center;
+  padding: 24px 0 8px;
 }
 .waitlist-privacy {
   font-size: 12px;
