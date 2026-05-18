@@ -18,28 +18,35 @@ interface BikeSelectorProps {
   onCheckout: (bikeNumber: number, bikeRow: number) => void;
 }
 
-/* SVG inline de bici spinning — vista cenital (top-down), frente arriba = hacia el instructor */
+/* SVG inline de bici spinning — vista lateral, apunta derecha.
+   CSS rota -90deg para que el frente quede hacia arriba (instructor). */
 function BikeIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 30 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Rueda delantera (arriba = frente al instructor) */}
-      <ellipse cx="15" cy="7" rx="7" ry="2.8" stroke="currentColor" strokeWidth="1.8" opacity="0.75"/>
-      <circle cx="15" cy="7" r="1" fill="currentColor" opacity="0.35"/>
-      {/* Rueda trasera (abajo = espalda del rider) */}
-      <ellipse cx="15" cy="44" rx="8" ry="3.2" stroke="currentColor" strokeWidth="1.8" opacity="0.75"/>
-      <circle cx="15" cy="44" r="1" fill="currentColor" opacity="0.35"/>
-      {/* Tubo izquierdo del cuadro */}
-      <path d="M10 9.5 L8.5 40.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
-      {/* Tubo derecho del cuadro */}
-      <path d="M20 9.5 L21.5 40.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
-      {/* Manubrio (T horizontal, parte delantera) */}
-      <line x1="5" y1="15" x2="25" y2="15" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"/>
-      {/* Potencia del manubrio */}
-      <line x1="15" y1="9" x2="15" y2="17" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-      {/* Sillín (elipse, vista desde arriba) */}
-      <ellipse cx="15" cy="34" rx="5.5" ry="2.2" fill="currentColor" opacity="0.6"/>
-      {/* Pedalier / corona */}
-      <circle cx="15" cy="25" r="3" stroke="currentColor" strokeWidth="1.4" opacity="0.5"/>
+    <svg className={className} viewBox="0 0 56 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Rueda trasera (izquierda) */}
+      <circle cx="11" cy="24" r="9" stroke="currentColor" strokeWidth="2" opacity="0.65"/>
+      <circle cx="11" cy="24" r="1.2" fill="currentColor" opacity="0.4"/>
+      {/* Rueda delantera (derecha) */}
+      <circle cx="45" cy="24" r="9" stroke="currentColor" strokeWidth="2" opacity="0.65"/>
+      <circle cx="45" cy="24" r="1.2" fill="currentColor" opacity="0.4"/>
+      {/* Horquilla */}
+      <path d="M38 11 L45 24" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+      {/* Tubo superior */}
+      <path d="M24 11 L38 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      {/* Tija del sillín */}
+      <path d="M24 11 L22 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      {/* Sillín */}
+      <rect x="17" y="4" width="11" height="3" rx="1.5" fill="currentColor" opacity="0.72"/>
+      {/* Tubo diagonal */}
+      <path d="M24 11 L11 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      {/* Tubo inferior */}
+      <path d="M24 11 L11 24" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" opacity="0.5"/>
+      {/* Potencia / manubrio stem */}
+      <path d="M38 11 L41 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      {/* Manubrio */}
+      <path d="M37 5 L45 5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+      {/* Pedalier */}
+      <circle cx="24" cy="24" r="2.5" stroke="currentColor" strokeWidth="1.4" opacity="0.5"/>
     </svg>
   );
 }

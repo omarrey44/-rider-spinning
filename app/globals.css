@@ -2635,6 +2635,8 @@ section::before {
 .b3d-icon {
   width: 44px;
   height: 44px;
+  /* Side-view SVG rotated -90deg so front faces up toward instructor */
+  transform: rotate(-90deg);
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.95));
   transition: filter 0.22s, color 0.22s;
   will-change: filter;
