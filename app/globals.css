@@ -625,6 +625,7 @@ button:focus:not(:focus-visible) {
   border: none;
   border-radius: 16px;
   padding: 16px 20px;
+  padding-left: 70px;
 }
 .hero-bike-visual {
   position: relative;
@@ -640,14 +641,9 @@ button:focus:not(:focus-visible) {
   width: 100%;
   height: auto;
   pointer-events: none;
-  animation: bikeFloat 7s ease-in-out infinite;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
   position: relative;
   z-index: 1;
-}
-@keyframes bikeFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
 }
 
 /* Speed lines — visible teal streaks */
@@ -680,7 +676,7 @@ button:focus:not(:focus-visible) {
 }
 .proof-text {
   flex: 1;
-  text-align: left;
+  text-align: center;
   min-width: 0;
 }
 .avatars {
@@ -1119,7 +1115,7 @@ section::before {
 
 /* Cards en glassmorphism oscuro */
 .how-card {
-  background: transparent;
+  background: rgba(0, 0, 0, 0.22);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   padding: 40px 32px;
@@ -1128,9 +1124,10 @@ section::before {
   transition: all 0.4s ease;
   border: none;
 }
-.how-card:hover {
+.how-card:hover,
+.how-card:active {
   transform: translateY(-6px);
-  background: transparent;
+  background: rgba(0, 0, 0, 0.28);
   border-color: transparent;
   box-shadow: none;
 }
@@ -1145,7 +1142,8 @@ section::before {
   line-height: 1;
   transition: color 0.3s ease;
 }
-.how-card:hover .how-num { color: rgba(29, 212, 232, 0.75); }
+.how-card:hover .how-num,
+.how-card:active .how-num { color: rgba(29, 212, 232, 0.75); }
 .how-icon {
   width: 56px;
   height: 56px;
@@ -4637,7 +4635,7 @@ section::before {
   section { padding: 50px 0; }
   .how-grid { gap: 12px; }
   .how-card { padding: 20px 16px; margin-bottom: 12px; }
-  .how-num { font-size: 32px; top: 10px; right: 14px; opacity: 0.15; }
+  .how-num { font-size: 32px; top: 10px; right: 14px; opacity: 1; color: rgba(255,255,255,0.35); }
   .how-icon { width: 40px; height: 40px; border-radius: 10px; margin-bottom: 14px; }
   .how-icon svg { width: 18px; height: 18px; }
   .how-card h3 { font-size: 17px; margin-bottom: 8px; }

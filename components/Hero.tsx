@@ -110,16 +110,6 @@ export default function Hero() {
             variants={fadeUp}
             transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
           >
-            <div className="hero-bike-visual">
-              <img className="hero-bike-img" src="/bike-masked.png" alt="" aria-hidden="true" />
-              <div className="speed-lines" aria-hidden="true">
-                <span className="speed-line sl-1"></span>
-                <span className="speed-line sl-2"></span>
-                <span className="speed-line sl-3"></span>
-                <span className="speed-line sl-4"></span>
-                <span className="speed-line sl-5"></span>
-              </div>
-            </div>
             <div className="proof-text">
               <span className="km-eyebrow">Próximamente en Chihuahua</span>
               <span className="km-headline">Sé parte del <strong>primer ride</strong></span>
