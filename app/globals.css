@@ -2755,18 +2755,7 @@ section::before {
   animation: none;
 }
 
-/* Popular — cian pad cuadrado, override green */
-.b3d--popular .b3d-glow {
-  background: linear-gradient(180deg, rgba(29,212,232,0.42) 0%, rgba(29,212,232,0.14) 100%);
-  width: 60%;
-  height: 11px;
-  border-color: rgba(29,212,232,0.8);
-  border-radius: 3px;
-  box-shadow:
-    0 0 10px rgba(29,212,232,0.5),
-    inset 0 0 4px rgba(29,212,232,0.42);
-  animation: b3dAvailPulse 2.4s ease-in-out infinite;
-}
+/* Popular — inherits green available pad, only star badge added */
 
 /* === RIGHT ICONS — alineados a los mismos % que las filas === */
 .s3d-icons {
@@ -2818,14 +2807,14 @@ section::before {
 
 /* === MOBILE === */
 @media (max-width: 480px) {
-  .studio-scene { height: 380px; }
+  .studio-scene { height: 460px; }
   /* Inset floor so bikes no chocan con FILA labels izq / icons der */
-  .s3d-floor { top: 128px; left: 46px; right: 46px; bottom: 28px; }
+  .s3d-floor { top: 138px; left: 46px; right: 46px; bottom: 28px; }
   /* Labels e icons siguen la misma extensión que el floor */
-  .s3d-row-labels { top: 128px; bottom: 28px; left: 4px; }
-  .s3d-icons { top: 128px; bottom: 28px; right: 4px; }
+  .s3d-row-labels { top: 138px; bottom: 28px; left: 4px; }
+  .s3d-icons { top: 138px; bottom: 28px; right: 4px; }
   /* 3:2 ratio fijo mobile */
-  .b3d-img { width: 66px; height: 44px; object-fit: contain; }
+  .b3d-img { width: 72px; height: 48px; object-fit: contain; }
   .b3d-num { font-size: 9px; margin-top: -3px; }
   .b3d--row1 { transform: translate(-50%, -50%) scale(0.85); }
   .b3d--row2 { transform: translate(-50%, -50%) scale(0.85); }

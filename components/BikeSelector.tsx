@@ -23,15 +23,15 @@ interface BikeSelectorProps {
    Fila 2 (3 bicis centro, popular = 06), Fila 3 (3 bicis abajo, espaciado amplio). */
 const BIKE_COORDS: { x: number; y: number }[] = [
   { x: 22, y: 20 }, // 01
-  { x: 39, y: 20 }, // 02
-  { x: 61, y: 20 }, // 03
+  { x: 41, y: 20 }, // 02
+  { x: 59, y: 20 }, // 03
   { x: 78, y: 20 }, // 04
   { x: 28, y: 52 }, // 05
   { x: 50, y: 52 }, // 06
   { x: 72, y: 52 }, // 07
   { x: 22, y: 83 }, // 08
   { x: 50, y: 83 }, // 09
-  { x: 78, y: 83 }, // 10
+  { x: 76, y: 83 }, // 10
 ];
 
 function LockIcon({ className }: { className?: string }) {
