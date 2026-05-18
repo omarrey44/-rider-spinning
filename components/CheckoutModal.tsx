@@ -103,7 +103,7 @@ export default function CheckoutModal({
         name, email, phone, countryCode, goal, goalCustom
       }));
     }
-  }, [name, email, phone, countryCode, goal]);
+  }, [name, email, phone, countryCode, goal, goalCustom]);
 
   useEffect(() => {
     if (!open) return;

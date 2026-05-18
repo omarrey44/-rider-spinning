@@ -1,12 +1,30 @@
 import nodemailer from 'nodemailer';
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_FROM,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+let _transporter: nodemailer.Transporter | null = null;
+function getTransporter(): nodemailer.Transporter {
+  if (!_transporter) {
+    if (!process.env.EMAIL_FROM || !process.env.EMAIL_PASSWORD) {
+      throw new Error('Email credentials not configured (EMAIL_FROM / EMAIL_PASSWORD)');
+    }
+    _transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_FROM,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+  }
+  return _transporter;
+}
 
 interface BookingEmailData {
   customerName: string;
@@ -65,7 +83,7 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
         </div>
         <div class="content">
           <p style="font-size: 20px; font-weight: 700; color: #2a9d8f; margin: 0 0 10px 0;">¡HOLA RIDDER!</p>
-          <p style="font-size: 14px; color: #666; margin: 0 0 20px 0;"><strong>Reserva de: ${data.customerName}</strong></p>
+          <p style="font-size: 14px; color: #666; margin: 0 0 20px 0;"><strong>Reserva de: ${escapeHtml(data.customerName)}</strong></p>
           <p>Tu reserva ha sido confirmada exitosamente. Aquí están los detalles:</p>
 
           <div class="detail-row">
@@ -96,7 +114,7 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
           ${data.goal ? `
           <div class="detail-row">
             <div class="detail-label">Tu objetivo</div>
-            <div class="detail-value">${data.goal}</div>
+            <div class="detail-value">${escapeHtml(data.goal ?? '')}</div>
           </div>
           ` : ''}
 
@@ -129,7 +147,7 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
   `;
 
   try {
-    await transporter.sendMail({
+    await getTransporter().sendMail({
       from: process.env.EMAIL_FROM,
       to: data.customerEmail,
       subject: `Confirmación de tu clase: ${data.classTitle}`,

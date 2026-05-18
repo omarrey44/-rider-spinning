@@ -159,7 +159,7 @@ export default function SubscriptionCheckoutModal({
       reset();
 
       if (data.test_mode) {
-        window.location.href = `/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=Mensualidad Ilimitada&amount=2400`;
+        window.location.href = `/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=${encodeURIComponent('Mensualidad Ilimitada')}&amount=${240000 / 100}`;
       } else {
         window.location.href = data.checkout_url;
       }
@@ -267,7 +267,7 @@ export default function SubscriptionCheckoutModal({
                 className="country-select"
               >
                 {COUNTRIES.map((country) => (
-                  <option key={country.code} value={country.code}>
+                  <option key={country.name} value={country.code}>
                     {country.flag} {country.name} ({country.code})
                   </option>
                 ))}

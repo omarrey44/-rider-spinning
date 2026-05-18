@@ -98,9 +98,11 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
   const availableCount = totalBikes - takenBikes.length;
 
   // Solo resetear bici si está ocupada en nueva clase. Si sigue disponible, mantener selección.
-  if (selectedBike !== null && takenBikes.includes(selectedBike)) {
-    setSelectedBike(null);
-  }
+  useEffect(() => {
+    if (selectedBike !== null && takenBikes.includes(selectedBike)) {
+      setSelectedBike(null);
+    }
+  }, [takenBikes, selectedBike]);
 
   const scrollToHorarios = () => {
     const el = document.getElementById('horarios');

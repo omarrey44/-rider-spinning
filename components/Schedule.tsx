@@ -132,7 +132,10 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
         setIsLoadingSlots(false);
       } catch {
         // Env vars faltan o red caída → fallback silencioso
-        if (!cancelled) setUsingDb(false);
+        if (!cancelled) {
+          setUsingDb(false);
+          setIsLoadingSlots(false);
+        }
       }
     }
 

@@ -117,8 +117,8 @@ export default function Home() {
     return target.toISOString().split('T')[0];
   };
 
-  const priceStr = selectedSlot?.slot.price.replace('$', '') ?? '220';
-  const priceCents = parseInt(priceStr, 10) * 100;
+  const priceStr = selectedSlot?.slot.price.replace(/[$,\s]/g, '') ?? '220';
+  const priceCents = Math.round(parseFloat(priceStr) * 100);
 
   return (
     <>

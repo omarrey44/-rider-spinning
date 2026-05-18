@@ -72,7 +72,7 @@ export default function FindBooking() {
 
     try {
       const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(searchTrimmed);
-      const isConfirmation = /^[a-f0-9]{8}$/i.test(searchTrimmed);
+      const isConfirmation = /^[0-9A-F]{8}$/i.test(searchTrimmed);
 
       if (!isEmail && !isConfirmation) {
         setError('Ingresa un correo válido o número de confirmación (8 caracteres)');
