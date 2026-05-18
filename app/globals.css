@@ -3996,7 +3996,7 @@ section::before {
 }
 .cancellation-notice {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   font-size: 12px;
   color: rgba(255, 200, 80, 0.85);
@@ -4007,7 +4007,7 @@ section::before {
   margin-bottom: 16px;
   line-height: 1.4;
 }
-.cancellation-notice svg { flex-shrink: 0; }
+.cancellation-notice svg { flex-shrink: 0; margin-top: 1px; }
 
 .form-note {
   font-size: 12px;
@@ -4083,7 +4083,7 @@ section::before {
 
 .country-select {
   flex: 0 0 140px;
-  padding: 10px 12px;
+  padding: 10px 28px 10px 12px;
   background: rgba(255, 255, 255, 0.08);
   border: 1.5px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-sm);
@@ -4092,6 +4092,11 @@ section::before {
   font-family: var(--font-body);
   cursor: pointer;
   transition: all 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.45)' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
 }
 
 .country-select:hover {
@@ -4117,9 +4122,10 @@ section::before {
 
 @media (max-width: 640px) {
   .country-select {
-    flex: 0 0 75px;
+    flex: 0 0 100px;
     font-size: 12px;
-    padding: 10px 6px;
+    padding: 10px 24px 10px 8px;
+    background-position: right 7px center;
   }
 
   .btn-sticky-mobile {
@@ -5174,7 +5180,28 @@ section::before {
    tapar el footer/contenido al final */
 @media (max-width: 768px) {
   body:has(.sticky-checkout-bar) {
-    padding-bottom: 76px;
+    padding-bottom: 96px;
+  }
+
+  /* CSS fallback: comprimir studio-scene para que FILA 3 no quede
+     dentro de la zona tapada por el sticky bar */
+  body:has(.sticky-checkout-bar) .studio-scene {
+    height: 296px;
+  }
+  body:has(.sticky-checkout-bar) .studio-instructor-area {
+    padding-top: 8px;
+  }
+  body:has(.sticky-checkout-bar) .s3d-floor {
+    top: 106px;
+    bottom: 20px;
+  }
+  body:has(.sticky-checkout-bar) .s3d-row-labels,
+  body:has(.sticky-checkout-bar) .s3d-icons {
+    top: 114px;
+    bottom: 20px;
+  }
+  body:has(.sticky-checkout-bar) .s3d-bottom {
+    display: none;
   }
 }
 

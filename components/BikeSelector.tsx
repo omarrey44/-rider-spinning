@@ -77,17 +77,20 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
   const totalBikes = BIKE_CONFIG.total;
   const bikeRoomRef = useRef<HTMLDivElement>(null);
 
-  // When a bike is selected on mobile, scroll so FILA 3 isn't hidden behind the sticky bar
+  // When a bike is selected on mobile, scroll so FILA 3 isn't hidden behind the sticky bar.
+  // Delay must exceed the sticky bar slide-up animation (0.35s).
   useEffect(() => {
     if (selectedBike === null || typeof window === 'undefined' || window.innerWidth > 768) return;
     const timer = setTimeout(() => {
-      const el = bikeRoomRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const stickyBarH = 80;
-      const overflow = rect.bottom - (window.innerHeight - stickyBarH);
-      if (overflow > 0) window.scrollBy({ top: overflow + 16, behavior: 'smooth' });
-    }, 60);
+      requestAnimationFrame(() => {
+        const el = bikeRoomRef.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const stickyBarH = 88;
+        const overflow = rect.bottom - (window.innerHeight - stickyBarH);
+        if (overflow > 0) window.scrollBy({ top: overflow + 24, behavior: 'smooth' });
+      });
+    }, 420);
     return () => clearTimeout(timer);
   }, [selectedBike]);
 
