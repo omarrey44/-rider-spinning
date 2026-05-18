@@ -80,6 +80,7 @@ export async function POST(req: NextRequest) {
       bikeRow: parseInt(metadata.bike_row, 10),
       amount: (session.amount_total || 0) / 100,
       confirmationNumber,
+      goal: metadata.goal || undefined,
     });
   }
 

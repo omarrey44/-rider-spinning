@@ -58,11 +58,23 @@ function LockIcon({ className }: { className?: string }) {
   );
 }
 
+function getBikePosition(num: number): { row: number; col: number; rowCount: number } {
+  const { rowConfig } = BIKE_CONFIG;
+  let count = 0;
+  for (let r = 0; r < rowConfig.length; r++) {
+    if (num <= count + rowConfig[r]) {
+      return { row: r + 1, col: num - count, rowCount: rowConfig[r] };
+    }
+    count += rowConfig[r];
+  }
+  return { row: rowConfig.length, col: 1, rowCount: rowConfig[rowConfig.length - 1] };
+}
+
 export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorProps) {
   const [selectedBike, setSelectedBike] = useState<number | null>(null);
   const [tooltipBike, setTooltipBike] = useState<number | null>(null);
   const [takenBikes, setTakenBikes] = useState<number[]>([]);
-  const totalBikes = BIKE_CONFIG.rows * BIKE_CONFIG.cols;
+  const totalBikes = BIKE_CONFIG.total;
 
   useEffect(() => {
     if (!selectedSlot) {
@@ -113,20 +125,20 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
 
   const handleCheckout = () => {
     if (selectedBike !== null) {
-      const bikeRow = Math.ceil(selectedBike / BIKE_CONFIG.cols);
-      onCheckout(selectedBike, bikeRow);
+      const { row } = getBikePosition(selectedBike);
+      onCheckout(selectedBike, row);
     }
   };
 
   // Tooltip por fila — todas las bicis libres reciben contexto
   const getBikeTooltip = (num: number) => {
     if (takenBikes.includes(num)) return null;
-    const row = Math.ceil(num / BIKE_CONFIG.cols);
+    const { row } = getBikePosition(num);
     const isPopular = BIKE_CONFIG.popular.includes(num);
-    if (row === 1) return 'Fila 1 · Frente al instructor · Más energía';
+    if (row === 1) return 'Fila 1 · Principiantes · Frente al instructor';
     if (row === 2) return isPopular
       ? 'Fila 2 · Centro · Posición popular ⭐'
-      : 'Fila 2 · Centro · Visibilidad balanceada';
+      : 'Fila 2 · Visibilidad balanceada';
     if (row === 3) return 'Fila 3 · Espacio amplio · Cerca de salida';
     return null;
   };
@@ -330,56 +342,63 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
             <span className="orientation-arrow">↑</span> Frente
           </div>
 
-          {/* Arc grid de bicis con labels de fila */}
+          {/* Row-based bike grid — fila 1: 4 principiantes, fila 2-3: 3 c/u */}
           <div className="bike-grid-wrap">
-            <div className="row-labels" aria-hidden="true">
-              <span>FILA 1</span>
-              <span>FILA 2</span>
-              <span>FILA 3</span>
-            </div>
             <div className="bike-grid">
-            {Array.from({ length: totalBikes }, (_, i) => i + 1).map((num) => {
-              const taken = takenBikes.includes(num);
-              const popular = BIKE_CONFIG.popular.includes(num);
-              const selected = selectedBike === num;
-              const tooltip = getBikeTooltip(num);
-              const col = ((num - 1) % BIKE_CONFIG.cols) + 1;
-              // Arc spread: -30° to +30° across columns
-              const arcAngle = ((col - 1) / (BIKE_CONFIG.cols - 1) - 0.5) * 60;
-              const cls = [
-                'bike-node',
-                taken && 'taken',
-                popular && !taken && !selected && 'popular',
-                selected && 'selected',
-              ].filter(Boolean).join(' ');
+            {(() => {
+              let bikeNum = 0;
+              return BIKE_CONFIG.rowConfig.map((rowCount, rowIdx) => {
+                const rowNum = rowIdx + 1;
+                const rowLabel = rowNum === 1 ? 'FILA 1 · PRINCIPIANTES' : `FILA ${rowNum}`;
+                const rowBikes = Array.from({ length: rowCount }, () => ++bikeNum);
+                return (
+                  <div key={rowNum} className="bike-row-group">
+                    <span className="row-label" aria-hidden="true">{rowLabel}</span>
+                    <div className="bike-row-nodes">
+                      {rowBikes.map((num) => {
+                        const taken = takenBikes.includes(num);
+                        const popular = BIKE_CONFIG.popular.includes(num);
+                        const selected = selectedBike === num;
+                        const tooltip = getBikeTooltip(num);
+                        const arcAngle = ((rowBikes.indexOf(num)) / (rowCount - 1) - 0.5) * 50;
+                        const cls = [
+                          'bike-node',
+                          taken && 'taken',
+                          popular && !taken && !selected && 'popular',
+                          selected && 'selected',
+                        ].filter(Boolean).join(' ');
 
-              return (
-                <div
-                  key={num}
-                  className="bike-node-wrapper"
-                  style={{ '--bike-arc': `${arcAngle}deg` } as React.CSSProperties}
-                  onMouseEnter={() => tooltip && setTooltipBike(num)}
-                  onMouseLeave={() => setTooltipBike(null)}
-                >
-                  <button
-                    className={cls}
-                    disabled={taken}
-                    title={taken ? `Bicicleta ${num} - Ocupada` : `Bicicleta ${num}${tooltip ? ' - ' + tooltip : ''}`}
-                    aria-label={taken ? `Bicicleta ${num}, ocupada` : `Bicicleta ${num}${tooltip ? ', popular: ' + tooltip : ''}`}
-                    aria-pressed={selected}
-                    onClick={() => handleBikeClick(num)}
-                  >
-                    <BikeIcon className="bike-icon-svg" />
-                    <span className="bike-num">{num}</span>
-                    {taken && <LockIcon className="bike-lock" />}
-                  </button>
-                  {/* Tooltip for popular bikes */}
-                  {tooltip && tooltipBike === num && (
-                    <div className="bike-tooltip">{tooltip}</div>
-                  )}
-                </div>
-              );
-            })}
+                        return (
+                          <div
+                            key={num}
+                            className="bike-node-wrapper"
+                            style={{ '--bike-arc': `${arcAngle}deg` } as React.CSSProperties}
+                            onMouseEnter={() => tooltip && setTooltipBike(num)}
+                            onMouseLeave={() => setTooltipBike(null)}
+                          >
+                            <button
+                              className={cls}
+                              disabled={taken}
+                              title={taken ? `Bicicleta ${num} - Ocupada` : `Bicicleta ${num}${tooltip ? ' - ' + tooltip : ''}`}
+                              aria-label={taken ? `Bicicleta ${num}, ocupada` : `Bicicleta ${num}`}
+                              aria-pressed={selected}
+                              onClick={() => handleBikeClick(num)}
+                            >
+                              <BikeIcon className="bike-icon-svg" />
+                              <span className="bike-num">{num}</span>
+                              {taken && <LockIcon className="bike-lock" />}
+                            </button>
+                            {tooltip && tooltipBike === num && (
+                              <div className="bike-tooltip">{tooltip}</div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              });
+            })()}
             </div>
           </div>
 

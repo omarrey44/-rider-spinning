@@ -72,6 +72,7 @@ export default function CheckoutModal({
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [countryCode, setCountryCode] = useState('+52');
+  const [goal, setGoal] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showConfirmClose, setShowConfirmClose] = useState(false);
@@ -86,6 +87,7 @@ export default function CheckoutModal({
     setEmail('');
     setPhone('');
     setCountryCode('+52');
+    setGoal('');
     setError(null);
     setLoading(false);
     if (typeof window !== 'undefined') {
@@ -96,10 +98,10 @@ export default function CheckoutModal({
   const saveFormData = useCallback(() => {
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('checkoutFormData', JSON.stringify({
-        name, email, phone, countryCode
+        name, email, phone, countryCode, goal
       }));
     }
-  }, [name, email, phone, countryCode]);
+  }, [name, email, phone, countryCode, goal]);
 
   useEffect(() => {
     if (!open) return;
@@ -107,11 +109,12 @@ export default function CheckoutModal({
       const saved = sessionStorage.getItem('checkoutFormData');
       if (saved) {
         try {
-          const { name: n, email: e, phone: p, countryCode: c } = JSON.parse(saved);
+          const { name: n, email: e, phone: p, countryCode: c, goal: g } = JSON.parse(saved);
           setName(n || '');
           setEmail(e || '');
           setPhone(p || '');
           setCountryCode(c || '+52');
+          setGoal(g || '');
         } catch {
           // Invalid data, ignore
         }
@@ -178,6 +181,7 @@ export default function CheckoutModal({
           amount_cents: priceCents,
           currency,
           test_mode: testMode,
+          goal: goal.trim() || undefined,
         }),
       });
 
@@ -336,11 +340,33 @@ export default function CheckoutModal({
             </div>
           </div>
 
+          <div className="form-group">
+            <label htmlFor="guest-goal">¿Cuál es tu objetivo? <span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 400 }}>(opcional)</span></label>
+            <select
+              id="guest-goal"
+              value={goal}
+              onChange={(e) => setGoal(e.target.value)}
+            >
+              <option value="">Selecciona tu meta...</option>
+              <option value="Perder peso">Perder peso</option>
+              <option value="Ganar resistencia / cardio">Ganar resistencia / cardio</option>
+              <option value="Tonificar">Tonificar</option>
+              <option value="Manejo del estrés">Manejo del estrés</option>
+              <option value="Diversión y socializar">Diversión y socializar</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+
           {error && (
             <div className="form-error" role="alert">
               {error}
             </div>
           )}
+
+          <div className="cancellation-notice" role="note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Cancelaciones solo hasta <strong>1 hora antes</strong> de la clase
+          </div>
 
           <p className="form-note">
             Te enviaremos la confirmación de tu reserva por correo.

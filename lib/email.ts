@@ -20,6 +20,7 @@ interface BookingEmailData {
   bikeRow: number;
   amount: number;
   confirmationNumber?: string;
+  goal?: string;
 }
 
 export async function sendBookingConfirmation(data: BookingEmailData) {
@@ -91,6 +92,13 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
             <div class="detail-label">Monto</div>
             <div class="detail-value amount">$${data.amount.toLocaleString('es-MX')} MXN</div>
           </div>
+
+          ${data.goal ? `
+          <div class="detail-row">
+            <div class="detail-label">Tu objetivo</div>
+            <div class="detail-value">${data.goal}</div>
+          </div>
+          ` : ''}
 
           <p style="margin-top: 30px;">
             <strong>¿Qué sigue?</strong><br>

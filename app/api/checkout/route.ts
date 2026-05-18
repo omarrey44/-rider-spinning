@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
       amount_cents,
       currency,
       test_mode,
+      goal,
     } = body;
 
     if (!customer_name || !customer_email || !bike_number || !day || !hour) {
@@ -58,6 +59,7 @@ export async function POST(req: NextRequest) {
         class_date: class_date || null,
         amount_paid: amount_cents,
         status: 'pending',
+        goal: goal || null,
       })
       .select();
 
@@ -104,6 +106,7 @@ export async function POST(req: NextRequest) {
         bikeRow: bike_row,
         amount: amount_cents / 100,
         confirmationNumber,
+        goal: goal || undefined,
       });
 
       console.log(`[checkout] Test mode booking confirmed: ${bookingId}`);
@@ -145,6 +148,7 @@ export async function POST(req: NextRequest) {
                 date_time,
                 day,
                 hour,
+                goal: goal || '',
               },
             },
             unit_amount: amount_cents,
@@ -165,6 +169,7 @@ export async function POST(req: NextRequest) {
         class_date: class_date || '',
         day,
         hour,
+        goal: goal || '',
       },
       success_url: `${baseUrl}/reserva-exitosa?${successParams}`,
       cancel_url: baseUrl,
