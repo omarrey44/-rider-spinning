@@ -15,6 +15,13 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    if (classTitle.length > 200 || day.length > 20 || hour.length > 20) {
+      return NextResponse.json(
+        { error: 'Parámetros inválidos' },
+        { status: 400 }
+      );
+    }
+
     const supabase = createAdminClient();
 
     const { data, error } = await supabase

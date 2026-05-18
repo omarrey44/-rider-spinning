@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
 
     if (confirmation) {
       // Buscar por número de confirmación
-      if (!/^[a-zA-Z0-9]{8}$/i.test(confirmation.trim())) {
+      if (!/^[0-9A-F]{8}$/i.test(confirmation.trim())) {
         return NextResponse.json(
           { error: 'Número de confirmación inválido (8 caracteres)' },
           { status: 400 }

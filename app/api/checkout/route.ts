@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { sendBookingConfirmation } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
+  let bookingId: string | null = null;
   try {
     const body = await req.json();
     const {
@@ -28,6 +29,17 @@ export async function POST(req: NextRequest) {
     if (!customer_name || !customer_email || !bike_number || !day || !hour) {
       return NextResponse.json(
         { error: 'Faltan datos requeridos: nombre, correo, bicicleta, día y hora' },
+        { status: 400 }
+      );
+    }
+
+    // Validate amount_cents is a positive integer
+    if (
+      !Number.isInteger(amount_cents) ||
+      amount_cents <= 0
+    ) {
+      return NextResponse.json(
+        { error: 'Monto inválido' },
         { status: 400 }
       );
     }
@@ -65,14 +77,20 @@ export async function POST(req: NextRequest) {
 
     if (bookingError || !booking || booking.length === 0) {
       console.error('[checkout] Supabase insert error:', bookingError);
+      if (bookingError?.code === '23505') {
+        return NextResponse.json(
+          { error: 'Esta bici ya fue reservada. Selecciona otra.' },
+          { status: 409 }
+        );
+      }
       return NextResponse.json(
         { error: 'Error al crear la reserva' },
         { status: 500 }
       );
     }
 
-    const bookingId = booking[0].id;
-    const confirmationNumber = bookingId.substring(0, 8).toUpperCase();
+    bookingId = booking[0].id;
+    const confirmationNumber = bookingId!.substring(0, 8).toUpperCase();
 
     // Test mode: skip Stripe — only allowed outside production
     if (test_mode === true && process.env.NODE_ENV === 'production') {
@@ -181,6 +199,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ checkout_url: session.url });
   } catch (err: unknown) {
     console.error('[checkout] Error:', err);
+    // Clean up orphaned pending booking if Stripe session creation failed
+    if (bookingId) {
+      const supabase = createAdminClient();
+      await supabase.from('bookings').delete().eq('id', bookingId);
+      console.log(`[checkout] Rolled back orphaned booking: ${bookingId}`);
+    }
     return NextResponse.json(
       {
         error:
