@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 
 export async function GET(req: NextRequest) {
   // Verify authenticated Supabase session — protects customer PII
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const authClient = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
