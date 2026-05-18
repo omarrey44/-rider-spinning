@@ -5098,25 +5098,23 @@ section::before {
 @media (max-width: 768px) {
   .sticky-checkout-bar {
     display: flex;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 90;
-    background: rgba(10, 10, 10, 0.92);
+    position: relative;
+    margin: 12px 0 8px;
+    background: linear-gradient(135deg, rgba(18, 24, 32, 0.96) 0%, rgba(10, 16, 22, 0.98) 100%);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border-top: 1px solid rgba(29, 212, 232, 0.25);
-    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    border: 1px solid rgba(29, 212, 232, 0.22);
+    border-radius: 14px;
+    padding: 14px 16px;
     align-items: center;
     gap: 12px;
-    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
-    animation: stickyBarSlideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(29, 212, 232, 0.06);
+    animation: stickyBarFadeIn 0.3s ease;
   }
 }
-@keyframes stickyBarSlideUp {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
+@keyframes stickyBarFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 .sticky-checkout-info {
   display: flex;
@@ -5176,34 +5174,6 @@ section::before {
   flex-shrink: 0;
 }
 
-/* Cuando la sticky bar está visible, dar padding-bottom al body para no
-   tapar el footer/contenido al final */
-@media (max-width: 768px) {
-  body:has(.sticky-checkout-bar) {
-    padding-bottom: 96px;
-  }
-
-  /* CSS fallback: comprimir studio-scene para que FILA 3 no quede
-     dentro de la zona tapada por el sticky bar */
-  body:has(.sticky-checkout-bar) .studio-scene {
-    height: 296px;
-  }
-  body:has(.sticky-checkout-bar) .studio-instructor-area {
-    padding-top: 8px;
-  }
-  body:has(.sticky-checkout-bar) .s3d-floor {
-    top: 106px;
-    bottom: 20px;
-  }
-  body:has(.sticky-checkout-bar) .s3d-row-labels,
-  body:has(.sticky-checkout-bar) .s3d-icons {
-    top: 114px;
-    bottom: 20px;
-  }
-  body:has(.sticky-checkout-bar) .s3d-bottom {
-    display: none;
-  }
-}
 
 /* =====================================================
    WAITLIST — captura pre-launch
