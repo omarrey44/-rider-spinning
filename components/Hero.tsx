@@ -67,8 +67,8 @@ export default function Hero() {
     <motion.header className="hero" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
       <motion.div className="hero-bg" style={{ y: yParallax }}>
         <div className="hero-overlay"></div>
-        <motion.div className="hero-fog-1" animate={{ x: [0, 10, 0] }} transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }} />
-        <motion.div className="hero-fog-2" animate={{ x: [0, -10, 0] }} transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }} />
+        <div className="hero-fog-1" />
+        <div className="hero-fog-2" />
         <div className="hero-ambient"></div>
         <svg className="rabbit-trail" viewBox="0 0 1440 200" preserveAspectRatio="none" aria-hidden="true">
           <path d="M-50 150 Q 300 80 600 130 T 1500 60" stroke="var(--teal-primary)" strokeWidth="3" fill="none" strokeLinecap="round" strokeDasharray="8 12" />
@@ -123,12 +123,6 @@ export default function Hero() {
             className="hero-card"
             whileHover={{ rotate: 0, scale: 1.02 }}
             initial={{ rotate: -1.5 }}
-            animate={{ boxShadow: [
-              '0 32px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(29, 212, 232, 0.08)',
-              '0 32px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(29, 212, 232, 0.15)',
-              '0 32px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(29, 212, 232, 0.08)',
-            ] }}
-            transition={{ duration: 4, repeat: Infinity, repeatType: 'loop' } as any}
           >
             <div className="hero-card-bg"></div>
             <div className="hero-card-content">
