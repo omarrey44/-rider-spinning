@@ -162,11 +162,11 @@ export default function Hero() {
                 </div>
                 <div className="bike-row">
                   <span className="bike free"></span><span className="bike selected"></span>
-                  <span className="bike free"></span><span className="bike taken"></span>
+                  <span className="bike taken"></span>
                 </div>
                 <div className="bike-row">
-                  <span className="bike taken"></span><span className="bike free"></span>
                   <span className="bike free"></span><span className="bike free"></span>
+                  <span className="bike free"></span>
                 </div>
               </div>
               <div className="hero-card-footer">
