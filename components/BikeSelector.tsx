@@ -1,6 +1,6 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { BIKE_CONFIG } from '@/data/schedule';
-import { BoltIcon, UserIcon, CalendarIcon, CalendarDaysIcon, AlarmClockIcon, StopwatchIcon, FanIcon } from './Icons';
+import { BoltIcon, UserIcon, CalendarIcon, CalendarDaysIcon, AlarmClockIcon, StopwatchIcon, FanIcon, EyeIcon, StarIcon } from './Icons';
 
 interface BikeSelectorProps {
   selectedSlot: {
@@ -18,34 +18,28 @@ interface BikeSelectorProps {
   onCheckout: (bikeNumber: number, bikeRow: number) => void;
 }
 
-/* SVG inline de silueta de bici spinning (vista lateral) */
+/* SVG inline de bici spinning — vista cenital (top-down), frente arriba = hacia el instructor */
 function BikeIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Rueda trasera */}
-      <circle cx="12" cy="30" r="7" stroke="currentColor" strokeWidth="1.8" fill="none" opacity="0.6"/>
-      <circle cx="12" cy="30" r="1" fill="currentColor" opacity="0.4"/>
-      {/* Rueda delantera */}
-      <circle cx="36" cy="30" r="7" stroke="currentColor" strokeWidth="1.8" fill="none" opacity="0.6"/>
-      <circle cx="36" cy="30" r="1" fill="currentColor" opacity="0.4"/>
-      {/* Cuadro principal — triángulo */}
-      <path d="M12 30 L20 18 L30 30" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-      {/* Tubo horizontal superior */}
-      <path d="M20 18 L32 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/>
-      {/* Horquilla delantera */}
-      <path d="M32 18 L36 30" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/>
-      {/* Tija del sillín */}
-      <path d="M20 18 L18 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/>
-      {/* Sillín */}
-      <rect x="14" y="10" width="9" height="2.5" rx="1.25" fill="currentColor" opacity="0.7"/>
-      {/* Potencia / manubrio */}
-      <path d="M32 18 L34 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/>
-      {/* Manubrio */}
-      <path d="M30 12 L38 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/>
-      {/* Pedalier / eje central */}
-      <circle cx="20" cy="30" r="2" stroke="currentColor" strokeWidth="1.2" fill="none" opacity="0.5"/>
-      {/* Pedales */}
-      <rect x="17" y="33" width="6" height="1.5" rx="0.75" fill="currentColor" opacity="0.4"/>
+    <svg className={className} viewBox="0 0 30 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Rueda delantera (arriba = frente al instructor) */}
+      <ellipse cx="15" cy="7" rx="7" ry="2.8" stroke="currentColor" strokeWidth="1.8" opacity="0.75"/>
+      <circle cx="15" cy="7" r="1" fill="currentColor" opacity="0.35"/>
+      {/* Rueda trasera (abajo = espalda del rider) */}
+      <ellipse cx="15" cy="44" rx="8" ry="3.2" stroke="currentColor" strokeWidth="1.8" opacity="0.75"/>
+      <circle cx="15" cy="44" r="1" fill="currentColor" opacity="0.35"/>
+      {/* Tubo izquierdo del cuadro */}
+      <path d="M10 9.5 L8.5 40.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+      {/* Tubo derecho del cuadro */}
+      <path d="M20 9.5 L21.5 40.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+      {/* Manubrio (T horizontal, parte delantera) */}
+      <line x1="5" y1="15" x2="25" y2="15" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"/>
+      {/* Potencia del manubrio */}
+      <line x1="15" y1="9" x2="15" y2="17" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+      {/* Sillín (elipse, vista desde arriba) */}
+      <ellipse cx="15" cy="34" rx="5.5" ry="2.2" fill="currentColor" opacity="0.6"/>
+      {/* Pedalier / corona */}
+      <circle cx="15" cy="25" r="3" stroke="currentColor" strokeWidth="1.4" opacity="0.5"/>
     </svg>
   );
 }
@@ -72,7 +66,6 @@ function getBikePosition(num: number): { row: number; col: number; rowCount: num
 
 export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorProps) {
   const [selectedBike, setSelectedBike] = useState<number | null>(null);
-  const [tooltipBike, setTooltipBike] = useState<number | null>(null);
   const [takenBikes, setTakenBikes] = useState<number[]>([]);
   const totalBikes = BIKE_CONFIG.total;
 
@@ -337,79 +330,89 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
             </div>
           )}
 
-          {/* Indicador de orientación: frente */}
-          <div className="room-orientation room-orientation-front" aria-hidden="true">
-            <span className="orientation-arrow">↑</span> Frente
-          </div>
+          {/* Cinematic 3D Studio */}
+          <div className="studio-scene">
+            {/* Atmospheric floor plane */}
+            <div className="studio-floor-bg" aria-hidden="true" />
+            <div className="stage-beam" aria-hidden="true" />
 
-          {/* Row-based bike grid — fila 1: 4 principiantes, fila 2-3: 3 c/u */}
-          <div className="bike-grid-wrap">
-            <div className="bike-grid">
-            {(() => {
-              let bikeNum = 0;
-              return BIKE_CONFIG.rowConfig.map((rowCount, rowIdx) => {
-                const rowNum = rowIdx + 1;
-                const rowLabel = rowNum === 1 ? 'FILA 1 · PRINCIPIANTES' : `FILA ${rowNum}`;
-                const rowBikes = Array.from({ length: rowCount }, () => ++bikeNum);
-                return (
-                  <div key={rowNum} className="bike-row-group">
-                    <span className="row-label" aria-hidden="true">{rowLabel}</span>
-                    <div className="bike-row-nodes">
-                      {rowBikes.map((num) => {
+            {/* Instructor platform */}
+            <div className="studio-instructor-area">
+              <p className="s3d-instructor-label" aria-hidden="true">INSTRUCTOR</p>
+              <div className="s3d-stage-wrap" aria-hidden="true">
+                <div className="s3d-beam-l" />
+                <div className="s3d-beam-r" />
+                <div className="s3d-platform">
+                  <span className={`avatar-instructor${selectedSlot ? ` ${selectedSlot.instructorClass}` : ''}`}
+                    style={{ width: 52, height: 52, flexShrink: 0 }} />
+                </div>
+              </div>
+            </div>
+
+            {/* Row labels — absolutely positioned left */}
+            <div className="s3d-row-labels" aria-hidden="true">
+              <div className="s3d-rl s3d-rl--1"><span className="s3d-fila">FILA 1</span><span className="s3d-desc">Principiantes</span></div>
+              <div className="s3d-rl s3d-rl--2"><span className="s3d-fila">FILA 2</span><span className="s3d-desc">Equilibrio</span></div>
+              <div className="s3d-rl s3d-rl--3"><span className="s3d-fila">FILA 3</span><span className="s3d-desc">Más aire</span></div>
+            </div>
+
+            {/* 3D floor with bikes — preserve-3d + rotateX for depth */}
+            <div className="s3d-floor">
+              {(() => {
+                let bikeNum = 0;
+                return BIKE_CONFIG.rowConfig.map((rowCount, rowIdx) => {
+                  const rowNum = rowIdx + 1;
+                  const rowBikes = Array.from({ length: rowCount }, () => ++bikeNum);
+                  return (
+                    <div key={rowNum} className={`s3d-row s3d-row--${rowNum}`}>
+                      {rowBikes.map((num, posInRow) => {
                         const taken = takenBikes.includes(num);
                         const popular = BIKE_CONFIG.popular.includes(num);
                         const selected = selectedBike === num;
                         const tooltip = getBikeTooltip(num);
-                        const arcAngle = ((rowBikes.indexOf(num)) / (rowCount - 1) - 0.5) * 50;
+                        const arcDeg = rowCount > 1
+                          ? ((posInRow / (rowCount - 1)) - 0.5) * -20
+                          : 0;
                         const cls = [
-                          'bike-node',
-                          taken && 'taken',
-                          popular && !taken && !selected && 'popular',
-                          selected && 'selected',
+                          'b3d',
+                          taken   && 'b3d--taken',
+                          popular && !taken && !selected && 'b3d--popular',
+                          selected && 'b3d--selected',
                         ].filter(Boolean).join(' ');
 
                         return (
-                          <div
+                          <button
                             key={num}
-                            className="bike-node-wrapper"
-                            style={{ '--bike-arc': `${arcAngle}deg` } as React.CSSProperties}
-                            onMouseEnter={() => tooltip && setTooltipBike(num)}
-                            onMouseLeave={() => setTooltipBike(null)}
+                            className={cls}
+                            disabled={taken}
+                            style={{ '--bike-arc': `${arcDeg}deg` } as React.CSSProperties}
+                            title={taken ? `Bicicleta ${num} - Ocupada` : tooltip || `Bicicleta ${num}`}
+                            aria-label={taken ? `Bicicleta ${num}, ocupada` : `Bicicleta ${num}`}
+                            aria-pressed={selected}
+                            onClick={() => handleBikeClick(num)}
                           >
-                            <button
-                              className={cls}
-                              disabled={taken}
-                              title={taken ? `Bicicleta ${num} - Ocupada` : `Bicicleta ${num}${tooltip ? ' - ' + tooltip : ''}`}
-                              aria-label={taken ? `Bicicleta ${num}, ocupada` : `Bicicleta ${num}`}
-                              aria-pressed={selected}
-                              onClick={() => handleBikeClick(num)}
-                            >
-                              <BikeIcon className="bike-icon-svg" />
-                              <span className="bike-num">{num}</span>
-                              {taken && <LockIcon className="bike-lock" />}
-                            </button>
-                            {tooltip && tooltipBike === num && (
-                              <div className="bike-tooltip">{tooltip}</div>
-                            )}
-                          </div>
+                            <div className="b3d-glow" aria-hidden="true" />
+                            <BikeIcon className="b3d-icon" />
+                            <span className="b3d-num">{String(num).padStart(2, '0')}</span>
+                            {taken   && <LockIcon className="b3d-lock" />}
+                            {popular && !taken && <span className="b3d-star" aria-hidden="true">★</span>}
+                          </button>
                         );
                       })}
                     </div>
-                  </div>
-                );
-              });
-            })()}
+                  );
+                });
+              })()}
             </div>
-          </div>
 
-          {/* Indicador de orientación: fondo */}
-          <div className="room-orientation room-orientation-back" aria-hidden="true">
-            <span className="orientation-arrow">↓</span> Fondo · Salida
-          </div>
+            {/* Icons — right */}
+            <div className="s3d-icons" aria-hidden="true">
+              <div className="s3d-icon"><FanIcon size={15} /><span>Más aire</span></div>
+              <div className="s3d-icon"><EyeIcon size={15} /><span>Mejor vista</span></div>
+              <div className="s3d-icon"><StarIcon size={15} /><span>Popular</span></div>
+            </div>
 
-          <div className="room-extras">
-            <span className="extra fan-left"><FanIcon /> ventilador</span>
-            <span className="extra fan-right"><FanIcon /> ventilador</span>
+            <p className="s3d-bottom" aria-hidden="true">↓ FONDO · SALIDA</p>
           </div>
         </div>
       </div>
