@@ -466,7 +466,7 @@ button:focus:not(:focus-visible) {
 .hero-bg {
   position: absolute;
   inset: 0;
-  background-image: url('/Hero.png');
+  background-image: url('/Hero1.png');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -4355,7 +4355,7 @@ section::before {
 
   /* Hero */
   .hero { min-height: auto; }
-  .hero-bg { background-image: url('/Hero Mobile.png'); }
+  .hero-bg { background-image: url('/bikeMovil.webp'); }
   .hero-content { display: flex; flex-direction: column; padding: 24px 20px 40px; gap: 24px; }
   .hero-text { order: 2; }
   .hero-ctas { order: 1; margin-bottom: 16px; flex-direction: column; gap: 10px; }

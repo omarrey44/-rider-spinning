@@ -73,6 +73,7 @@ export default function CheckoutModal({
   const [phone, setPhone] = useState('');
   const [countryCode, setCountryCode] = useState('+52');
   const [goal, setGoal] = useState('');
+  const [goalCustom, setGoalCustom] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showConfirmClose, setShowConfirmClose] = useState(false);
@@ -88,6 +89,7 @@ export default function CheckoutModal({
     setPhone('');
     setCountryCode('+52');
     setGoal('');
+    setGoalCustom('');
     setError(null);
     setLoading(false);
     if (typeof window !== 'undefined') {
@@ -98,7 +100,7 @@ export default function CheckoutModal({
   const saveFormData = useCallback(() => {
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('checkoutFormData', JSON.stringify({
-        name, email, phone, countryCode, goal
+        name, email, phone, countryCode, goal, goalCustom
       }));
     }
   }, [name, email, phone, countryCode, goal]);
@@ -109,12 +111,13 @@ export default function CheckoutModal({
       const saved = sessionStorage.getItem('checkoutFormData');
       if (saved) {
         try {
-          const { name: n, email: e, phone: p, countryCode: c, goal: g } = JSON.parse(saved);
+          const { name: n, email: e, phone: p, countryCode: c, goal: g, goalCustom: gc } = JSON.parse(saved);
           setName(n || '');
           setEmail(e || '');
           setPhone(p || '');
           setCountryCode(c || '+52');
           setGoal(g || '');
+          setGoalCustom(gc || '');
         } catch {
           // Invalid data, ignore
         }
@@ -181,7 +184,7 @@ export default function CheckoutModal({
           amount_cents: priceCents,
           currency,
           test_mode: testMode,
-          goal: goal.trim() || undefined,
+          goal: goal === 'Otro' ? (goalCustom.trim() || 'Otro') : (goal.trim() || undefined),
         }),
       });
 
@@ -323,7 +326,7 @@ export default function CheckoutModal({
                 className="country-select"
               >
                 {COUNTRIES.map((country) => (
-                  <option key={country.code} value={country.code}>
+                  <option key={country.name} value={country.code}>
                     {country.flag} {country.name} ({country.code})
                   </option>
                 ))}
@@ -341,20 +344,35 @@ export default function CheckoutModal({
           </div>
 
           <div className="form-group">
-            <label htmlFor="guest-goal">¿Cuál es tu objetivo? <span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 400 }}>(opcional)</span></label>
-            <select
-              id="guest-goal"
-              value={goal}
-              onChange={(e) => setGoal(e.target.value)}
-            >
-              <option value="">Selecciona tu meta...</option>
-              <option value="Perder peso">Perder peso</option>
-              <option value="Ganar resistencia / cardio">Ganar resistencia / cardio</option>
-              <option value="Tonificar">Tonificar</option>
-              <option value="Manejo del estrés">Manejo del estrés</option>
-              <option value="Diversión y socializar">Diversión y socializar</option>
-              <option value="Otro">Otro</option>
-            </select>
+            <label htmlFor="guest-goal">¿Cuál es tu objetivo? <span className="optional">(opcional)</span></label>
+            <div className="goal-select-wrap">
+              <select
+                id="guest-goal"
+                className="goal-select"
+                value={goal}
+                onChange={(e) => setGoal(e.target.value)}
+              >
+                <option value="">Selecciona tu meta...</option>
+                <option value="Perder peso">🔥 Perder peso</option>
+                <option value="Ganar resistencia / cardio">❤️ Ganar resistencia / cardio</option>
+                <option value="Tonificar">💪 Tonificar</option>
+                <option value="Manejo del estrés">🧘 Manejo del estrés</option>
+                <option value="Diversión y socializar">🎉 Diversión y socializar</option>
+                <option value="Otro">✏️ Otro...</option>
+              </select>
+              <svg className="goal-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            {goal === 'Otro' && (
+              <input
+                type="text"
+                className="goal-custom-input"
+                value={goalCustom}
+                onChange={(e) => setGoalCustom(e.target.value)}
+                placeholder="Cuéntanos tu objetivo..."
+                autoFocus
+                maxLength={120}
+              />
+            )}
           </div>
 
           {error && (
