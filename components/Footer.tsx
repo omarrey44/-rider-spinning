@@ -28,6 +28,8 @@ export default function Footer() {
         <div className="footer-col">
           <h4>Soporte</h4>
           <a href="/politica-de-cancelacion">Política de cancelación</a>
+          <a href="/privacidad">Política de privacidad</a>
+          <a href="/terminos">Términos de servicio</a>
           <a href="/#faq">Preguntas frecuentes</a>
           <a href="https://wa.me/526145029482" target="_blank" rel="noopener noreferrer">Contacto</a>
           <a href="/#feedback">Quejas y sugerencias</a>

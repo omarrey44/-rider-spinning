@@ -1,5 +1,7 @@
 import nodemailer from 'nodemailer';
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || '${BASE_URL}';
+
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, '&amp;')
@@ -132,12 +134,12 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
           </div>
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="https://rider-spinning.vercel.app/?email=${encodeURIComponent(data.customerEmail)}#mis-reservas" style="display: inline-block; background: #2a9d8f; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Verificar mi Reserva</a>
+            <a href="${BASE_URL}/?email=${encodeURIComponent(data.customerEmail)}#mis-reservas" style="display: inline-block; background: #2a9d8f; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Verificar mi Reserva</a>
           </div>
 
           <div class="footer">
             <p><strong>Ubicación:</strong> Plaza San Agustín local 23, Chihuahua, México</p>
-            <p>📞 Soporte: contacto@rideonstudio.com</p>
+            <p>📞 Soporte: administracion@rideonspinningstudio.com</p>
             <p>Rideon Spinning Studio • Tu club de spinning favorito</p>
           </div>
         </div>
@@ -191,12 +193,12 @@ export async function sendPackConfirmation(data: PackEmailData) {
         <p style="font-size:20px;font-weight:700;color:#2a9d8f;">¡HOLA RIDDER!</p>
         <p><strong>Compra de: ${escapeHtml(data.customerName)}</strong></p>
         <div class="detail-row"><div class="detail-label">Producto</div><div class="detail-value">Pack 3 Clases · válido 7 días</div></div>
-        <div class="detail-row"><div class="detail-label">Beneficio</div><div class="detail-value">Cancelación hasta 2h antes por clase</div></div>
+        <div class="detail-row"><div class="detail-label">Beneficio</div><div class="detail-value">Cancelación hasta 1h antes por clase</div></div>
         <div class="detail-row"><div class="detail-label">Total pagado</div><div class="detail-value amount">$${data.amount.toLocaleString('es-MX')} MXN</div></div>
         ${data.goal ? `<div class="detail-row"><div class="detail-label">Tu objetivo</div><div class="detail-value">${escapeHtml(data.goal)}</div></div>` : ''}
         <p style="margin-top:24px;"><strong>¿Qué sigue?</strong><br>Reserva tus 3 clases desde el sitio. Cada reserva descuenta una clase del pack.</p>
         <div style="text-align:center;margin:30px 0;">
-          <a href="https://rider-spinning.vercel.app/#horarios" style="display:inline-block;background:#2a9d8f;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">Reservar mi primera clase</a>
+          <a href="${BASE_URL}/#horarios" style="display:inline-block;background:#2a9d8f;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">Reservar mi primera clase</a>
         </div>
         <div style="text-align:center;font-size:12px;color:#888;border-top:1px solid #ddd;padding-top:20px;margin-top:20px;">
           <p>Rideon Spinning Studio · Plaza San Agustín local 23, Chihuahua, México</p>
@@ -257,7 +259,7 @@ export async function sendSubscriptionConfirmation(data: SubscriptionEmailData) 
         ${data.goal ? `<div class="detail-row"><div class="detail-label">Tu objetivo</div><div class="detail-value">${escapeHtml(data.goal)}</div></div>` : ''}
         <p style="margin-top:24px;"><strong>¿Qué sigue?</strong><br>Reserva tus clases desde el sitio con tu membresía activa. Clases ilimitadas, sin restricciones.</p>
         <div style="text-align:center;margin:30px 0;">
-          <a href="https://rider-spinning.vercel.app/#horarios" style="display:inline-block;background:#2a9d8f;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">Reservar mi primera clase</a>
+          <a href="${BASE_URL}/#horarios" style="display:inline-block;background:#2a9d8f;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">Reservar mi primera clase</a>
         </div>
         <div style="text-align:center;font-size:12px;color:#888;border-top:1px solid #ddd;padding-top:20px;margin-top:20px;">
           <p>Rideon Spinning Studio · Plaza San Agustín local 23, Chihuahua, México</p>
@@ -312,7 +314,7 @@ export async function sendCancellationConfirmation(data: CancellationEmailData) 
         <div class="detail-row"><div class="detail-label">Confirmación</div><div class="detail-value">${escapeHtml(data.confirmationNumber)}</div></div>
         <p style="margin-top:24px;">Si tienes créditos de pack, ya fueron restituidos a tu cuenta. ¡Esperamos verte pronto!</p>
         <div style="text-align:center;margin:24px 0;">
-          <a href="https://rider-spinning.vercel.app/#horarios" style="display:inline-block;background:#e10600;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">Reservar otra clase</a>
+          <a href="${BASE_URL}/#horarios" style="display:inline-block;background:#e10600;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">Reservar otra clase</a>
         </div>
         <div class="footer">
           <p>Rideon Spinning Studio · Plaza San Agustín local 23, Chihuahua, México</p>

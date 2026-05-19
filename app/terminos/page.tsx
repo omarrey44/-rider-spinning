@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Términos y Condiciones · Rideon Spinning Studio',
-  description: 'Términos y condiciones de uso del servicio Rideon Spinning Studio.',
+  title: 'Términos de Servicio · Rideon Spinning Studio',
+  description: 'Condiciones de uso del servicio de Rideon Spinning Studio.',
 };
 
 export default function TerminosPage() {
@@ -11,92 +11,93 @@ export default function TerminosPage() {
     <main className="legal-page">
       <div className="container legal-container">
         <Link href="/" className="legal-back">← Volver al inicio</Link>
-        <h1>Términos y Condiciones</h1>
-        <p className="legal-meta">Última actualización: 5 de mayo de 2026</p>
+        <h1>Términos de Servicio</h1>
+        <p className="legal-meta">Última actualización: 19 de mayo de 2026</p>
 
         <section>
-          <h2>1. Aceptación de los términos</h2>
+          <h2>1. Aceptación</h2>
           <p>
-            Al usar el sitio rideonspinning.com y reservar clases en Rideon
-            Spinning Studio (en adelante, &ldquo;Rideon&rdquo;, &ldquo;nosotros&rdquo;), aceptas estos
-            términos en su totalidad. Si no estás de acuerdo, no uses el
-            servicio.
+            Al reservar una clase o adquirir una membresía en Rideon Spinning Studio aceptas estos
+            términos. Si no estás de acuerdo, no utilices nuestros servicios.
           </p>
         </section>
 
         <section>
-          <h2>2. Reservas y pagos</h2>
+          <h2>2. Servicios</h2>
           <p>
-            Las reservas se confirman al completar el pago. Los pagos se
-            procesan mediante Stripe; Rideon no almacena datos de tarjetas.
-            Los precios están expresados en pesos mexicanos (MXN) e incluyen
-            IVA cuando aplique.
+            Rideon Spinning Studio ofrece clases de ciclismo indoor en Plaza San Agustín local 23,
+            Chihuahua, México. Las clases están sujetas a disponibilidad y pueden ser modificadas
+            o canceladas por causas de fuerza mayor.
           </p>
         </section>
 
         <section>
-          <h2>3. Cancelaciones y reembolsos</h2>
+          <h2>3. Reservas y pagos</h2>
+          <ul>
+            <li>Las reservas se confirman una vez procesado el pago exitosamente.</li>
+            <li>Los precios están expresados en pesos mexicanos (MXN) e incluyen IVA.</li>
+            <li>Los pagos se procesan de forma segura a través de Stripe.</li>
+            <li>No almacenamos datos de tarjetas de crédito o débito.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>4. Cancelaciones y reembolsos</h2>
           <p>
-            Consulta nuestra <Link href="/politica-de-cancelacion">política
-            de cancelación</Link> para conocer los plazos específicos por
-            tipo de plan.
+            Consulta nuestra{' '}
+            <Link href="/politica-de-cancelacion">Política de Cancelación</Link>{' '}
+            para conocer los plazos y condiciones aplicables según el tipo de compra.
           </p>
         </section>
 
         <section>
-          <h2>4. Conducta en el estudio</h2>
+          <h2>5. Membresías y packs</h2>
+          <ul>
+            <li>El Pack 3 Clases tiene vigencia de 7 días a partir de la compra.</li>
+            <li>La Membresía Mensual tiene vigencia de 30 días a partir de la compra.</li>
+            <li>Los créditos no utilizados al vencimiento no son reembolsables.</li>
+            <li>Se permite 1 clase por día con membresía o pack.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>6. Conducta en el estudio</h2>
+          <ul>
+            <li>Llega al menos 10 minutos antes de tu clase.</li>
+            <li>Respeta las indicaciones del instructor en todo momento.</li>
+            <li>Rideon se reserva el derecho de negar el servicio ante conducta inapropiada.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>7. Responsabilidad</h2>
           <p>
-            Rideon se reserva el derecho de admisión. Comportamiento
-            agresivo, faltas de respeto al personal o a otros riders, o
-            llegar bajo influencia de sustancias resultará en cancelación
-            de la reserva sin reembolso.
+            Rideon Spinning Studio no se hace responsable de lesiones derivadas del uso
+            incorrecto del equipo o por no seguir las indicaciones del instructor. Al reservar
+            confirmas estar en condiciones físicas aptas para la actividad.
           </p>
         </section>
 
         <section>
-          <h2>5. Riesgos y exención de responsabilidad</h2>
+          <h2>8. Modificaciones</h2>
           <p>
-            El spinning es una actividad física de alta intensidad. Al
-            reservar declaras estar en condiciones físicas para participar.
-            Consulta a tu médico si tienes condiciones cardíacas, presión
-            alta, o estás embarazada. Rideon no se hace responsable por
-            lesiones derivadas del esfuerzo propio del usuario.
+            Nos reservamos el derecho de modificar estos términos en cualquier momento.
+            Los cambios entran en vigor al publicarse en este sitio.
           </p>
         </section>
 
         <section>
-          <h2>6. Propiedad intelectual</h2>
+          <h2>9. Ley aplicable</h2>
           <p>
-            Todo el contenido del sitio (logo, diseño, textos, imágenes)
-            es propiedad de Rideon Spinning Studio. No puede ser
-            reproducido sin autorización por escrito.
+            Estos términos se rigen por las leyes de los Estados Unidos Mexicanos.
+            Cualquier disputa se resolverá ante los tribunales competentes de Chihuahua, México.
           </p>
         </section>
 
-        <section>
-          <h2>7. Modificaciones</h2>
-          <p>
-            Podemos actualizar estos términos en cualquier momento. La
-            versión vigente es la publicada en esta página. El uso
-            continuado del servicio implica aceptación de los cambios.
-          </p>
-        </section>
-
-        <section>
-          <h2>8. Jurisdicción</h2>
-          <p>
-            Estos términos se rigen por las leyes de México. Cualquier
-            disputa se resolverá en los tribunales de la Ciudad de
-            Chihuahua, Chihuahua.
-          </p>
-        </section>
-
-        <section>
-          <h2>9. Contacto</h2>
-          <p>
-            Para dudas sobre estos términos: <a href="mailto:contacto@rideonspinning.com">contacto@rideonspinning.com</a>
-          </p>
-        </section>
+        <div className="legal-footer-links">
+          <Link href="/privacidad">Política de Privacidad</Link>
+          <Link href="/politica-de-cancelacion">Política de Cancelación</Link>
+        </div>
       </div>
     </main>
   );

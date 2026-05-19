@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Aviso de Privacidad · Rideon Spinning Studio',
-  description: 'Aviso de privacidad de Rideon Spinning Studio en cumplimiento de la LFPDPPP.',
+  title: 'Política de Privacidad · Rideon Spinning Studio',
+  description: 'Cómo recopilamos, usamos y protegemos tu información personal en Rideon Spinning Studio.',
 };
 
 export default function PrivacidadPage() {
@@ -11,106 +11,85 @@ export default function PrivacidadPage() {
     <main className="legal-page">
       <div className="container legal-container">
         <Link href="/" className="legal-back">← Volver al inicio</Link>
-        <h1>Aviso de Privacidad</h1>
-        <p className="legal-meta">Última actualización: 5 de mayo de 2026</p>
+        <h1>Política de Privacidad</h1>
+        <p className="legal-meta">Última actualización: 19 de mayo de 2026</p>
 
         <section>
-          <h2>Identidad del responsable</h2>
+          <h2>1. Responsable del tratamiento</h2>
           <p>
-            Rideon Spinning Studio (en adelante &ldquo;Rideon&rdquo;) con domicilio
-            en Chihuahua, México, es responsable del tratamiento de sus
-            datos personales conforme a la Ley Federal de Protección de
-            Datos Personales en Posesión de los Particulares (LFPDPPP) y
-            su reglamento.
+            Rideon Spinning Studio, ubicado en Plaza San Agustín local 23, Chihuahua, México,
+            es responsable del tratamiento de los datos personales que recopilamos a través de este sitio web.
           </p>
         </section>
 
         <section>
-          <h2>Datos que recabamos</h2>
+          <h2>2. Datos que recopilamos</h2>
+          <p>Al realizar una reserva o compra recopilamos:</p>
           <ul>
             <li>Nombre completo</li>
             <li>Correo electrónico</li>
             <li>Número de teléfono (opcional)</li>
-            <li>Información de pago (procesada directamente por Stripe; Rideon no almacena tarjetas)</li>
-            <li>Historial de clases reservadas</li>
+            <li>Información de pago procesada por Stripe (no almacenamos datos de tarjeta)</li>
+            <li>Preferencias de clase y objetivo personal (opcional)</li>
           </ul>
         </section>
 
         <section>
-          <h2>Finalidades del tratamiento</h2>
-          <h3>Finalidades primarias (necesarias para prestar el servicio):</h3>
+          <h2>3. Finalidad del tratamiento</h2>
+          <p>Utilizamos tus datos para:</p>
           <ul>
-            <li>Procesar reservas de clases y pagos</li>
-            <li>Enviar confirmaciones y recordatorios de clase</li>
-            <li>Atender solicitudes de cancelación o reembolso</li>
-            <li>Cumplir obligaciones fiscales y legales</li>
+            <li>Gestionar y confirmar tus reservas de clase</li>
+            <li>Enviarte confirmaciones y recordatorios por correo electrónico</li>
+            <li>Administrar tu membresía o pack de clases</li>
+            <li>Procesar pagos de forma segura a través de Stripe</li>
           </ul>
-          <h3>Finalidades secundarias (opcionales):</h3>
+          <p>No utilizamos tus datos para publicidad de terceros ni los vendemos.</p>
+        </section>
+
+        <section>
+          <h2>4. Procesadores de datos terceros</h2>
           <ul>
-            <li>Enviar promociones y novedades del estudio</li>
-            <li>Análisis estadístico para mejorar el servicio</li>
+            <li><strong>Stripe</strong> — procesamiento de pagos (política: stripe.com/privacy)</li>
+            <li><strong>Supabase</strong> — almacenamiento de datos (política: supabase.com/privacy)</li>
+            <li><strong>Gmail / Google</strong> — envío de correos de confirmación</li>
           </ul>
+        </section>
+
+        <section>
+          <h2>5. Conservación de datos</h2>
           <p>
-            Puedes oponerte a las finalidades secundarias enviando un
-            correo a <a href="mailto:privacidad@rideonspinning.com">privacidad@rideonspinning.com</a>.
+            Conservamos tus datos de reserva mientras tu cuenta esté activa y por un período
+            mínimo de 12 meses para cumplimiento fiscal. Puedes solicitar la eliminación de
+            tus datos en cualquier momento.
           </p>
         </section>
 
         <section>
-          <h2>Transferencias de datos</h2>
+          <h2>6. Tus derechos</h2>
+          <p>Tienes derecho a acceder, rectificar, cancelar u oponerte al tratamiento de tus datos (derechos ARCO).
+          Para ejercerlos, contáctanos por correo electrónico.</p>
+        </section>
+
+        <section>
+          <h2>7. Seguridad</h2>
           <p>
-            Compartimos datos con los siguientes terceros estrictamente
-            para operar el servicio:
-          </p>
-          <ul>
-            <li><strong>Stripe Payments Inc.</strong> — procesamiento de pagos</li>
-            <li><strong>Supabase Inc.</strong> — almacenamiento de reservas</li>
-            <li><strong>Vercel Inc.</strong> — hospedaje del sitio</li>
-            <li><strong>Resend</strong> — envío de correos transaccionales</li>
-          </ul>
-          <p>
-            Todos cuentan con políticas de privacidad alineadas con
-            estándares internacionales (GDPR, CCPA).
+            Implementamos medidas de seguridad técnicas y organizativas para proteger tu información.
+            Los pagos se procesan mediante conexiones cifradas SSL/TLS a través de Stripe.
           </p>
         </section>
 
         <section>
-          <h2>Derechos ARCO</h2>
+          <h2>8. Cambios a esta política</h2>
           <p>
-            Tienes derecho a <strong>Acceder</strong>, <strong>Rectificar</strong>,
-            {' '}<strong>Cancelar</strong> u <strong>Oponerte</strong> al tratamiento
-            de tus datos. Para ejercerlos envía solicitud a{' '}
-            <a href="mailto:privacidad@rideonspinning.com">privacidad@rideonspinning.com</a>{' '}
-            con copia de tu identificación. Responderemos en un máximo de
-            20 días hábiles.
+            Podemos actualizar esta política ocasionalmente. La fecha de la última actualización
+            aparece al inicio de este documento.
           </p>
         </section>
 
-        <section>
-          <h2>Cookies</h2>
-          <p>
-            Usamos cookies esenciales para el funcionamiento del sitio y,
-            con tu consentimiento, cookies analíticas para entender el uso.
-            Puedes desactivarlas desde la configuración de tu navegador.
-          </p>
-        </section>
-
-        <section>
-          <h2>Cambios al aviso</h2>
-          <p>
-            Cualquier modificación se publicará en esta misma página. Te
-            recomendamos revisarla periódicamente.
-          </p>
-        </section>
-
-        <section>
-          <h2>Contacto</h2>
-          <p>
-            <strong>Departamento de Privacidad</strong><br />
-            Correo: <a href="mailto:privacidad@rideonspinning.com">privacidad@rideonspinning.com</a><br />
-            Domicilio: Chihuahua, Chihuahua, México
-          </p>
-        </section>
+        <div className="legal-footer-links">
+          <Link href="/terminos">Términos de Servicio</Link>
+          <Link href="/politica-de-cancelacion">Política de Cancelación</Link>
+        </div>
       </div>
     </main>
   );
