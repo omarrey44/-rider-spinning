@@ -1664,6 +1664,31 @@ section::before {
   background: var(--black);
   color: var(--white);
 }
+.bike-selector--compact {
+  background: transparent;
+  padding: 0;
+}
+.bike-selector--compact .bike-layout {
+  display: block;
+}
+.bike-selector--compact .bike-info {
+  display: none;
+}
+.bike-selector--compact .bike-room {
+  width: 100%;
+  border-radius: 12px;
+}
+.bike-selector--compact .sticky-checkout-bar {
+  display: flex;
+  position: static;
+  margin: 12px 0 0;
+  background: rgba(18, 24, 32, 0.6);
+  border: 1px solid rgba(29, 212, 232, 0.22);
+  border-radius: 12px;
+  padding: 12px 16px;
+  align-items: center;
+  gap: 12px;
+}
 .bike-layout {
   display: grid;
   grid-template-columns: 1fr 1.2fr;
@@ -3408,14 +3433,16 @@ section::before {
 .membership-expired-msg { font-size: 13px; color: rgba(255,255,255,0.4); margin: 0; text-align: center; }
 
 /* ── MembershipBookingModal ─────────────────────────────────────── */
-.modal--wide { max-width: 720px; }
+.modal.modal--wide { max-width: 720px; }
 
 .mem-back-btn {
   display: inline-flex; align-items: center; gap: 6px;
-  background: none; border: none; color: rgba(255,255,255,0.55);
-  font-size: 13px; cursor: pointer; padding: 0 0 16px; transition: color 0.2s;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 500;
+  cursor: pointer; padding: 7px 14px; border-radius: 8px;
+  margin-bottom: 16px; transition: background 0.2s, color 0.2s;
 }
-.mem-back-btn:hover { color: var(--white); }
+.mem-back-btn:hover { background: rgba(255,255,255,0.11); color: var(--white); }
 
 .mem-date-grid {
   display: grid;
@@ -3444,6 +3471,12 @@ section::before {
   padding: 2px 6px; border-radius: 999px;
 }
 
+.mem-no-slots { color: var(--text-light); font-size: 14px; text-align: center; padding: 16px 0; }
+.mem-bike-error {
+  margin-top: 10px; padding: 10px 14px;
+  background: rgba(225, 6, 0, 0.15); border: 1px solid rgba(225, 6, 0, 0.35);
+  border-radius: 8px; color: #ff9e9a; font-size: 13px; font-weight: 500;
+}
 .mem-slot-list { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
 .mem-slot-btn {
   display: flex; align-items: center; gap: 16px;
@@ -3471,8 +3504,18 @@ section::before {
 .mem-confirm-row span { font-size: 12px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.5px; }
 .mem-confirm-row strong { font-size: 14px; color: var(--white); }
 .mem-confirm-free { color: var(--teal-primary) !important; }
-.mem-confirm-actions { display: flex; gap: 12px; }
-.mem-confirm-actions .btn { flex: 1; }
+.mem-confirm-actions { display: flex; gap: 12px; margin-top: 8px; }
+.mem-confirm-actions .btn { flex: 1; min-height: 48px; }
+.mem-confirm-actions .btn-outline {
+  background: #1dd4e8;
+  color: #0a0f14;
+  border: 2px solid #1dd4e8;
+}
+.mem-confirm-actions .btn-outline:hover {
+  background: #3de0f0;
+  border-color: #3de0f0;
+  color: #0a0f14;
+}
 
 .mem-success { text-align: center; padding: 20px 0; }
 .mem-success-icon {

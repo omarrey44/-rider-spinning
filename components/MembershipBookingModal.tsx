@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, useRef } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { weekdaySlots, saturdaySlots, ScheduleSlot } from '@/data/schedule';
 import BikeSelector from './BikeSelector';
 
@@ -66,12 +66,32 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
   const [error, setError] = useState<string | null>(null);
   const [confirmationNumber, setConfirmationNumber] = useState<string | null>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (error && errorRef.current) {
+      errorRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [error]);
 
   const dates = useMemo(() => getNext7Days(), []);
 
   const slotsForDate = useMemo(() => {
     if (!selectedDate) return [];
-    return selectedDate.getDay() === 6 ? saturdaySlots : weekdaySlots;
+    const allSlots = selectedDate.getDay() === 6 ? saturdaySlots : weekdaySlots;
+    const isToday = toDateKey(selectedDate) === toDateKey(new Date());
+    if (!isToday) return allSlots;
+    const now = new Date();
+    return allSlots.filter((slot) => {
+      const [hourStr, minuteStr] = slot.hour.split(':');
+      let h = parseInt(hourStr, 10);
+      const m = parseInt(minuteStr || '0', 10);
+      if (slot.period === 'PM' && h !== 12) h += 12;
+      if (slot.period === 'AM' && h === 12) h = 0;
+      const slotTime = new Date(selectedDate);
+      slotTime.setHours(h, m, 0, 0);
+      return slotTime > now;
+    });
   }, [selectedDate]);
 
   const bsSlot = useMemo(() => {
@@ -86,7 +106,7 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
       duration: selectedSlot.duration,
       instructorClass: selectedSlot.instructorClass,
       dayName: DAY_NAMES[dayKey] || dayKey,
-      date: formatLong(selectedDate),
+      date: selectedDate.toLocaleDateString('es-MX', { day: 'numeric', month: 'long' }),
       fullDateTime: `${formatLong(selectedDate)} • ${selectedSlot.hour} ${selectedSlot.period}`,
     };
   }, [selectedDate, selectedSlot, membership.type]);
@@ -116,8 +136,8 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
           bike_row: bikeRow,
           class_title: selectedSlot.className,
           instructor_name: selectedSlot.instructorName,
-          day: dayKey,
-          hour: selectedSlot.hour,
+          day: DAY_NAMES[dayKey] || dayKey,
+          hour: `${selectedSlot.hour} ${selectedSlot.period}`,
           class_date: toDateKey(selectedDate),
         }),
       });
@@ -204,6 +224,9 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
               <h3>Selecciona el horario</h3>
             </div>
             <button className="mem-back-btn" onClick={() => setStep('date')}>← Cambiar día</button>
+            {slotsForDate.length === 0 && (
+              <p className="mem-no-slots">No quedan horarios disponibles para hoy. Elige otro día.</p>
+            )}
             <div className="mem-slot-list">
               {slotsForDate.map((slot) => (
                 <button
@@ -227,8 +250,8 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
         {step === 'bike' && bsSlot && (
           <>
             <button className="mem-back-btn" onClick={() => setStep('slot')}>← Cambiar horario</button>
-            {error && <div className="form-error" role="alert">{error}</div>}
-            <BikeSelector selectedSlot={bsSlot} onCheckout={handleBikeSelected} />
+            <BikeSelector selectedSlot={bsSlot} onCheckout={handleBikeSelected} hideHeader compact />
+            {error && <div ref={errorRef} className="mem-bike-error" role="alert">{error}</div>}
           </>
         )}
 
@@ -267,7 +290,7 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
                 </strong>
               </div>
             </div>
-            {error && <div className="form-error" role="alert">{error}</div>}
+            {error && <div ref={errorRef} className="form-error" role="alert">{error}</div>}
             <div className="mem-confirm-actions">
               <button className="btn btn-outline" onClick={() => setStep('bike')} disabled={loading}>
                 Cambiar bici

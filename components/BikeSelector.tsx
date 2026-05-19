@@ -16,6 +16,8 @@ interface BikeSelectorProps {
     fullDateTime: string;
   } | null;
   onCheckout: (bikeNumber: number, bikeRow: number) => void;
+  hideHeader?: boolean;
+  compact?: boolean;
 }
 
 /* Coordenadas % por bici dentro de .s3d-floor — extraídas de la referencia
@@ -54,7 +56,7 @@ function getBikePosition(num: number): { row: number; col: number; rowCount: num
   return { row: rowConfig.length, col: 1, rowCount: rowConfig[rowConfig.length - 1] };
 }
 
-export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorProps) {
+export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, compact }: BikeSelectorProps) {
   const [selectedBike, setSelectedBike] = useState<number | null>(null);
   const [takenBikes, setTakenBikes] = useState<number[]>([]);
   const totalBikes = BIKE_CONFIG.total;
@@ -145,26 +147,28 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
   const stepPay = selectedSlot && selectedBike ? 'active' : 'pending';
 
   return (
-    <section className="bike-selector" id="reservar">
-      <div className="container">
-        {/* Step indicator del flujo de reserva */}
-        <ol className="step-indicator" aria-label="Pasos de la reserva">
-          <li className={`step step-${stepClass}`}>
-            <span className="step-num">1</span>
-            <span className="step-label">Clase</span>
-          </li>
-          <li className="step-line" aria-hidden="true"></li>
-          <li className={`step step-${stepBike}`}>
-            <span className="step-num">2</span>
-            <span className="step-label">Bici</span>
-          </li>
-          <li className="step-line" aria-hidden="true"></li>
-          <li className={`step step-${stepPay}`}>
-            <span className="step-num">3</span>
-            <span className="step-label">Pago</span>
-          </li>
-        </ol>
-      </div>
+    <section className={`bike-selector${compact ? ' bike-selector--compact' : ''}`} id="reservar">
+      {!hideHeader && (
+        <div className="container">
+          {/* Step indicator del flujo de reserva */}
+          <ol className="step-indicator" aria-label="Pasos de la reserva">
+            <li className={`step step-${stepClass}`}>
+              <span className="step-num">1</span>
+              <span className="step-label">Clase</span>
+            </li>
+            <li className="step-line" aria-hidden="true"></li>
+            <li className={`step step-${stepBike}`}>
+              <span className="step-num">2</span>
+              <span className="step-label">Bici</span>
+            </li>
+            <li className="step-line" aria-hidden="true"></li>
+            <li className={`step step-${stepPay}`}>
+              <span className="step-num">3</span>
+              <span className="step-label">Pago</span>
+            </li>
+          </ol>
+        </div>
+      )}
       <div className="container bike-layout">
         <div className="bike-info">
           <span className="eyebrow">Selecciona tu lugar</span>

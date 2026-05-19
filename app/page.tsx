@@ -174,10 +174,10 @@ export default function Home() {
         /></RevealSection>
         <RevealSection delay={100}><Instructors /></RevealSection>
         <RevealSection delay={150}><Pricing onPackClick={() => setPackCheckoutOpen(true)} onSubscribeClick={() => setSubscriptionCheckoutOpen(true)} /></RevealSection>
+        <RevealSection delay={100}><FindBooking /></RevealSection>
         <RevealSection delay={100}><Colaboradores /></RevealSection>
         <RevealSection delay={100}><FAQ /></RevealSection>
         <RevealSection delay={100}><Feedback /></RevealSection>
-        <RevealSection delay={100}><FindBooking /></RevealSection>
       </main>
 
       <Footer />
