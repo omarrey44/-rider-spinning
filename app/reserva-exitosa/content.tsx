@@ -186,7 +186,7 @@ export default function ReservaContent() {
             </details>
             <details>
               <summary>¿Puedo modificar mi {hasClassDetails ? 'reserva' : 'compra'}?</summary>
-              <p>Sí, contáctanos en contacto@rideonstudio.com y haremos el cambio por ti.</p>
+              <p>Sí, contáctanos en administracion@rideonspinningstudio.com y haremos el cambio por ti.</p>
             </details>
             <details>
               <summary>¿Dónde está el estudio?</summary>

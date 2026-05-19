@@ -67,7 +67,7 @@ export default function PrivacidadPage() {
         <section>
           <h2>6. Tus derechos</h2>
           <p>Tienes derecho a acceder, rectificar, cancelar u oponerte al tratamiento de tus datos (derechos ARCO).
-          Para ejercerlos, contáctanos por correo electrónico.</p>
+          Para ejercerlos, escríbenos a <a href="mailto:administracion@rideonspinningstudio.com">administracion@rideonspinningstudio.com</a>.</p>
         </section>
 
         <section>

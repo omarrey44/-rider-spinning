@@ -19,7 +19,7 @@ export default function CancelacionPage() {
           <p>
             Puedes cancelar tu reserva desde la sección{' '}
             <Link href="/#mis-reservas">Mis reservas</Link> o escribiendo
-            a <a href="mailto:contacto@rideonspinning.com">contacto@rideonspinning.com</a>.
+            a <a href="mailto:administracion@rideonspinningstudio.com">administracion@rideonspinningstudio.com</a>.
           </p>
         </section>
 
@@ -80,7 +80,7 @@ export default function CancelacionPage() {
           <h2>Disputas</h2>
           <p>
             Para cualquier disputa relacionada con cancelaciones o
-            reembolsos: <a href="mailto:contacto@rideonspinning.com">contacto@rideonspinning.com</a>.
+            reembolsos: <a href="mailto:administracion@rideonspinningstudio.com">administracion@rideonspinningstudio.com</a>.
             Respondemos en un máximo de 48 horas hábiles.
           </p>
         </section>
