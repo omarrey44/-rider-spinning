@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 const partners = [
   {
-    image: '/nutriologa.png',
+    image: '/Nutriologa.jpg',
     name: 'Lic. Kristel Del Moral',
     role: 'Nutricionista',
     description:
@@ -31,8 +31,8 @@ export default function Colaboradores() {
       <div className="container">
         <div className="section-head">
           <span className="eyebrow">Bienestar integral</span>
-          <h2>Nuestros<br /><span className="text-red">Colaboradores</span></h2>
-          <p className="section-sub">Como miembro de RideOn obtienes <strong>10% de descuento</strong> en servicios con estos especialistas. Muestra tu confirmación de reserva al momento de tu cita.</p>
+          <h2>Nuestros <span className="text-red">Colaboradores</span></h2>
+          <p className="section-sub">Como miembro de Rideon obtienes <strong>10% de descuento</strong> en servicios con estos especialistas. Muestra tu confirmación de reserva al momento de tu cita.</p>
         </div>
 
         <div className="colab-grid">
