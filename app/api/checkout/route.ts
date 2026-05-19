@@ -125,6 +125,37 @@ export async function POST(req: NextRequest) {
         );
       }
 
+      // Create membership record in test mode for pack/subscription
+      if (subscription_type) {
+        await supabase.from('memberships').insert({
+          customer_name,
+          customer_email,
+          customer_phone: customer_phone || null,
+          type: 'subscription',
+          credits_total: null,
+          credits_used: 0,
+          expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          status: 'active',
+          confirmation_number: confirmationNumber,
+          amount_paid: amount_cents,
+          goal: goal || null,
+        });
+      } else if (pack_size) {
+        await supabase.from('memberships').insert({
+          customer_name,
+          customer_email,
+          customer_phone: customer_phone || null,
+          type: 'pack',
+          credits_total: pack_size,
+          credits_used: 0,
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          status: 'active',
+          confirmation_number: confirmationNumber,
+          amount_paid: amount_cents,
+          goal: goal || null,
+        });
+      }
+
       // Send confirmation email in test mode
       if (subscription_type) {
         await sendSubscriptionConfirmation({

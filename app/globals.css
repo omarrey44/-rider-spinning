@@ -3374,6 +3374,122 @@ section::before {
   word-break: break-word;
 }
 
+/* ── Membership cards ─────────────────────────────────────────────── */
+.membership-card {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(29, 212, 232, 0.25);
+  border-radius: 18px;
+  padding: 22px 24px;
+  margin-bottom: 16px;
+}
+.membership-card--expired { opacity: 0.55; border-color: rgba(255,255,255,0.1); }
+.membership-card-head { margin-bottom: 16px; }
+.membership-card-title { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.membership-badge { font-size: 15px; font-weight: 700; color: var(--white); }
+.membership-badge--subscription { color: var(--teal-primary); }
+
+.membership-credits { margin-bottom: 12px; }
+.membership-credits-bar { display: flex; gap: 8px; margin-bottom: 8px; }
+.membership-credit-dot {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid rgba(29, 212, 232, 0.4);
+  transition: background 0.2s;
+}
+.membership-credit-dot.available { background: var(--teal-primary); border-color: var(--teal-primary); }
+.membership-credit-dot.used { background: rgba(255,255,255,0.08); }
+.membership-credits-text { font-size: 13px; color: rgba(255,255,255,0.65); }
+.membership-limit-text { font-size: 13px; color: rgba(255,255,255,0.65); margin: 0 0 12px; }
+
+.membership-meta { display: flex; gap: 20px; flex-wrap: wrap; font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 16px; }
+.membership-meta strong { color: rgba(255,255,255,0.85); }
+.membership-book-btn { margin-top: 0; }
+.membership-expired-msg { font-size: 13px; color: rgba(255,255,255,0.4); margin: 0; text-align: center; }
+
+/* ── MembershipBookingModal ─────────────────────────────────────── */
+.modal--wide { max-width: 720px; }
+
+.mem-back-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: none; color: rgba(255,255,255,0.55);
+  font-size: 13px; cursor: pointer; padding: 0 0 16px; transition: color 0.2s;
+}
+.mem-back-btn:hover { color: var(--white); }
+
+.mem-date-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+.mem-date-btn {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 2px; padding: 14px 8px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px; cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  position: relative;
+}
+.mem-date-btn:hover { background: rgba(29,212,232,0.1); border-color: rgba(29,212,232,0.4); transform: translateY(-2px); }
+.mem-date-btn--today { border-color: rgba(29,212,232,0.5); background: rgba(29,212,232,0.08); }
+.mem-date-weekday { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(255,255,255,0.5); }
+.mem-date-num { font-size: 24px; font-weight: 700; color: var(--white); line-height: 1; }
+.mem-date-month { font-size: 11px; color: rgba(255,255,255,0.5); }
+.mem-date-today-tag, .mem-date-day-tag {
+  position: absolute; top: -8px;
+  background: var(--teal-primary); color: #000;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase;
+  padding: 2px 6px; border-radius: 999px;
+}
+
+.mem-slot-list { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.mem-slot-btn {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px 18px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px; cursor: pointer; text-align: left;
+  transition: background 0.2s, border-color 0.2s;
+}
+.mem-slot-btn:hover { background: rgba(29,212,232,0.08); border-color: rgba(29,212,232,0.35); }
+.mem-slot-time { font-size: 20px; font-weight: 700; color: var(--teal-primary); min-width: 72px; }
+.mem-slot-period { font-size: 13px; font-weight: 500; }
+.mem-slot-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.mem-slot-info strong { font-size: 14px; color: var(--white); }
+.mem-slot-info span { font-size: 12px; color: rgba(255,255,255,0.55); }
+.mem-slot-dur { font-size: 12px; color: rgba(255,255,255,0.4); white-space: nowrap; }
+
+.mem-confirm-summary {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px; padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;
+}
+.mem-confirm-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.mem-confirm-row span { font-size: 12px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.5px; }
+.mem-confirm-row strong { font-size: 14px; color: var(--white); }
+.mem-confirm-free { color: var(--teal-primary) !important; }
+.mem-confirm-actions { display: flex; gap: 12px; }
+.mem-confirm-actions .btn { flex: 1; }
+
+.mem-success { text-align: center; padding: 20px 0; }
+.mem-success-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: rgba(34,197,94,0.15); border: 2px solid rgba(34,197,94,0.5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; color: #4ade80; margin: 0 auto 16px;
+}
+.mem-success h3 { font-size: 22px; font-weight: 700; color: var(--white); margin: 0 0 12px; }
+.mem-success-code {
+  font-size: 28px; font-weight: 700; font-family: monospace;
+  color: var(--teal-primary); letter-spacing: 3px; margin: 0 0 12px;
+}
+.mem-success-sub { font-size: 14px; color: rgba(255,255,255,0.6); margin: 0 0 8px; }
+.mem-success-credits { font-size: 14px; color: rgba(255,255,255,0.55); margin: 0; }
+.mem-success-credits strong { color: var(--teal-primary); }
+
 /* Responsive */
 @media (max-width: 640px) {
   .find-booking { padding: 60px 0; }
@@ -3382,6 +3498,8 @@ section::before {
   .lookup-btn { width: 100%; }
   .booking-card { padding: 20px 18px; }
   .booking-card-head h3 { font-size: 16px; }
+  .mem-date-grid { grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); }
+  .mem-confirm-actions { flex-direction: column; }
 }
 
 /* Mobile: horizontal tab scrolling */

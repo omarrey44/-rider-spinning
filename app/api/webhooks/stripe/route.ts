@@ -73,6 +73,39 @@ export async function POST(req: NextRequest) {
     const email = session.customer_details?.email || metadata.customer_email || '';
     const amount = (session.amount_total || 0) / 100;
 
+    // Create membership record for pack/subscription purchases
+    if (metadata.subscription_type) {
+      await supabase.from('memberships').insert({
+        customer_name: metadata.customer_name,
+        customer_email: email,
+        customer_phone: metadata.customer_phone || null,
+        type: 'subscription',
+        credits_total: null,
+        credits_used: 0,
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        status: 'active',
+        confirmation_number: confirmationNumber,
+        stripe_session_id: session.id,
+        amount_paid: session.amount_total,
+        goal: metadata.goal || null,
+      });
+    } else if (metadata.pack_size) {
+      await supabase.from('memberships').insert({
+        customer_name: metadata.customer_name,
+        customer_email: email,
+        customer_phone: metadata.customer_phone || null,
+        type: 'pack',
+        credits_total: parseInt(metadata.pack_size, 10),
+        credits_used: 0,
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        status: 'active',
+        confirmation_number: confirmationNumber,
+        stripe_session_id: session.id,
+        amount_paid: session.amount_total,
+        goal: metadata.goal || null,
+      });
+    }
+
     if (metadata.subscription_type) {
       await sendSubscriptionConfirmation({
         customerName: metadata.customer_name,

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { MailIcon, BikeIcon, UserIcon, CalendarIcon, AlarmClockIcon, CheckIcon } from './Icons';
+import MembershipBookingModal, { MembershipData } from './MembershipBookingModal';
 
 interface Booking {
   id: string;
@@ -39,12 +40,95 @@ const formatFullDate = (classDate: string | null, day: string): string => {
   }
 };
 
+function formatExpiry(isoDate: string) {
+  try {
+    return new Date(isoDate).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+  } catch {
+    return isoDate;
+  }
+}
+
+function MembershipCard({
+  membership,
+  onBook,
+}: {
+  membership: MembershipData;
+  onBook: (m: MembershipData) => void;
+}) {
+  const isPack = membership.type === 'pack';
+  const creditsLeft = isPack && membership.credits_total !== null
+    ? membership.credits_total - membership.credits_used
+    : null;
+  const isActive = membership.status === 'active';
+  const isExpired = new Date(membership.expires_at) < new Date();
+  const effectiveStatus = isExpired ? 'expired' : membership.status;
+
+  return (
+    <article className={`membership-card membership-card--${effectiveStatus}`}>
+      <div className="membership-card-head">
+        <div className="membership-card-title">
+          <span className={`membership-badge membership-badge--${membership.type}`}>
+            {isPack ? '🎟️ Pack 3 Clases' : '🚴 Membresía Ilimitada'}
+          </span>
+          <span className={`status-pill status-pill--${effectiveStatus === 'active' ? 'confirmed' : 'cancelled'}`}>
+            {effectiveStatus === 'active' ? 'Activa' : effectiveStatus === 'expired' ? 'Expirada' : 'Cancelada'}
+          </span>
+        </div>
+      </div>
+
+      <div className="membership-card-body">
+        {isPack && creditsLeft !== null && (
+          <div className="membership-credits">
+            <div className="membership-credits-bar">
+              {Array.from({ length: membership.credits_total! }).map((_, i) => (
+                <div
+                  key={i}
+                  className={`membership-credit-dot ${i < membership.credits_used ? 'used' : 'available'}`}
+                />
+              ))}
+            </div>
+            <span className="membership-credits-text">
+              <strong>{creditsLeft}</strong> de {membership.credits_total} crédito{membership.credits_total !== 1 ? 's' : ''} disponible{creditsLeft !== 1 ? 's' : ''}
+            </span>
+          </div>
+        )}
+
+        {!isPack && (
+          <p className="membership-limit-text">1 clase por día · clases ilimitadas</p>
+        )}
+
+        <div className="membership-meta">
+          <span>Código: <strong>{membership.confirmation_number}</strong></span>
+          <span>Vence: <strong>{formatExpiry(membership.expires_at)}</strong></span>
+        </div>
+      </div>
+
+      {isActive && !isExpired && (
+        <button
+          className="btn btn-primary btn-block membership-book-btn"
+          onClick={() => onBook(membership)}
+        >
+          Reservar clase con {isPack ? 'este pack' : 'membresía'}
+        </button>
+      )}
+
+      {(!isActive || isExpired) && (
+        <p className="membership-expired-msg">
+          {isExpired ? 'Esta membresía ha expirado.' : 'Esta membresía no está activa.'}
+        </p>
+      )}
+    </article>
+  );
+}
+
 export default function FindBooking() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [memberships, setMemberships] = useState<MembershipData[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+  const [bookingMembership, setBookingMembership] = useState<MembershipData | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -60,6 +144,7 @@ export default function FindBooking() {
     e.preventDefault();
     setError(null);
     setBookings([]);
+    setMemberships([]);
     setHasSearched(false);
 
     const searchTrimmed = search.trim();
@@ -97,6 +182,7 @@ export default function FindBooking() {
       }
 
       setBookings(data.bookings || []);
+      setMemberships(data.memberships || []);
       setHasSearched(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error inesperado');
@@ -106,13 +192,37 @@ export default function FindBooking() {
     }
   };
 
+  const handleBooked = () => {
+    // Re-run lookup to refresh credits count
+    const searchTrimmed = search.trim();
+    if (!searchTrimmed) return;
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(searchTrimmed);
+    fetch('/api/bookings/lookup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(
+        isEmail
+          ? { email: searchTrimmed.toLowerCase() }
+          : { confirmation: searchTrimmed.toUpperCase() }
+      ),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        setBookings(data.bookings || []);
+        setMemberships(data.memberships || []);
+      })
+      .catch(() => {});
+  };
+
+  const hasResults = bookings.length > 0 || memberships.length > 0;
+
   return (
     <section className="find-booking" id="mis-reservas">
       <div className="container">
         <div className="section-head">
           <span className="eyebrow">Mis reservas</span>
           <h2>Buscar mi <span className="text-red">reserva</span></h2>
-          <p>Ingresa el correo que usaste al reservar y te mostramos tus clases.</p>
+          <p>Ingresa el correo que usaste al reservar y te mostramos tus clases y membresías.</p>
         </div>
 
         <form onSubmit={handleLookup} className="lookup-form">
@@ -150,17 +260,32 @@ export default function FindBooking() {
           </div>
         )}
 
-        {hasSearched && bookings.length === 0 && !error && (
+        {hasSearched && !hasResults && !error && (
           <div className="lookup-empty">
             <div className="lookup-empty-icon" aria-hidden="true">🚴</div>
             <h4>Sin reservas con ese correo</h4>
-            <p>Aún no tienes clases reservadas.</p>
+            <p>Aún no tienes clases reservadas ni membresías activas.</p>
             <p className="lookup-empty-cta">Verifica que el email sea el mismo que usaste al pagar o <a href="/#reservar">reserva una clase ahora</a>.</p>
           </div>
         )}
 
-        {bookings.length > 0 && (
+        {memberships.length > 0 && (
           <div className="lookup-results">
+            <p className="lookup-count">
+              {memberships.length === 1 ? '1 membresía' : `${memberships.length} membresías`} encontrada{memberships.length !== 1 ? 's' : ''}
+            </p>
+            {memberships.map((m) => (
+              <MembershipCard
+                key={m.id}
+                membership={m}
+                onBook={setBookingMembership}
+              />
+            ))}
+          </div>
+        )}
+
+        {bookings.length > 0 && (
+          <div className="lookup-results" style={{ marginTop: memberships.length > 0 ? 32 : 0 }}>
             <p className="lookup-count">
               {bookings.length} {bookings.length === 1 ? 'reserva encontrada' : 'reservas encontradas'}
             </p>
@@ -214,6 +339,14 @@ export default function FindBooking() {
           </div>
         )}
       </div>
+
+      {bookingMembership && (
+        <MembershipBookingModal
+          membership={bookingMembership}
+          onClose={() => setBookingMembership(null)}
+          onBooked={handleBooked}
+        />
+      )}
     </section>
   );
 }

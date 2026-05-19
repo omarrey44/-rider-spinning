@@ -1,0 +1,307 @@
+'use client';
+
+import { useState, useMemo, useCallback, useRef } from 'react';
+import { weekdaySlots, saturdaySlots, ScheduleSlot } from '@/data/schedule';
+import BikeSelector from './BikeSelector';
+
+export interface MembershipData {
+  id: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone?: string;
+  type: 'pack' | 'subscription';
+  credits_total: number | null;
+  credits_used: number;
+  expires_at: string;
+  status: string;
+  confirmation_number: string;
+}
+
+interface Props {
+  membership: MembershipData;
+  onClose: () => void;
+  onBooked?: () => void;
+}
+
+type Step = 'date' | 'slot' | 'bike' | 'confirm' | 'done';
+
+const DOW_TO_KEY: Record<number, string> = {
+  1: 'lun', 2: 'mar', 3: 'mie', 4: 'jue', 5: 'vie', 6: 'sab',
+};
+
+const DAY_NAMES: Record<string, string> = {
+  lun: 'Lunes', mar: 'Martes', mie: 'Miércoles',
+  jue: 'Jueves', vie: 'Viernes', sab: 'Sábado',
+};
+
+function toDateKey(d: Date) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function formatLong(d: Date) {
+  return d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
+function getNext7Days(): Date[] {
+  const result: Date[] = [];
+  const today = new Date();
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    if (d.getDay() !== 0) result.push(d); // skip Sunday
+  }
+  return result;
+}
+
+export default function MembershipBookingModal({ membership, onClose, onBooked }: Props) {
+  const [step, setStep] = useState<Step>('date');
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<ScheduleSlot | null>(null);
+  const [bikeNumber, setBikeNumber] = useState<number | null>(null);
+  const [bikeRow, setBikeRow] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [confirmationNumber, setConfirmationNumber] = useState<string | null>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  const dates = useMemo(() => getNext7Days(), []);
+
+  const slotsForDate = useMemo(() => {
+    if (!selectedDate) return [];
+    return selectedDate.getDay() === 6 ? saturdaySlots : weekdaySlots;
+  }, [selectedDate]);
+
+  const bsSlot = useMemo(() => {
+    if (!selectedDate || !selectedSlot) return null;
+    const dayKey = DOW_TO_KEY[selectedDate.getDay()] || '';
+    return {
+      className: selectedSlot.className,
+      instructorName: selectedSlot.instructorName,
+      hour: selectedSlot.hour,
+      period: selectedSlot.period,
+      price: membership.type === 'pack' ? 'Pack 3 Clases' : 'Membresía Ilimitada',
+      duration: selectedSlot.duration,
+      instructorClass: selectedSlot.instructorClass,
+      dayName: DAY_NAMES[dayKey] || dayKey,
+      date: formatLong(selectedDate),
+      fullDateTime: `${formatLong(selectedDate)} • ${selectedSlot.hour} ${selectedSlot.period}`,
+    };
+  }, [selectedDate, selectedSlot, membership.type]);
+
+  const handleBikeSelected = useCallback((bNum: number, bRow: number) => {
+    setBikeNumber(bNum);
+    setBikeRow(bRow);
+    setStep('confirm');
+  }, []);
+
+  const handleConfirm = async () => {
+    if (!selectedDate || !selectedSlot || bikeNumber === null || bikeRow === null) return;
+    setLoading(true);
+    setError(null);
+
+    const dayKey = DOW_TO_KEY[selectedDate.getDay()] || '';
+
+    try {
+      const res = await fetch('/api/memberships/use', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          membership_id: membership.id,
+          customer_name: membership.customer_name,
+          customer_email: membership.customer_email,
+          bike_number: bikeNumber,
+          bike_row: bikeRow,
+          class_title: selectedSlot.className,
+          instructor_name: selectedSlot.instructorName,
+          day: dayKey,
+          hour: selectedSlot.hour,
+          class_date: toDateKey(selectedDate),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || 'Error al reservar');
+        setLoading(false);
+        if (res.status === 409) setStep('bike');
+        return;
+      }
+
+      setConfirmationNumber(data.confirmation_number);
+      setStep('done');
+      onBooked?.();
+    } catch {
+      setError('Error inesperado. Intenta de nuevo.');
+      setLoading(false);
+    }
+  };
+
+  const creditsLeft =
+    membership.type === 'pack' && membership.credits_total !== null
+      ? membership.credits_total - membership.credits_used
+      : null;
+
+  return (
+    <div
+      className="modal-overlay"
+      ref={overlayRef}
+      onClick={(e) => { if (e.target === overlayRef.current && step !== 'done') onClose(); }}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Reservar clase con membresía"
+    >
+      <div className={`modal ${step === 'bike' ? 'modal--wide' : ''}`}>
+        {step !== 'done' && (
+          <button className="modal-close" onClick={onClose} aria-label="Cerrar">✕</button>
+        )}
+
+        {/* Step: date */}
+        {step === 'date' && (
+          <>
+            <div className="modal-header">
+              <span className="modal-eyebrow">
+                {membership.type === 'pack'
+                  ? `Pack 3 Clases · ${creditsLeft} crédito${creditsLeft === 1 ? '' : 's'} restante${creditsLeft === 1 ? '' : 's'}`
+                  : 'Membresía Ilimitada · 1 clase por día'}
+              </span>
+              <h3>¿Qué día quieres ir?</h3>
+            </div>
+            <div className="mem-date-grid">
+              {dates.map((d) => {
+                const dow = d.getDay();
+                const isToday = toDateKey(d) === toDateKey(new Date());
+                return (
+                  <button
+                    key={toDateKey(d)}
+                    className={`mem-date-btn${isToday ? ' mem-date-btn--today' : ''}`}
+                    onClick={() => { setSelectedDate(d); setStep('slot'); }}
+                  >
+                    <span className="mem-date-weekday">
+                      {d.toLocaleDateString('es-MX', { weekday: 'short' })}
+                    </span>
+                    <span className="mem-date-num">{d.getDate()}</span>
+                    <span className="mem-date-month">
+                      {d.toLocaleDateString('es-MX', { month: 'short' })}
+                    </span>
+                    {isToday && <span className="mem-date-today-tag">Hoy</span>}
+                    {dow === 6 && <span className="mem-date-day-tag">Sábado</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {/* Step: slot */}
+        {step === 'slot' && selectedDate && (
+          <>
+            <div className="modal-header">
+              <span className="modal-eyebrow">{formatLong(selectedDate)}</span>
+              <h3>Selecciona el horario</h3>
+            </div>
+            <button className="mem-back-btn" onClick={() => setStep('date')}>← Cambiar día</button>
+            <div className="mem-slot-list">
+              {slotsForDate.map((slot) => (
+                <button
+                  key={`${slot.hour}-${slot.period}`}
+                  className="mem-slot-btn"
+                  onClick={() => { setSelectedSlot(slot); setStep('bike'); }}
+                >
+                  <div className="mem-slot-time">{slot.hour} <span className="mem-slot-period">{slot.period}</span></div>
+                  <div className="mem-slot-info">
+                    <strong>{slot.className}</strong>
+                    <span>{slot.instructorName}</span>
+                  </div>
+                  <div className="mem-slot-dur">{slot.duration}</div>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* Step: bike (reuse BikeSelector) */}
+        {step === 'bike' && bsSlot && (
+          <>
+            <button className="mem-back-btn" onClick={() => setStep('slot')}>← Cambiar horario</button>
+            {error && <div className="form-error" role="alert">{error}</div>}
+            <BikeSelector selectedSlot={bsSlot} onCheckout={handleBikeSelected} />
+          </>
+        )}
+
+        {/* Step: confirm */}
+        {step === 'confirm' && selectedDate && selectedSlot && bikeNumber !== null && (
+          <>
+            <div className="modal-header">
+              <span className="modal-eyebrow">Confirmar reserva</span>
+              <h3>¿Todo correcto?</h3>
+            </div>
+            <div className="mem-confirm-summary">
+              <div className="mem-confirm-row">
+                <span>Clase</span>
+                <strong>{selectedSlot.className}</strong>
+              </div>
+              <div className="mem-confirm-row">
+                <span>Instructor</span>
+                <strong>{selectedSlot.instructorName}</strong>
+              </div>
+              <div className="mem-confirm-row">
+                <span>Fecha</span>
+                <strong>{formatLong(selectedDate)}</strong>
+              </div>
+              <div className="mem-confirm-row">
+                <span>Hora</span>
+                <strong>{selectedSlot.hour} {selectedSlot.period}</strong>
+              </div>
+              <div className="mem-confirm-row">
+                <span>Bici</span>
+                <strong>#{String(bikeNumber).padStart(2, '0')} · Fila {bikeRow}</strong>
+              </div>
+              <div className="mem-confirm-row">
+                <span>Costo</span>
+                <strong className="mem-confirm-free">
+                  {membership.type === 'pack' ? `1 crédito del pack` : 'Incluido en membresía'}
+                </strong>
+              </div>
+            </div>
+            {error && <div className="form-error" role="alert">{error}</div>}
+            <div className="mem-confirm-actions">
+              <button className="btn btn-outline" onClick={() => setStep('bike')} disabled={loading}>
+                Cambiar bici
+              </button>
+              <button
+                className="btn btn-primary btn-shimmer"
+                onClick={handleConfirm}
+                disabled={loading}
+              >
+                {loading && <span className="loading-spinner" />}
+                {loading ? 'Reservando…' : 'Confirmar reserva'}
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* Step: done */}
+        {step === 'done' && confirmationNumber && (
+          <div className="mem-success">
+            <div className="mem-success-icon">✓</div>
+            <h3>¡Reserva confirmada!</h3>
+            <p className="mem-success-code">{confirmationNumber}</p>
+            <p className="mem-success-sub">Tu clase quedó reservada. Llega 10 minutos antes.</p>
+            {membership.type === 'pack' && creditsLeft !== null && (
+              <p className="mem-success-credits">
+                Te quedan <strong>{creditsLeft - 1}</strong> crédito{(creditsLeft - 1) !== 1 ? 's' : ''} en tu pack.
+              </p>
+            )}
+            <button className="btn btn-primary btn-block" style={{ marginTop: 24 }} onClick={onClose}>
+              Cerrar
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
