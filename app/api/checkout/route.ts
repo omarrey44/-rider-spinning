@@ -60,6 +60,17 @@ export async function POST(req: NextRequest) {
 
     const supabase = createAdminClient();
 
+    // Cleanup expired pending bookings (older than 30 min) for this email
+    if (isClassBooking && customer_email) {
+      const cutoff = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+      await supabase
+        .from('bookings')
+        .delete()
+        .eq('customer_email', customer_email.toLowerCase())
+        .eq('status', 'pending')
+        .lt('created_at', cutoff);
+    }
+
     // Test mode: skip Stripe — only allowed outside production
     if (test_mode === true && process.env.NODE_ENV === 'production') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

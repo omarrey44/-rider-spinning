@@ -4,8 +4,21 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Rideon Spinning Studio — Pedalea Rápido. Llega Lejos.',
   description: 'Estudio de spinning en Chihuahua. Reserva tu clase y tu bicicleta en segundos.',
-  icons: {
-    icon: '/logo2.webp',
+  icons: { icon: '/logo2.webp' },
+  openGraph: {
+    title: 'Rideon Spinning Studio',
+    description: 'Reserva tu clase de spinning en Chihuahua. Elige tu bici, paga en línea, llega a pedalear.',
+    url: 'https://rider-spinning.vercel.app',
+    siteName: 'Rideon Spinning Studio',
+    images: [{ url: 'https://rider-spinning.vercel.app/og-image.jpg', width: 1200, height: 630, alt: 'Rideon Spinning Studio' }],
+    locale: 'es_MX',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Rideon Spinning Studio',
+    description: 'Reserva tu clase de spinning en Chihuahua.',
+    images: ['https://rider-spinning.vercel.app/og-image.jpg'],
   },
 };
 

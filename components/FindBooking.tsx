@@ -15,6 +15,7 @@ interface Booking {
   hour: string;
   class_date: string | null;
   status: string;
+  confirmation_number: string | null;
   created_at: string;
 }
 
@@ -68,7 +69,7 @@ function MembershipCard({
       <div className="membership-card-head">
         <div className="membership-card-title">
           <span className={`membership-badge membership-badge--${membership.type}`}>
-            {isPack ? '🎟️ Pack 3 Clases' : '🚴 Membresía Ilimitada'}
+            {isPack ? `🎟️ Pack ${membership.credits_total ?? ''} Clases` : '🚴 Membresía Ilimitada'}
           </span>
           <span className={`status-pill status-pill--${effectiveStatus === 'active' ? 'confirmed' : 'cancelled'}`}>
             {effectiveStatus === 'active' ? 'Activa' : effectiveStatus === 'expired' ? 'Expirada' : 'Cancelada'}
@@ -100,6 +101,12 @@ function MembershipCard({
         <div className="membership-meta">
           <span>Código: <strong>{membership.confirmation_number}</strong></span>
           <span>Vence: <strong>{formatExpiry(membership.expires_at)}</strong></span>
+          {isActive && !isExpired && (() => {
+            const daysLeft = Math.ceil((new Date(membership.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+            return daysLeft <= 3
+              ? <span className="membership-expiry-warn">⚠️ {daysLeft} día{daysLeft !== 1 ? 's' : ''} restante{daysLeft !== 1 ? 's' : ''}</span>
+              : <span>{daysLeft} días restantes</span>;
+          })()}
         </div>
       </div>
 
@@ -129,6 +136,35 @@ export default function FindBooking() {
   const [memberships, setMemberships] = useState<MembershipData[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [bookingMembership, setBookingMembership] = useState<MembershipData | null>(null);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [cancelErrors, setCancelErrors] = useState<Record<string, string>>({});
+  const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null);
+
+  const handleCancel = async (bookingId: string) => {
+    const searchTrimmed = search.trim();
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(searchTrimmed);
+    if (!isEmail) return;
+    setConfirmCancelId(null);
+    setCancellingId(bookingId);
+    setCancelErrors((prev) => { const n = { ...prev }; delete n[bookingId]; return n; });
+    try {
+      const res = await fetch('/api/bookings/cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ booking_id: bookingId, customer_email: searchTrimmed.toLowerCase() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setCancelErrors((prev) => ({ ...prev, [bookingId]: data.error || 'Error al cancelar' }));
+      } else {
+        handleBooked();
+      }
+    } catch {
+      setCancelErrors((prev) => ({ ...prev, [bookingId]: 'Error inesperado. Intenta de nuevo.' }));
+    } finally {
+      setCancellingId(null);
+    }
+  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -302,6 +338,9 @@ export default function FindBooking() {
                       {label}
                     </span>
                   </div>
+                  {b.confirmation_number && (
+                    <p className="booking-card-code">Confirmación: <strong>{b.confirmation_number}</strong></p>
+                  )}
 
                   <div className="booking-card-grid">
                     <div className="booking-card-item">
@@ -333,6 +372,38 @@ export default function FindBooking() {
                       </div>
                     </div>
                   </div>
+                  {cancelErrors[b.id] && (
+                    <p className="booking-cancel-error" role="alert">{cancelErrors[b.id]}</p>
+                  )}
+                  {(b.status === 'confirmed' || b.status === 'pending') && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(search.trim()) && (
+                    confirmCancelId === b.id ? (
+                      <div className="booking-cancel-confirm">
+                        <p>¿Confirmas la cancelación?</p>
+                        <div className="booking-cancel-confirm-actions">
+                          <button
+                            className="booking-cancel-btn booking-cancel-btn--confirm"
+                            onClick={() => handleCancel(b.id)}
+                            disabled={cancellingId === b.id}
+                          >
+                            {cancellingId === b.id ? 'Cancelando…' : 'Sí, cancelar'}
+                          </button>
+                          <button
+                            className="booking-cancel-btn booking-cancel-btn--back"
+                            onClick={() => setConfirmCancelId(null)}
+                          >
+                            No, volver
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        className="booking-cancel-btn"
+                        onClick={() => setConfirmCancelId(b.id)}
+                      >
+                        Cancelar reserva
+                      </button>
+                    )
+                  )}
                 </article>
               );
             })}

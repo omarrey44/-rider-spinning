@@ -198,6 +198,12 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
               <p className="summary-empty summary-empty-noclass">
                 Elige tu clase primero
               </p>
+            ) : availableCount === 0 ? (
+              <div className="summary-full">
+                <p className="summary-full-title">😔 Clase llena</p>
+                <p className="summary-full-sub">Todos los lugares están ocupados para este horario.</p>
+                <p className="summary-full-sub">Revisa otro día u horario — nuevos lugares se liberan cuando alguien cancela.</p>
+              </div>
             ) : selectedBike === null ? (
               <p className="summary-empty">Selecciona una bici para continuar</p>
             ) : (

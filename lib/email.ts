@@ -278,3 +278,58 @@ export async function sendSubscriptionConfirmation(data: SubscriptionEmailData) 
     console.error('[email] Error al enviar suscripción:', err);
   }
 }
+
+interface CancellationEmailData {
+  customerName: string;
+  customerEmail: string;
+  classTitle: string;
+  instructorName: string;
+  day: string;
+  hour: string;
+  confirmationNumber: string;
+}
+
+export async function sendCancellationConfirmation(data: CancellationEmailData) {
+  const html = `
+    <!DOCTYPE html><html><head><style>
+      body{font-family:Arial,sans-serif;color:#333;}
+      .container{max-width:600px;margin:0 auto;padding:20px;}
+      .header{background:linear-gradient(135deg,#555 0%,#333 100%);color:white;padding:30px;text-align:center;border-radius:8px 8px 0 0;}
+      .content{background:#f9f9f9;padding:30px;border-radius:0 0 8px 8px;}
+      .detail-row{margin:12px 0;padding:12px;background:white;border-left:4px solid #999;}
+      .detail-label{font-size:12px;color:#888;text-transform:uppercase;}
+      .detail-value{font-size:15px;font-weight:600;margin-top:4px;}
+      .footer{text-align:center;font-size:12px;color:#888;border-top:1px solid #ddd;padding-top:20px;margin-top:20px;}
+    </style></head><body>
+    <div class="container">
+      <div class="header"><h1>Reserva cancelada</h1></div>
+      <div class="content">
+        <p>Hola <strong>${escapeHtml(data.customerName)}</strong>,</p>
+        <p>Tu reserva ha sido cancelada exitosamente.</p>
+        <div class="detail-row"><div class="detail-label">Clase</div><div class="detail-value">${escapeHtml(data.classTitle)}</div></div>
+        <div class="detail-row"><div class="detail-label">Instructor</div><div class="detail-value">${escapeHtml(data.instructorName)}</div></div>
+        <div class="detail-row"><div class="detail-label">Día y hora</div><div class="detail-value">${escapeHtml(data.day)} · ${escapeHtml(data.hour)}</div></div>
+        <div class="detail-row"><div class="detail-label">Confirmación</div><div class="detail-value">${escapeHtml(data.confirmationNumber)}</div></div>
+        <p style="margin-top:24px;">Si tienes créditos de pack, ya fueron restituidos a tu cuenta. ¡Esperamos verte pronto!</p>
+        <div style="text-align:center;margin:24px 0;">
+          <a href="https://rider-spinning.vercel.app/#horarios" style="display:inline-block;background:#e10600;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">Reservar otra clase</a>
+        </div>
+        <div class="footer">
+          <p>Rideon Spinning Studio · Plaza San Agustín local 23, Chihuahua, México</p>
+        </div>
+      </div>
+    </div>
+    </body></html>
+  `;
+  try {
+    await getTransporter().sendMail({
+      from: process.env.EMAIL_FROM,
+      to: data.customerEmail,
+      subject: `Reserva cancelada: ${data.classTitle}`,
+      html,
+    });
+    console.log(`[email] Cancelación enviada a ${data.customerEmail}`);
+  } catch (err) {
+    console.error('[email] Error al enviar cancelación:', err);
+  }
+}

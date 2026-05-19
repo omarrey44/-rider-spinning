@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { sendBookingConfirmation } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
   try {
@@ -130,6 +131,21 @@ export async function POST(req: NextRequest) {
     }
 
     console.log(`[memberships/use] Booked ${class_title} ${day} ${hour} bike#${bike_number} for ${customer_email} via ${membership.type}`);
+
+    await sendBookingConfirmation({
+      customerName: customer_name || membership.customer_name,
+      customerEmail: customer_email.toLowerCase(),
+      classTitle: class_title,
+      instructorName: instructor_name,
+      day,
+      hour,
+      classDate: class_date || null,
+      bikeNumber: bike_number,
+      bikeRow: bike_row,
+      amount: 0,
+      confirmationNumber,
+      goal: membership.goal || undefined,
+    });
 
     return NextResponse.json({
       success: true,

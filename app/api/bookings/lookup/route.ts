@@ -1,7 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT = 20;
+const RATE_WINDOW_MS = 60_000;
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT) return false;
+  entry.count++;
+  return true;
+}
+
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  if (!checkRateLimit(ip)) {
+    return NextResponse.json({ error: 'Demasiadas solicitudes. Intenta en un minuto.' }, { status: 429 });
+  }
+
   try {
     const { email, confirmation } = await req.json();
 
@@ -23,7 +44,7 @@ export async function POST(req: NextRequest) {
       const [bookingRes, membershipRes] = await Promise.all([
         supabase
           .from('bookings')
-          .select('id, customer_name, bike_number, bike_row, class_title, instructor_name, day, hour, class_date, status, created_at')
+          .select('id, customer_name, bike_number, bike_row, class_title, instructor_name, day, hour, class_date, status, confirmation_number, created_at')
           .eq('confirmation_number', code)
           .gt('bike_number', 0)
           .order('created_at', { ascending: false })
@@ -50,7 +71,7 @@ export async function POST(req: NextRequest) {
       const [bookingRes, membershipRes] = await Promise.all([
         supabase
           .from('bookings')
-          .select('id, customer_name, bike_number, bike_row, class_title, instructor_name, day, hour, class_date, status, created_at')
+          .select('id, customer_name, bike_number, bike_row, class_title, instructor_name, day, hour, class_date, status, confirmation_number, created_at')
           .eq('customer_email', emailLower)
           .gt('bike_number', 0)
           .order('created_at', { ascending: false })

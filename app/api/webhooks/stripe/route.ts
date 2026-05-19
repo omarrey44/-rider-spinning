@@ -86,6 +86,18 @@ export async function POST(req: NextRequest) {
       // ── Pack / subscription: create membership ────────────────────
       const isSub = !!metadata.subscription_type;
 
+      // Idempotency: skip if already processed
+      const { data: existing } = await supabase
+        .from('memberships')
+        .select('id')
+        .eq('stripe_session_id', session.id)
+        .limit(1)
+        .single();
+      if (existing) {
+        console.log(`[webhook] Already processed session ${session.id}, skipping`);
+        return NextResponse.json({ received: true });
+      }
+
       const { error: memError } = await supabase.from('memberships').insert({
         customer_name: metadata.customer_name,
         customer_email: email,

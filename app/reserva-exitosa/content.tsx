@@ -190,7 +190,7 @@ export default function ReservaContent() {
             </details>
             <details>
               <summary>¿Dónde está el estudio?</summary>
-              <p>Estamos ubicados en Polanco, CDMX. Los detalles completos van en tu email de confirmación.</p>
+              <p>Estamos ubicados en Plaza San Agustín local 23, Chihuahua, México. Los detalles completos van en tu email de confirmación.</p>
             </details>
           </div>
         </div>

@@ -1757,6 +1757,9 @@ section::before {
   padding: 8px 0;
   min-height: 0;
 }
+.summary-full { padding: 4px 0; }
+.summary-full-title { font-size: 16px; font-weight: 700; color: var(--white); margin: 0 0 8px; }
+.summary-full-sub { font-size: 13px; color: rgba(255,255,255,0.55); margin: 4px 0; }
 .summary-empty {
   display: inline-flex;
   align-items: center;
@@ -3321,6 +3324,40 @@ section::before {
   color: var(--white);
   margin: 0;
 }
+.booking-card-code {
+  font-size: 12px;
+  color: var(--text-light);
+  margin: 4px 0 0;
+  letter-spacing: 0.3px;
+}
+.booking-card-code strong { color: var(--white); letter-spacing: 1px; }
+.booking-cancel-btn {
+  margin-top: 14px;
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 1px solid rgba(225, 6, 0, 0.4);
+  border-radius: 8px;
+  color: #ff8a85;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.booking-cancel-btn:hover { background: rgba(225,6,0,0.1); border-color: rgba(225,6,0,0.7); }
+.booking-cancel-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.booking-cancel-btn--confirm { background: rgba(225,6,0,0.15); }
+.booking-cancel-btn--back { border-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.55); }
+.booking-cancel-btn--back:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.3); color: var(--white); }
+.booking-cancel-confirm { margin-top: 14px; }
+.booking-cancel-confirm p { font-size: 13px; color: rgba(255,255,255,0.7); margin: 0 0 8px; }
+.booking-cancel-confirm-actions { display: flex; gap: 8px; }
+.booking-cancel-confirm-actions .booking-cancel-btn { flex: 1; margin-top: 0; }
+.booking-cancel-error {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #ff8a85;
+}
 
 /* Status pills */
 .status-pill {
@@ -3429,6 +3466,7 @@ section::before {
 
 .membership-meta { display: flex; gap: 20px; flex-wrap: wrap; font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 16px; }
 .membership-meta strong { color: rgba(255,255,255,0.85); }
+.membership-expiry-warn { color: #f4a261; font-weight: 600; }
 .membership-book-btn { margin-top: 0; }
 .membership-expired-msg { font-size: 13px; color: rgba(255,255,255,0.4); margin: 0; text-align: center; }
 
