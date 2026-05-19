@@ -2606,7 +2606,8 @@ section::before {
 
 .s3d-desc {
   font-size: 8px;
-  color: rgba(255,255,255,0.55);
+  color: rgba(255,255,255,0.95);
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.3px;
   white-space: nowrap;
@@ -2615,7 +2616,7 @@ section::before {
 /* === ISO FLOOR — bikes positioned absolutely by x/y % on neon circuit lanes === */
 .s3d-floor {
   position: absolute;
-  left: 0; right: 0;
+  left: 80px; right: 80px;
   top: 152px; bottom: 32px;
   z-index: 5;
 }
@@ -2641,6 +2642,10 @@ section::before {
 .b3d--row1 { transform: translate(-50%, -50%) scale(0.95); z-index: 3; }
 .b3d--row2 { transform: translate(-50%, -50%) scale(0.95); z-index: 5; }
 .b3d--row3 { transform: translate(-50%, -50%) scale(0.95); z-index: 7; }
+/* Edge-right bikes (04, 07, 10) — compensate visual perception of being smaller */
+.b3d--edge-right.b3d--row1 { transform: translate(-50%, -50%) scale(1.05); }
+.b3d--edge-right.b3d--row2 { transform: translate(-50%, -50%) scale(1.05); }
+.b3d--edge-right.b3d--row3 { transform: translate(-50%, -50%) scale(1.05); }
 
 /* Hover */
 .b3d:hover:not(:disabled) {
@@ -2799,7 +2804,8 @@ section::before {
   font-size: 8px;
   text-transform: uppercase;
   letter-spacing: 0.4px;
-  color: rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.95);
+  font-weight: 600;
   text-align: center;
   line-height: 1.2;
 }
@@ -2819,31 +2825,79 @@ section::before {
   z-index: 20;
 }
 
+/* Mobile-only row strips — hidden on desktop */
+.s3d-mobile-rows { display: none; }
+
 /* === MOBILE === */
 @media (max-width: 480px) {
-  .studio-scene { height: 460px; }
-  /* Inset floor so bikes no chocan con FILA labels izq / icons der */
-  .s3d-floor { top: 138px; left: 46px; right: 46px; bottom: 28px; }
-  /* Labels e icons siguen la misma extensión que el floor */
-  .s3d-row-labels { top: 138px; bottom: 28px; left: 4px; }
-  .s3d-icons { top: 138px; bottom: 28px; right: 4px; }
-  /* 3:2 ratio fijo mobile */
-  .b3d-img { width: 72px; height: 48px; object-fit: contain; }
-  .b3d-num { font-size: 9px; margin-top: -3px; }
-  .b3d--row1 { transform: translate(-50%, -50%) scale(0.85); }
-  .b3d--row2 { transform: translate(-50%, -50%) scale(0.85); }
-  .b3d--row3 { transform: translate(-50%, -50%) scale(0.85); }
+  .studio-scene { height: 520px; }
+  /* Hide side labels/icons — replaced by inline mobile strips above each row */
+  .s3d-row-labels, .s3d-icons { display: none; }
+  /* Floor uses near-full width */
+  .s3d-floor { top: 138px; left: 14px; right: 14px; bottom: 28px; }
+
+  /* Mobile row label strips — positioned above each row's y center */
+  .s3d-mobile-rows {
+    display: block;
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    top: 138px;
+    bottom: 28px;
+    z-index: 18;
+    pointer-events: none;
+  }
+  .s3d-mrow {
+    position: absolute;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4px;
+    font-family: var(--font-display);
+  }
+  .s3d-mrow--1 { top: 3%; }
+  .s3d-mrow--2 { top: 35%; }
+  .s3d-mrow--3 { top: 66%; }
+  .s3d-mfila {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--teal-primary);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .s3d-mperk {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9px;
+    font-weight: 600;
+    color: rgba(29, 212, 232, 0.65);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* Bigger bikes, 3:2 ratio */
+  .b3d-img { width: 84px; height: 56px; object-fit: contain; }
+  .b3d-num { font-size: 10px; margin-top: -3px; }
+  .b3d--row1 { transform: translate(-50%, -50%) scale(1.0); }
+  .b3d--row2 { transform: translate(-50%, -50%) scale(1.0); }
+  .b3d--row3 { transform: translate(-50%, -50%) scale(1.0); }
+  .b3d--edge-right.b3d--row1,
+  .b3d--edge-right.b3d--row2,
+  .b3d--edge-right.b3d--row3 { transform: translate(-50%, -50%) scale(1.08); }
   .b3d--row1:hover:not(:disabled),
   .b3d--row2:hover:not(:disabled),
-  .b3d--row3:hover:not(:disabled) { transform: translate(-50%, -50%) scale(0.95); }
+  .b3d--row3:hover:not(:disabled) { transform: translate(-50%, -50%) scale(1.08); }
   .b3d--selected.b3d--row1,
   .b3d--selected.b3d--row1:hover:not(:disabled),
   .b3d--selected.b3d--row2,
   .b3d--selected.b3d--row2:hover:not(:disabled),
   .b3d--selected.b3d--row3,
-  .b3d--selected.b3d--row3:hover:not(:disabled) { transform: translate(-50%, -50%) scale(0.95); }
+  .b3d--selected.b3d--row3:hover:not(:disabled) { transform: translate(-50%, -50%) scale(1.05); }
 
-  .s3d-platform-bike { width: 120px; }
+  .s3d-platform-bike { width: 130px; }
 }
 
 /* =====================================================

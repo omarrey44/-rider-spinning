@@ -22,16 +22,16 @@ interface BikeSelectorProps {
    del circuito neón. Fila 1 (4 bicis arriba, espaciado angosto por perspectiva),
    Fila 2 (3 bicis centro, popular = 06), Fila 3 (3 bicis abajo, espaciado amplio). */
 const BIKE_COORDS: { x: number; y: number }[] = [
-  { x: 22, y: 20 }, // 01
-  { x: 41, y: 20 }, // 02
-  { x: 59, y: 20 }, // 03
+  { x: 18, y: 20 }, // 01
+  { x: 38, y: 20 }, // 02
+  { x: 58, y: 20 }, // 03
   { x: 78, y: 20 }, // 04
   { x: 28, y: 52 }, // 05
   { x: 50, y: 52 }, // 06
   { x: 72, y: 52 }, // 07
-  { x: 22, y: 83 }, // 08
+  { x: 25, y: 83 }, // 08
   { x: 50, y: 83 }, // 09
-  { x: 76, y: 83 }, // 10
+  { x: 75, y: 83 }, // 10
 ];
 
 function LockIcon({ className }: { className?: string }) {
@@ -350,6 +350,22 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
               <div className="s3d-rl s3d-rl--3"><span className="s3d-fila">FILA 3</span><span className="s3d-desc">Más aire</span></div>
             </div>
 
+            {/* Mobile-only row strips — labels above each row */}
+            <div className="s3d-mobile-rows" aria-hidden="true">
+              <div className="s3d-mrow s3d-mrow--1">
+                <span className="s3d-mfila">FILA 1 · Principiantes</span>
+                <span className="s3d-mperk"><FanIcon size={12} />Más aire</span>
+              </div>
+              <div className="s3d-mrow s3d-mrow--2">
+                <span className="s3d-mfila">FILA 2 · Equilibrio</span>
+                <span className="s3d-mperk"><EyeIcon size={12} />Mejor vista</span>
+              </div>
+              <div className="s3d-mrow s3d-mrow--3">
+                <span className="s3d-mfila">FILA 3 · Más aire</span>
+                <span className="s3d-mperk"><StarIcon size={12} />Popular</span>
+              </div>
+            </div>
+
             {/* Iso 3D floor — bikes posicionadas con x/y % sobre los lanes del circuito */}
             <div className="s3d-floor">
               {BIKE_COORDS.map((coord, idx) => {
@@ -359,9 +375,11 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
                 const popular = BIKE_CONFIG.popular.includes(num);
                 const selected = selectedBike === num;
                 const tooltip = getBikeTooltip(num);
+                const isEdgeRight = num === 4 || num === 7 || num === 10;
                 const cls = [
                   'b3d',
                   `b3d--row${row}`,
+                  isEdgeRight && 'b3d--edge-right',
                   taken && 'b3d--taken',
                   popular && !taken && !selected && 'b3d--popular',
                   selected && 'b3d--selected',
