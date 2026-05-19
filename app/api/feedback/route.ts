@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
 const OWNER_EMAIL = 'omar_reii4@hotmail.com';
-const OWNER_WHATSAPP = '526565929700';
+const OWNER_WHATSAPP = '526145029482';
 
 function escapeHtml(s: string): string {
   return s
