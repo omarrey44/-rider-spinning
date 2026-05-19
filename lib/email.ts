@@ -136,9 +136,9 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
           </div>
 
           <div class="footer">
-            <p><strong>Ubicación:</strong> Polanco, CDMX</p>
+            <p><strong>Ubicación:</strong> Plaza San Agustín local 23, Chihuahua, México</p>
             <p>📞 Soporte: contacto@rideonstudio.com</p>
-            <p>Rideon Studio • Tu club de spinning favorito</p>
+            <p>Rideon Spinning Studio • Tu club de spinning favorito</p>
           </div>
         </div>
       </div>
@@ -156,5 +156,125 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
     console.log(`[email] Confirmación enviada a ${data.customerEmail}`);
   } catch (err) {
     console.error('[email] Error al enviar:', err);
+  }
+}
+
+interface PackEmailData {
+  customerName: string;
+  customerEmail: string;
+  amount: number;
+  confirmationNumber: string;
+  goal?: string;
+}
+
+export async function sendPackConfirmation(data: PackEmailData) {
+  const html = `
+    <!DOCTYPE html><html><head><style>
+      body{font-family:Arial,sans-serif;color:#333;}
+      .container{max-width:600px;margin:0 auto;padding:20px;}
+      .header{background:linear-gradient(135deg,#2a9d8f 0%,#1d6e63 100%);color:white;padding:30px;text-align:center;border-radius:8px 8px 0 0;}
+      .ticket-box{background:white;border:2px solid #2a9d8f;border-radius:8px;padding:20px;margin:20px 0;text-align:center;}
+      .ticket-number{font-size:32px;font-weight:700;color:#2a9d8f;font-family:monospace;letter-spacing:2px;margin:10px 0;}
+      .content{background:#f9f9f9;padding:30px;border-radius:0 0 8px 8px;}
+      .detail-row{margin:15px 0;padding:12px;background:white;border-left:4px solid #2a9d8f;}
+      .detail-label{font-size:12px;color:#888;text-transform:uppercase;}
+      .detail-value{font-size:16px;font-weight:600;margin-top:5px;}
+      .amount{font-size:24px;color:#2a9d8f;font-weight:700;}
+    </style></head><body>
+    <div class="container">
+      <div class="header"><h1>¡Tu Pack está listo! 🎟️</h1></div>
+      <div class="ticket-box">
+        <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Número de Confirmación</div>
+        <div class="ticket-number">${escapeHtml(data.confirmationNumber)}</div>
+      </div>
+      <div class="content">
+        <p style="font-size:20px;font-weight:700;color:#2a9d8f;">¡HOLA RIDDER!</p>
+        <p><strong>Compra de: ${escapeHtml(data.customerName)}</strong></p>
+        <div class="detail-row"><div class="detail-label">Producto</div><div class="detail-value">Pack 3 Clases · válido 7 días</div></div>
+        <div class="detail-row"><div class="detail-label">Beneficio</div><div class="detail-value">Cancelación hasta 2h antes por clase</div></div>
+        <div class="detail-row"><div class="detail-label">Total pagado</div><div class="detail-value amount">$${data.amount.toLocaleString('es-MX')} MXN</div></div>
+        ${data.goal ? `<div class="detail-row"><div class="detail-label">Tu objetivo</div><div class="detail-value">${escapeHtml(data.goal)}</div></div>` : ''}
+        <p style="margin-top:24px;"><strong>¿Qué sigue?</strong><br>Reserva tus 3 clases desde el sitio. Cada reserva descuenta una clase del pack.</p>
+        <div style="text-align:center;margin:30px 0;">
+          <a href="https://rider-spinning.vercel.app/#horarios" style="display:inline-block;background:#2a9d8f;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">Reservar mi primera clase</a>
+        </div>
+        <div style="text-align:center;font-size:12px;color:#888;border-top:1px solid #ddd;padding-top:20px;margin-top:20px;">
+          <p>Rideon Spinning Studio · Plaza San Agustín local 23, Chihuahua, México</p>
+        </div>
+      </div>
+    </div>
+    </body></html>
+  `;
+  try {
+    await getTransporter().sendMail({
+      from: process.env.EMAIL_FROM,
+      to: data.customerEmail,
+      subject: `¡Tu Pack 3 Clases está confirmado! 🎟️`,
+      html,
+    });
+    console.log(`[email] Pack confirmado enviado a ${data.customerEmail}`);
+  } catch (err) {
+    console.error('[email] Error al enviar pack:', err);
+  }
+}
+
+interface SubscriptionEmailData {
+  customerName: string;
+  customerEmail: string;
+  amount: number;
+  confirmationNumber: string;
+  goal?: string;
+}
+
+export async function sendSubscriptionConfirmation(data: SubscriptionEmailData) {
+  const html = `
+    <!DOCTYPE html><html><head><style>
+      body{font-family:Arial,sans-serif;color:#333;}
+      .container{max-width:600px;margin:0 auto;padding:20px;}
+      .header{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);color:white;padding:30px;text-align:center;border-radius:8px 8px 0 0;}
+      .ticket-box{background:white;border:2px solid #2a9d8f;border-radius:8px;padding:20px;margin:20px 0;text-align:center;}
+      .ticket-number{font-size:32px;font-weight:700;color:#2a9d8f;font-family:monospace;letter-spacing:2px;margin:10px 0;}
+      .content{background:#f9f9f9;padding:30px;border-radius:0 0 8px 8px;}
+      .detail-row{margin:15px 0;padding:12px;background:white;border-left:4px solid #2a9d8f;}
+      .detail-label{font-size:12px;color:#888;text-transform:uppercase;}
+      .detail-value{font-size:16px;font-weight:600;margin-top:5px;}
+      .amount{font-size:24px;color:#2a9d8f;font-weight:700;}
+    </style></head><body>
+    <div class="container">
+      <div class="header"><h1>¡Bienvenido al Club Ilimitado! 🚴‍♂️</h1></div>
+      <div class="ticket-box">
+        <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Número de Membresía</div>
+        <div class="ticket-number">${escapeHtml(data.confirmationNumber)}</div>
+      </div>
+      <div class="content">
+        <p style="font-size:20px;font-weight:700;color:#2a9d8f;">¡HOLA RIDDER!</p>
+        <p><strong>Suscripción de: ${escapeHtml(data.customerName)}</strong></p>
+        <div class="detail-row"><div class="detail-label">Plan</div><div class="detail-value">Mensualidad Ilimitada</div></div>
+        <div class="detail-row"><div class="detail-label">Beneficios</div><div class="detail-value">Clases ilimitadas · Botella + toalla cortesía</div></div>
+        <div class="detail-row"><div class="detail-label">Primer mes</div><div class="detail-value amount">$${data.amount.toLocaleString('es-MX')} MXN</div></div>
+        <div class="detail-row"><div class="detail-label">Renovación</div><div class="detail-value">Automática cada mes · Cancela cuando quieras</div></div>
+        <div class="detail-row" style="border-left-color:#f4a261;"><div class="detail-label">Cuota semestral</div><div class="detail-value" style="font-size:14px;color:#888;">+$250 MXN cada 6 meses (mantenimiento)</div></div>
+        ${data.goal ? `<div class="detail-row"><div class="detail-label">Tu objetivo</div><div class="detail-value">${escapeHtml(data.goal)}</div></div>` : ''}
+        <p style="margin-top:24px;"><strong>¿Qué sigue?</strong><br>Reserva tus clases desde el sitio con tu membresía activa. Clases ilimitadas, sin restricciones.</p>
+        <div style="text-align:center;margin:30px 0;">
+          <a href="https://rider-spinning.vercel.app/#horarios" style="display:inline-block;background:#2a9d8f;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">Reservar mi primera clase</a>
+        </div>
+        <div style="text-align:center;font-size:12px;color:#888;border-top:1px solid #ddd;padding-top:20px;margin-top:20px;">
+          <p>Rideon Spinning Studio · Plaza San Agustín local 23, Chihuahua, México</p>
+        </div>
+      </div>
+    </div>
+    </body></html>
+  `;
+  try {
+    await getTransporter().sendMail({
+      from: process.env.EMAIL_FROM,
+      to: data.customerEmail,
+      subject: `¡Bienvenido al Club Ilimitado de Rideon! 🚴‍♂️`,
+      html,
+    });
+    console.log(`[email] Suscripción confirmada enviada a ${data.customerEmail}`);
+  } catch (err) {
+    console.error('[email] Error al enviar suscripción:', err);
   }
 }

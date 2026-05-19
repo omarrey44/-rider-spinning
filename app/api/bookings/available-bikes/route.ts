@@ -24,13 +24,15 @@ export async function GET(req: NextRequest) {
 
     const supabase = createAdminClient();
 
+    const pendingCutoff = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+
     const { data, error } = await supabase
       .from('bookings')
       .select('bike_number')
       .eq('class_title', classTitle)
       .eq('day', day)
       .eq('hour', hour)
-      .in('status', ['pending', 'confirmed']);
+      .or(`status.eq.confirmed,and(status.eq.pending,created_at.gte.${pendingCutoff})`);
 
     if (error) {
       console.error('[available-bikes] Supabase error:', error);

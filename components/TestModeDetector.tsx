@@ -7,6 +7,8 @@ export default function TestModeDetector() {
     const params = new URLSearchParams(window.location.search);
     if (params.get('test') === 'true') {
       sessionStorage.setItem('test_mode', 'true');
+    } else if (params.get('test') === 'false') {
+      sessionStorage.removeItem('test_mode');
     }
   }, []);
 

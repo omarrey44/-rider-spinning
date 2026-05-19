@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/lib/stripe';
 import { createAdminClient } from '@/lib/supabase/server';
-import { sendBookingConfirmation } from '@/lib/email';
+import { sendBookingConfirmation, sendPackConfirmation, sendSubscriptionConfirmation } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -70,20 +70,41 @@ export async function POST(req: NextRequest) {
       `[webhook] Booking confirmed: ${metadata.booking_id} - ${metadata.customer_name} - Bici #${metadata.bike_number}`
     );
 
-    await sendBookingConfirmation({
-      customerName: metadata.customer_name,
-      customerEmail: session.customer_details?.email || metadata.customer_email || '',
-      classTitle: metadata.class_title,
-      instructorName: metadata.instructor_name,
-      day: metadata.day,
-      hour: metadata.hour,
-      classDate: metadata.class_date || null,
-      bikeNumber: parseInt(metadata.bike_number, 10),
-      bikeRow: parseInt(metadata.bike_row, 10),
-      amount: (session.amount_total || 0) / 100,
-      confirmationNumber,
-      goal: metadata.goal || undefined,
-    });
+    const email = session.customer_details?.email || metadata.customer_email || '';
+    const amount = (session.amount_total || 0) / 100;
+
+    if (metadata.subscription_type) {
+      await sendSubscriptionConfirmation({
+        customerName: metadata.customer_name,
+        customerEmail: email,
+        amount,
+        confirmationNumber,
+        goal: metadata.goal || undefined,
+      });
+    } else if (metadata.pack_size) {
+      await sendPackConfirmation({
+        customerName: metadata.customer_name,
+        customerEmail: email,
+        amount,
+        confirmationNumber,
+        goal: metadata.goal || undefined,
+      });
+    } else {
+      await sendBookingConfirmation({
+        customerName: metadata.customer_name,
+        customerEmail: email,
+        classTitle: metadata.class_title,
+        instructorName: metadata.instructor_name,
+        day: metadata.day,
+        hour: metadata.hour,
+        classDate: metadata.class_date || null,
+        bikeNumber: parseInt(metadata.bike_number, 10),
+        bikeRow: parseInt(metadata.bike_row, 10),
+        amount,
+        confirmationNumber,
+        goal: metadata.goal || undefined,
+      });
+    }
   }
 
   return NextResponse.json({ received: true });

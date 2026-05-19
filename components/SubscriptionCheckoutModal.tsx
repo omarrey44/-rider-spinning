@@ -166,9 +166,9 @@ export default function SubscriptionCheckoutModal({
       reset();
 
       if (data.test_mode) {
-        window.location.href = `/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=${encodeURIComponent('Mensualidad Ilimitada')}&amount=${65000 / 100}`;
+        window.open(`/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=${encodeURIComponent('Mensualidad Ilimitada')}&amount=${65000 / 100}`, '_blank');
       } else {
-        window.location.href = data.checkout_url;
+        window.open(data.checkout_url, '_blank');
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error inesperado');

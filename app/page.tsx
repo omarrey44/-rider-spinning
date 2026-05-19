@@ -54,6 +54,16 @@ function RevealSection({ children, delay = 0 }: { children: React.ReactNode; del
 
 
 export default function Home() {
+  const [showCancelBanner, setShowCancelBanner] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment') === 'cancelled') {
+      setShowCancelBanner(true);
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
+
   const [selectedSlot, setSelectedSlot] = useState<{
     slot: ScheduleSlot;
     day: DayKey;
@@ -129,6 +139,18 @@ export default function Home() {
       <TestModeDetector />
       <SmoothScroll />
       <Navbar />
+
+      {showCancelBanner && (
+        <div className="payment-cancel-banner" role="alert">
+          <span className="cancel-banner-icon">⚠️</span>
+          <span className="cancel-banner-text">El pago fue cancelado — tu bici sigue disponible.</span>
+          <a href="#horarios" className="cancel-banner-cta" onClick={() => setShowCancelBanner(false)}>
+            Intentar de nuevo →
+          </a>
+          <button className="cancel-banner-close" onClick={() => setShowCancelBanner(false)} aria-label="Cerrar">✕</button>
+        </div>
+      )}
+
       <Hero />
 
         <main id="main">

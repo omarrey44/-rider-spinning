@@ -5,10 +5,12 @@ export async function GET() {
   try {
     const supabase = createAdminClient();
 
+    const pendingCutoff = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+
     const { data, error } = await supabase
       .from('bookings')
       .select('class_title, day, hour')
-      .in('status', ['pending', 'confirmed']);
+      .or(`status.eq.confirmed,and(status.eq.pending,created_at.gte.${pendingCutoff})`);
 
     if (error) {
       return NextResponse.json({ counts: {} });

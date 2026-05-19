@@ -281,6 +281,66 @@ button:focus:not(:focus-visible) {
   100% { left: 100%; }
 }
 
+.payment-cancel-banner {
+  position: fixed;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 190;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(20, 10, 0, 0.96);
+  border: 1px solid rgba(255, 160, 40, 0.5);
+  border-radius: 12px;
+  padding: 12px 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,160,40,0.15);
+  backdrop-filter: blur(12px);
+  animation: slideDown 0.3s ease;
+  max-width: calc(100vw - 32px);
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateX(-50%) translateY(-12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.cancel-banner-icon { font-size: 18px; flex-shrink: 0; }
+.cancel-banner-text {
+  font-size: 14px;
+  color: rgba(255,255,255,0.9);
+  white-space: nowrap;
+}
+.cancel-banner-cta {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffb030;
+  white-space: nowrap;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,176,48,0.4);
+  padding-bottom: 1px;
+  transition: color 0.2s;
+}
+.cancel-banner-cta:hover { color: #ffd080; }
+.cancel-banner-close {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  flex-shrink: 0;
+  margin-left: 4px;
+  transition: all 0.2s;
+}
+.cancel-banner-close:hover { background: rgba(255,255,255,0.12); color: var(--white); }
+@media (max-width: 600px) {
+  .payment-cancel-banner { flex-wrap: wrap; top: 64px; }
+  .cancel-banner-text { font-size: 13px; white-space: normal; }
+}
+
 /* =====================================================
    NAVBAR
    ===================================================== */
@@ -3730,6 +3790,9 @@ section::before {
 .footer-brand .logo { color: var(--white); margin-bottom: 16px; display: inline-flex; }
 .footer-brand p { font-size: 14px; margin-bottom: 4px; }
 .footer-brand .muted { color: var(--text-muted); margin-top: 12px; }
+.map-link { display: inline-block; margin-top: 12px; font-size: 13px; color: var(--primary); text-decoration: none; }
+.map-link:hover { text-decoration: underline; }
+.footer-map { max-width: var(--max); margin: 0 auto 32px; padding: 0 24px; }
 .footer-col h4 {
   color: var(--white);
   font-family: var(--font-display);

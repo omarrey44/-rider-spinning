@@ -10,7 +10,7 @@ interface FaqItem {
 const FAQS: FaqItem[] = [
   {
     q: '¿Es mi primera vez. Necesito experiencia previa?',
-    a: 'Para nada. Las primeras filas tienen mejor visibilidad del instructor; las filas 3 y 4 son las más cómodas para empezar a tu ritmo. Llega 10 minutos antes y el instructor te ayuda con la postura y la resistencia.',
+    a: 'Para nada. Las primeras filas tienen mejor visibilidad del instructor; las filas 2 y 3 son las más cómodas para empezar a tu ritmo. Llega 10 minutos antes y el instructor te ayuda con la postura y la resistencia.',
   },
   {
     q: '¿Qué llevo a mi primera clase?',
@@ -26,7 +26,7 @@ const FAQS: FaqItem[] = [
   },
   {
     q: '¿Puedo cancelar mi reserva?',
-    a: 'Sí. Para clases sueltas: cancela hasta 4 horas antes para reembolso completo. Entre 2 y 4h obtienes crédito para otra clase. Menos de 2h o no-show no aplica reembolso. Consulta la política completa en el footer.',
+    a: 'Sí. Para clases sueltas: cancela hasta 4 horas antes para reembolso completo. Entre 2 y 4h obtienes crédito para otra clase. Menos de 1h o no-show no aplica reembolso. Consulta la política completa en la sección de cancelaciones.',
   },
   {
     q: '¿Cómo funciona la lista de espera?',

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/lib/stripe';
 import { createAdminClient } from '@/lib/supabase/server';
-import { sendBookingConfirmation } from '@/lib/email';
+import { sendBookingConfirmation, sendPackConfirmation, sendSubscriptionConfirmation } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
   let bookingId: string | null = null;
@@ -24,11 +24,22 @@ export async function POST(req: NextRequest) {
       currency,
       test_mode,
       goal,
+      pack_size,
+      subscription_type,
     } = body;
 
-    if (!customer_name || !customer_email || !bike_number || !day || !hour) {
+    const isClassBooking = !pack_size && !subscription_type;
+
+    if (!customer_name || !customer_email) {
       return NextResponse.json(
-        { error: 'Faltan datos requeridos: nombre, correo, bicicleta, día y hora' },
+        { error: 'Faltan datos requeridos: nombre y correo' },
+        { status: 400 }
+      );
+    }
+
+    if (isClassBooking && (!bike_number || !day || !hour)) {
+      return NextResponse.json(
+        { error: 'Faltan datos requeridos: bicicleta, día y hora' },
         { status: 400 }
       );
     }
@@ -62,8 +73,8 @@ export async function POST(req: NextRequest) {
         customer_name,
         customer_email,
         customer_phone: customer_phone || null,
-        bike_number,
-        bike_row,
+        bike_number: isClassBooking ? bike_number : 0,
+        bike_row: isClassBooking ? bike_row : 0,
         class_title: class_title || '',
         instructor_name: instructor_name || '',
         day: day || '',
@@ -115,20 +126,38 @@ export async function POST(req: NextRequest) {
       }
 
       // Send confirmation email in test mode
-      await sendBookingConfirmation({
-        customerName: customer_name,
-        customerEmail: customer_email,
-        classTitle: class_title,
-        instructorName: instructor_name,
-        day,
-        hour,
-        classDate: class_date || null,
-        bikeNumber: bike_number,
-        bikeRow: bike_row,
-        amount: amount_cents / 100,
-        confirmationNumber,
-        goal: goal || undefined,
-      });
+      if (subscription_type) {
+        await sendSubscriptionConfirmation({
+          customerName: customer_name,
+          customerEmail: customer_email,
+          amount: amount_cents / 100,
+          confirmationNumber,
+          goal: goal || undefined,
+        });
+      } else if (pack_size) {
+        await sendPackConfirmation({
+          customerName: customer_name,
+          customerEmail: customer_email,
+          amount: amount_cents / 100,
+          confirmationNumber,
+          goal: goal || undefined,
+        });
+      } else {
+        await sendBookingConfirmation({
+          customerName: customer_name,
+          customerEmail: customer_email,
+          classTitle: class_title,
+          instructorName: instructor_name,
+          day,
+          hour,
+          classDate: class_date || null,
+          bikeNumber: bike_number,
+          bikeRow: bike_row,
+          amount: amount_cents / 100,
+          confirmationNumber,
+          goal: goal || undefined,
+        });
+      }
 
       console.log(`[checkout] Test mode booking confirmed: ${bookingId}`);
       return NextResponse.json({ test_mode: true, booking_id: bookingId });
@@ -142,10 +171,16 @@ export async function POST(req: NextRequest) {
       instructor_name: instructor_name || '',
       day: day || '',
       hour: hour || '',
-      bike_number: String(bike_number),
-      bike_row: String(bike_row),
+      bike_number: String(bike_number || 0),
+      bike_row: String(bike_row || 0),
       amount: String(amount_cents / 100),
     });
+
+    const productDescription = isClassBooking
+      ? `👤 ${instructor_name || 'Por definir'} • 📅 ${date_time} • 🚴 Bici #${String(bike_number).padStart(2, '0')} Fila ${bike_row} • ⏱ ${duration || '45 min'} • 🎁 Bebida cortesía`
+      : pack_size
+        ? `Pack ${pack_size} clases · válido 7 días · Cancela hasta 2h antes`
+        : 'Clases ilimitadas · Botella + toalla · Cancela cuando quieras';
 
     const session = await getStripe().checkout.sessions.create({
       mode: 'payment',
@@ -157,17 +192,17 @@ export async function POST(req: NextRequest) {
             currency: currency?.toLowerCase() || 'mxn',
             product_data: {
               name: class_title || 'Clase Rideon',
-              description: `👤 ${instructor_name || 'Por definir'} • 📅 ${date_time} • 🚴 Bici #${String(bike_number).padStart(2, '0')} Fila ${bike_row} • ⏱ ${duration || '45 min'} • 🎁 Bebida cortesía`,
+              description: productDescription,
               metadata: {
                 customer_name,
                 customer_phone: customer_phone || '',
-                bike_number: String(bike_number),
-                bike_row: String(bike_row),
+                bike_number: String(bike_number || 0),
+                bike_row: String(bike_row || 0),
                 class_title,
-                instructor_name,
-                date_time,
-                day,
-                hour,
+                instructor_name: instructor_name || '',
+                date_time: date_time || '',
+                day: day || '',
+                hour: hour || '',
                 goal: goal || '',
               },
             },
@@ -181,18 +216,20 @@ export async function POST(req: NextRequest) {
         customer_name,
         customer_email,
         customer_phone: customer_phone || '',
-        bike_number: String(bike_number),
-        bike_row: String(bike_row),
+        bike_number: String(bike_number || 0),
+        bike_row: String(bike_row || 0),
         class_title,
-        instructor_name,
-        date_time,
+        instructor_name: instructor_name || '',
+        date_time: date_time || '',
         class_date: class_date || '',
-        day,
-        hour,
+        day: day || '',
+        hour: hour || '',
         goal: goal || '',
+        pack_size: pack_size ? String(pack_size) : '',
+        subscription_type: subscription_type || '',
       },
       success_url: `${baseUrl}/reserva-exitosa?session_id={CHECKOUT_SESSION_ID}&${successParams}`,
-      cancel_url: baseUrl,
+      cancel_url: `${baseUrl}/?payment=cancelled`,
     });
 
     return NextResponse.json({ checkout_url: session.url });

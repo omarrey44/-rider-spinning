@@ -196,9 +196,9 @@ export default function CheckoutModal({
       reset();
 
       if (data.test_mode) {
-        window.location.href = `/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=${encodeURIComponent(classTitle)}&instructor_name=${encodeURIComponent(instructorName)}&day=${encodeURIComponent(day)}&hour=${encodeURIComponent(hour)}&bike_number=${bikeNumber}&bike_row=${bikeRow}&amount=${priceCents / 100}`;
+        window.open(`/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=${encodeURIComponent(classTitle)}&instructor_name=${encodeURIComponent(instructorName)}&day=${encodeURIComponent(day)}&hour=${encodeURIComponent(hour)}&bike_number=${bikeNumber}&bike_row=${bikeRow}&amount=${priceCents / 100}`, '_blank');
       } else {
-        window.location.href = data.checkout_url;
+        window.open(data.checkout_url, '_blank');
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error inesperado');

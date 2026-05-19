@@ -30,14 +30,14 @@ export default function CancelacionPage() {
           <ul>
             <li><strong>Más de 4 horas antes:</strong> reembolso del 100%</li>
             <li><strong>Entre 2 y 4 horas antes:</strong> crédito para otra clase (sin reembolso en efectivo)</li>
-            <li><strong>Menos de 2 horas antes / no-show:</strong> sin reembolso ni crédito</li>
+            <li><strong>Menos de 1 hora antes / no-show:</strong> sin reembolso ni crédito</li>
           </ul>
 
-          <h3>Pack de 5 clases</h3>
+          <h3>Pack de 3 clases</h3>
           <ul>
-            <li><strong>Más de 2 horas antes:</strong> la clase regresa al pack sin penalización</li>
-            <li><strong>Menos de 2 horas antes:</strong> se descuenta del pack</li>
-            <li>El pack tiene vigencia de 30 días desde la compra; las clases no usadas no se reembolsan</li>
+            <li><strong>Más de 1 hora antes:</strong> la clase regresa al pack sin penalización</li>
+            <li><strong>Menos de 1 hora antes / no-show:</strong> se descuenta del pack sin reembolso</li>
+            <li>El pack tiene vigencia de 7 días desde la compra; las clases no usadas no se reembolsan</li>
           </ul>
 
           <h3>Mensualidad ilimitada</h3>
