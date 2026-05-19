@@ -10,6 +10,7 @@ import Schedule from '@/components/Schedule';
 import BikeSelector from '@/components/BikeSelector';
 import Instructors from '@/components/Instructors';
 import Pricing from '@/components/Pricing';
+import Colaboradores from '@/components/Colaboradores';
 import FAQ from '@/components/FAQ';
 import Feedback from '@/components/Feedback';
 import FindBooking from '@/components/FindBooking';
@@ -151,6 +152,7 @@ export default function Home() {
         /></RevealSection>
         <RevealSection delay={100}><Instructors /></RevealSection>
         <RevealSection delay={150}><Pricing onPackClick={() => setPackCheckoutOpen(true)} onSubscribeClick={() => setSubscriptionCheckoutOpen(true)} /></RevealSection>
+        <RevealSection delay={100}><Colaboradores /></RevealSection>
         <RevealSection delay={100}><FAQ /></RevealSection>
         <RevealSection delay={100}><Feedback /></RevealSection>
         <RevealSection delay={100}><FindBooking /></RevealSection>

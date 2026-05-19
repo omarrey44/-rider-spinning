@@ -63,7 +63,7 @@ function dbRowToSlot(row: DbSlotRow): ScheduleSlot {
     instructorClass: row.instructor?.avatar_class ?? 'avatar-rosario',
     status: 'available',
     spotsText: `${row.capacity} disponibles`,
-    price: `$${Math.round(row.price_cents / 100)}`,
+    price: `$${Math.round(row.price_cents / 100)} MXN`,
   };
 }
 
