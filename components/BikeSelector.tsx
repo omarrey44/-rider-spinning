@@ -278,7 +278,7 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
           {/* Class info banner */}
           {selectedSlot && (
             <div className="class-info-banner">
-              <div className="class-info-item">
+              <div className="class-info-item class-info-item--date">
                 <span className="class-info-icon"><CalendarDaysIcon /></span>
                 <div>
                   <span className="class-info-label">Día</span>
@@ -305,7 +305,7 @@ export default function BikeSelector({ selectedSlot, onCheckout }: BikeSelectorP
               <div className="class-info-item class-info-item--price">
                 <div>
                   <span className="class-info-label">Precio</span>
-                  <span className="class-info-value">{selectedSlot.price} <small>MXN</small></span>
+                  <span className="class-info-value">{selectedSlot.price}</span>
                 </div>
               </div>
             </div>

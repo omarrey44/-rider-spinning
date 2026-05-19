@@ -13,6 +13,10 @@ const dayKeyToDow: Record<DayKey, number> = {
   lun: 1, mar: 2, mie: 3, jue: 4, vie: 5, sab: 6,
 };
 
+const dayKeyToName: Record<DayKey, string> = {
+  lun: 'Lunes', mar: 'Martes', mie: 'Miércoles', jue: 'Jueves', vie: 'Viernes', sab: 'Sábado',
+};
+
 // Domingo (0) → null (estudio cerrado). Lun-Sáb → DayKey.
 function getCurrentDayKey(): DayKey | null {
   const d = new Date().getDay();
@@ -64,6 +68,7 @@ function dbRowToSlot(row: DbSlotRow): ScheduleSlot {
     status: 'available',
     spotsText: `${row.capacity} disponibles`,
     price: `$${Math.round(row.price_cents / 100)} MXN`,
+    capacity: row.capacity,
   };
 }
 
@@ -88,6 +93,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
   const [slotsByDow, setSlotsByDow] = useState<Record<number, ScheduleSlot[]>>({});
   const [usingDb, setUsingDb] = useState(false);
   const [isLoadingSlots, setIsLoadingSlots] = useState(true);
+  const [slotCounts, setSlotCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -141,6 +147,13 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
 
     fetchSlots();
     return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/bookings/slot-counts')
+      .then((r) => r.json())
+      .then((d) => { if (d.counts) setSlotCounts(d.counts); })
+      .catch(() => {});
   }, []);
 
   // Hidratación de valores Date-dependientes (solo cliente, después del mount)
@@ -255,6 +268,12 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
             <>
               {visibleSlots.map((slot, idx) => {
                 const isNext = isToday && nextSlot !== null && slot === nextSlot;
+                const cap = slot.capacity ?? 10;
+                const countKey = `${slot.className}|${dayKeyToName[activeDay]}|${slot.hour} ${slot.period}`;
+                const taken = slotCounts[countKey] ?? 0;
+                const available = Math.max(0, cap - taken);
+                const liveStatus: 'available' | 'few' | 'full' = available === 0 ? 'full' : available <= 3 ? 'few' : 'available';
+                const liveSpotsText = available === 0 ? 'Llena' : `${available} disponibles`;
                 return (
                   <article
                     key={`${activeDay}-${idx}`}
@@ -262,6 +281,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                     data-status={slot.status}
                     data-class-color={slot.classColor}
                     style={{ '--stagger-delay': `${idx * 80}ms` } as React.CSSProperties}
+                    onDoubleClick={() => handleReserve(slot)}
                   >
                     {isNext && (
                       <span className="next-badge">
@@ -292,10 +312,10 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                     </div>
                     <div className="slot-side">
                       <div className="slot-status-group">
-                        <span className={`slot-status status-${slot.status}`}>
-                          <span className="status-dot"></span>{slot.spotsText}
+                        <span className={`slot-status status-${liveStatus}`}>
+                          <span className="status-dot"></span>{liveSpotsText}
                         </span>
-                        {slot.status === 'few' && (
+                        {liveStatus === 'few' && (
                           <span className="urgency-badge">⚡ Pocos lugares</span>
                         )}
                       </div>

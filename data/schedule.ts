@@ -14,6 +14,7 @@ export interface ScheduleSlot {
   status: SlotStatus;
   spotsText: string;
   price: string;
+  capacity?: number;
 }
 
 export const weekdaySlots: ScheduleSlot[] = [

@@ -2073,7 +2073,10 @@ section::before {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex: 1;
+  flex: 0 0 auto;
+}
+.class-info-item--date {
+  flex: 1 1 0;
   min-width: 0;
 }
 .class-info-icon {
@@ -2753,15 +2756,15 @@ section::before {
 /* Taken — desaturated + red wash so estado lee rojo de inmediato */
 .b3d--taken {
   cursor: not-allowed;
-  filter: opacity(0.45) grayscale(0.85) brightness(0.65) sepia(0.4) hue-rotate(-40deg) saturate(2.2);
+  filter: brightness(0.55) sepia(1) saturate(4.5) hue-rotate(-40deg) opacity(0.85);
 }
 .b3d--taken:hover {
-  filter: opacity(0.45) grayscale(0.85) brightness(0.65) sepia(0.4) hue-rotate(-40deg) saturate(2.2);
+  filter: brightness(0.55) sepia(1) saturate(4.5) hue-rotate(-40deg) opacity(0.85);
 }
 .b3d--taken .b3d-img {
-  filter: drop-shadow(0 0 6px rgba(230,57,70,0.55)) drop-shadow(0 4px 8px rgba(0,0,0,0.7));
+  filter: drop-shadow(0 0 8px rgba(230,57,70,0.8)) drop-shadow(0 4px 8px rgba(0,0,0,0.7));
 }
-.b3d--taken .b3d-num { color: rgba(255,180,180,0.85); }
+.b3d--taken .b3d-num { color: rgba(255,120,120,1); font-weight: 700; }
 .b3d--taken .b3d-glow {
   background: linear-gradient(180deg, rgba(230,57,70,0.4) 0%, rgba(230,57,70,0.12) 100%);
   width: 56%;
@@ -4648,6 +4651,7 @@ section::before {
     padding: 10px 12px;
   }
   .class-info-item { flex: 1 1 calc(50% - 8px); min-width: 0; }
+  .class-info-item--date { flex: 1 1 calc(50% - 8px); }
   .class-info-divider { display: none; }
   .class-info-icon svg { width: 15px; height: 15px; }
   .class-info-label { font-size: 8px; }

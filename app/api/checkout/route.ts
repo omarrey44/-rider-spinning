@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     }
 
     const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3004';
+      process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
     if (!process.env.STRIPE_SECRET_KEY) {
       return NextResponse.json(
@@ -135,7 +135,6 @@ export async function POST(req: NextRequest) {
     }
 
     const successParams = new URLSearchParams({
-      session_id: '{CHECKOUT_SESSION_ID}',
       customer_name,
       customer_email,
       customer_phone: customer_phone || '',
@@ -192,7 +191,7 @@ export async function POST(req: NextRequest) {
         hour,
         goal: goal || '',
       },
-      success_url: `${baseUrl}/reserva-exitosa?${successParams}`,
+      success_url: `${baseUrl}/reserva-exitosa?session_id={CHECKOUT_SESSION_ID}&${successParams}`,
       cancel_url: baseUrl,
     });
 
