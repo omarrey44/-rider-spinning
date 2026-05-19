@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/lib/stripe';
 import { createAdminClient } from '@/lib/supabase/server';
 import { sendBookingConfirmation, sendPackConfirmation, sendSubscriptionConfirmation } from '@/lib/email';
+import { randomUUID } from 'crypto';
 
 export async function POST(req: NextRequest) {
   let bookingId: string | null = null;
@@ -44,19 +45,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate amount_cents is a positive integer
-    if (
-      !Number.isInteger(amount_cents) ||
-      amount_cents <= 0
-    ) {
-      return NextResponse.json(
-        { error: 'Monto inválido' },
-        { status: 400 }
-      );
+    if (!Number.isInteger(amount_cents) || amount_cents <= 0) {
+      return NextResponse.json({ error: 'Monto inválido' }, { status: 400 });
     }
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
     if (!process.env.STRIPE_SECRET_KEY) {
       return NextResponse.json(
@@ -67,113 +60,46 @@ export async function POST(req: NextRequest) {
 
     const supabase = createAdminClient();
 
-    const { data: booking, error: bookingError } = await supabase
-      .from('bookings')
-      .insert({
-        customer_name,
-        customer_email,
-        customer_phone: customer_phone || null,
-        bike_number: isClassBooking ? bike_number : 0,
-        bike_row: isClassBooking ? bike_row : 0,
-        class_title: class_title || '',
-        instructor_name: instructor_name || '',
-        day: day || '',
-        hour: hour || '',
-        class_date: class_date || null,
-        amount_paid: amount_cents,
-        status: 'pending',
-        goal: goal || null,
-      })
-      .select();
-
-    if (bookingError || !booking || booking.length === 0) {
-      console.error('[checkout] Supabase insert error:', bookingError);
-      if (bookingError?.code === '23505') {
-        return NextResponse.json(
-          { error: 'Esta bici ya fue reservada. Selecciona otra.' },
-          { status: 409 }
-        );
-      }
-      return NextResponse.json(
-        { error: 'Error al crear la reserva' },
-        { status: 500 }
-      );
-    }
-
-    bookingId = booking[0].id;
-    const confirmationNumber = bookingId!.substring(0, 8).toUpperCase();
-
     // Test mode: skip Stripe — only allowed outside production
     if (test_mode === true && process.env.NODE_ENV === 'production') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
+
     if (test_mode === true) {
-      // Update booking status to confirmed in test mode
-      const { error: updateError } = await supabase
-        .from('bookings')
-        .update({
-          status: 'confirmed',
-          confirmation_number: confirmationNumber,
-        })
-        .eq('id', bookingId);
+      // ── TEST MODE ─────────────────────────────────────────────────
+      if (isClassBooking) {
+        // Class booking: insert into bookings
+        const { data: booking, error: bookingError } = await supabase
+          .from('bookings')
+          .insert({
+            customer_name,
+            customer_email,
+            customer_phone: customer_phone || null,
+            bike_number,
+            bike_row,
+            class_title: class_title || '',
+            instructor_name: instructor_name || '',
+            day: day || '',
+            hour: hour || '',
+            class_date: class_date || null,
+            amount_paid: amount_cents,
+            status: 'confirmed',
+            goal: goal || null,
+          })
+          .select()
+          .single();
 
-      if (updateError) {
-        console.error('[checkout] Test mode update error:', updateError);
-        return NextResponse.json(
-          { error: 'Error al confirmar reserva en modo test' },
-          { status: 500 }
-        );
-      }
+        if (bookingError || !booking) {
+          if (bookingError?.code === '23505') {
+            return NextResponse.json({ error: 'Esta bici ya fue reservada. Selecciona otra.' }, { status: 409 });
+          }
+          console.error('[checkout] Test booking insert error:', bookingError);
+          return NextResponse.json({ error: 'Error al crear la reserva' }, { status: 500 });
+        }
 
-      // Create membership record in test mode for pack/subscription
-      if (subscription_type) {
-        await supabase.from('memberships').insert({
-          customer_name,
-          customer_email,
-          customer_phone: customer_phone || null,
-          type: 'subscription',
-          credits_total: null,
-          credits_used: 0,
-          expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          status: 'active',
-          confirmation_number: confirmationNumber,
-          amount_paid: amount_cents,
-          goal: goal || null,
-        });
-      } else if (pack_size) {
-        await supabase.from('memberships').insert({
-          customer_name,
-          customer_email,
-          customer_phone: customer_phone || null,
-          type: 'pack',
-          credits_total: pack_size,
-          credits_used: 0,
-          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-          status: 'active',
-          confirmation_number: confirmationNumber,
-          amount_paid: amount_cents,
-          goal: goal || null,
-        });
-      }
+        const confirmationNumber = booking.id.substring(0, 8).toUpperCase();
+        await supabase.from('bookings').update({ confirmation_number: confirmationNumber }).eq('id', booking.id);
 
-      // Send confirmation email in test mode
-      if (subscription_type) {
-        await sendSubscriptionConfirmation({
-          customerName: customer_name,
-          customerEmail: customer_email,
-          amount: amount_cents / 100,
-          confirmationNumber,
-          goal: goal || undefined,
-        });
-      } else if (pack_size) {
-        await sendPackConfirmation({
-          customerName: customer_name,
-          customerEmail: customer_email,
-          amount: amount_cents / 100,
-          confirmationNumber,
-          goal: goal || undefined,
-        });
-      } else {
         await sendBookingConfirmation({
           customerName: customer_name,
           customerEmail: customer_email,
@@ -188,10 +114,90 @@ export async function POST(req: NextRequest) {
           confirmationNumber,
           goal: goal || undefined,
         });
+
+        console.log(`[checkout] Test mode class booking confirmed: ${booking.id}`);
+        return NextResponse.json({ test_mode: true, booking_id: booking.id });
+
+      } else {
+        // Pack/subscription: insert into memberships only
+        const confirmationNumber = randomUUID().replace(/-/g, '').substring(0, 8).toUpperCase();
+
+        await supabase.from('memberships').insert({
+          customer_name,
+          customer_email,
+          customer_phone: customer_phone || null,
+          type: subscription_type ? 'subscription' : 'pack',
+          credits_total: subscription_type ? null : pack_size,
+          credits_used: 0,
+          expires_at: new Date(
+            Date.now() + (subscription_type ? 30 : 7) * 24 * 60 * 60 * 1000
+          ).toISOString(),
+          status: 'active',
+          confirmation_number: confirmationNumber,
+          amount_paid: amount_cents,
+          goal: goal || null,
+        });
+
+        if (subscription_type) {
+          await sendSubscriptionConfirmation({
+            customerName: customer_name,
+            customerEmail: customer_email,
+            amount: amount_cents / 100,
+            confirmationNumber,
+            goal: goal || undefined,
+          });
+        } else {
+          await sendPackConfirmation({
+            customerName: customer_name,
+            customerEmail: customer_email,
+            amount: amount_cents / 100,
+            confirmationNumber,
+            goal: goal || undefined,
+          });
+        }
+
+        console.log(`[checkout] Test mode ${subscription_type ? 'subscription' : 'pack'} confirmed: ${confirmationNumber}`);
+        return NextResponse.json({ test_mode: true, confirmation_number: confirmationNumber });
+      }
+    }
+
+    // ── STRIPE FLOW ──────────────────────────────────────────────────
+    let confirmationNumber: string;
+
+    if (isClassBooking) {
+      // Insert pending booking to reserve the slot
+      const { data: booking, error: bookingError } = await supabase
+        .from('bookings')
+        .insert({
+          customer_name,
+          customer_email,
+          customer_phone: customer_phone || null,
+          bike_number,
+          bike_row,
+          class_title: class_title || '',
+          instructor_name: instructor_name || '',
+          day: day || '',
+          hour: hour || '',
+          class_date: class_date || null,
+          amount_paid: amount_cents,
+          status: 'pending',
+          goal: goal || null,
+        })
+        .select();
+
+      if (bookingError || !booking || booking.length === 0) {
+        console.error('[checkout] Supabase insert error:', bookingError);
+        if (bookingError?.code === '23505') {
+          return NextResponse.json({ error: 'Esta bici ya fue reservada. Selecciona otra.' }, { status: 409 });
+        }
+        return NextResponse.json({ error: 'Error al crear la reserva' }, { status: 500 });
       }
 
-      console.log(`[checkout] Test mode booking confirmed: ${bookingId}`);
-      return NextResponse.json({ test_mode: true, booking_id: bookingId });
+      bookingId = booking[0].id;
+      confirmationNumber = booking[0].id.substring(0, 8).toUpperCase();
+    } else {
+      // Pack/subscription: no booking record needed
+      confirmationNumber = randomUUID().replace(/-/g, '').substring(0, 8).toUpperCase();
     }
 
     const successParams = new URLSearchParams({
@@ -210,7 +216,7 @@ export async function POST(req: NextRequest) {
     const productDescription = isClassBooking
       ? `👤 ${instructor_name || 'Por definir'} • 📅 ${date_time} • 🚴 Bici #${String(bike_number).padStart(2, '0')} Fila ${bike_row} • ⏱ ${duration || '45 min'} • 🎁 Bebida cortesía`
       : pack_size
-        ? `Pack ${pack_size} clases · válido 7 días · Cancela hasta 2h antes`
+        ? `Pack ${pack_size} clases · válido 7 días · Cancela hasta 1h antes`
         : 'Clases ilimitadas · Botella + toalla · Cancela cuando quieras';
 
     const session = await getStripe().checkout.sessions.create({
@@ -229,7 +235,7 @@ export async function POST(req: NextRequest) {
                 customer_phone: customer_phone || '',
                 bike_number: String(bike_number || 0),
                 bike_row: String(bike_row || 0),
-                class_title,
+                class_title: class_title || '',
                 instructor_name: instructor_name || '',
                 date_time: date_time || '',
                 day: day || '',
@@ -243,13 +249,14 @@ export async function POST(req: NextRequest) {
         },
       ],
       metadata: {
-        booking_id: bookingId,
+        booking_id: bookingId || '',
+        confirmation_number: confirmationNumber,
         customer_name,
         customer_email,
         customer_phone: customer_phone || '',
         bike_number: String(bike_number || 0),
         bike_row: String(bike_row || 0),
-        class_title,
+        class_title: class_title || '',
         instructor_name: instructor_name || '',
         date_time: date_time || '',
         class_date: class_date || '',
@@ -266,7 +273,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ checkout_url: session.url });
   } catch (err: unknown) {
     console.error('[checkout] Error:', err);
-    // Clean up orphaned pending booking if Stripe session creation failed
     if (bookingId) {
       const supabase = createAdminClient();
       await supabase.from('bookings').delete().eq('id', bookingId);
