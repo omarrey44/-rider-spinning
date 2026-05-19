@@ -47,6 +47,8 @@ export default function SubscriptionCheckoutModal({
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [countryCode, setCountryCode] = useState('+52');
+  const [goal, setGoal] = useState('');
+  const [goalCustom, setGoalCustom] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showConfirmClose, setShowConfirmClose] = useState(false);
@@ -61,6 +63,8 @@ export default function SubscriptionCheckoutModal({
     setEmail('');
     setPhone('');
     setCountryCode('+52');
+    setGoal('');
+    setGoalCustom('');
     setError(null);
     setLoading(false);
     if (typeof window !== 'undefined') {
@@ -71,10 +75,10 @@ export default function SubscriptionCheckoutModal({
   const saveFormData = useCallback(() => {
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('subscriptionCheckoutFormData', JSON.stringify({
-        name, email, phone, countryCode
+        name, email, phone, countryCode, goal, goalCustom
       }));
     }
-  }, [name, email, phone, countryCode]);
+  }, [name, email, phone, countryCode, goal, goalCustom]);
 
   useEffect(() => {
     if (!open) return;
@@ -82,11 +86,13 @@ export default function SubscriptionCheckoutModal({
       const saved = sessionStorage.getItem('subscriptionCheckoutFormData');
       if (saved) {
         try {
-          const { name: n, email: e, phone: p, countryCode: c } = JSON.parse(saved);
+          const { name: n, email: e, phone: p, countryCode: c, goal: g, goalCustom: gc } = JSON.parse(saved);
           setName(n || '');
           setEmail(e || '');
           setPhone(p || '');
           setCountryCode(c || '+52');
+          setGoal(g || '');
+          setGoalCustom(gc || '');
         } catch {
           // Invalid data, ignore
         }
@@ -147,6 +153,7 @@ export default function SubscriptionCheckoutModal({
           amount_cents: 65000,
           currency: 'MXN',
           test_mode: testMode,
+          goal: goal === 'Otro' ? (goalCustom.trim() || 'Otro') : (goal.trim() || undefined),
         }),
       });
 
@@ -202,30 +209,16 @@ export default function SubscriptionCheckoutModal({
           <h3>Suscripción ilimitada</h3>
         </div>
 
-        <div className="modal-summary">
-          <div className="summary-row">
-            <span className="summary-icon-label">
-              <svg className="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18h18l-1.5-9-4.5 4-3-6-3 6-4.5-4L3 18z"/><path d="M3 22h18"/></svg>
-              Plan
-            </span>
-            <strong>Clases ilimitadas</strong>
+        <div className="modal-booking-banner">
+          <div className="booking-banner-row">
+            <span className="booking-banner-class">Mensualidad Ilimitada</span>
+            <span className="booking-banner-bike">Clases ilimitadas</span>
           </div>
-          <div className="summary-row">
-            <span className="summary-icon-label">
-              <svg className="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-              Beneficios
-            </span>
-            <strong>Botella + toalla cortesía</strong>
+          <div className="booking-banner-row">
+            <span className="booking-banner-datetime">Botella + toalla · Cancela cuando quieras</span>
+            <span className="booking-banner-price">$650 MXN/mes</span>
           </div>
-          <div className="summary-divider" />
-          <div className="summary-row total">
-            <span>Total mensual</span>
-            <strong>$650 MXN</strong>
-          </div>
-          <div className="summary-row" style={{ fontSize: '12px', opacity: 0.65, marginTop: '-4px' }}>
-            <span>+ Cuota mantenimiento semestral</span>
-            <span>$250 MXN</span>
-          </div>
+          <p className="banner-sub-note">+ $250 MXN cuota de mantenimiento semestral</p>
         </div>
 
         <form className="modal-form" onSubmit={handleSubmit}>
@@ -288,15 +281,48 @@ export default function SubscriptionCheckoutModal({
             </div>
           </div>
 
+          <div className="form-group">
+            <label htmlFor="sub-goal">¿Cuál es tu objetivo? <span className="optional">(opcional)</span></label>
+            <div className="goal-select-wrap">
+              <select
+                id="sub-goal"
+                className="goal-select"
+                value={goal}
+                onChange={(e) => setGoal(e.target.value)}
+              >
+                <option value="">Selecciona tu meta...</option>
+                <option value="Perder peso">🔥 Perder peso</option>
+                <option value="Ganar resistencia / cardio">❤️ Ganar resistencia / cardio</option>
+                <option value="Tonificar">💪 Tonificar</option>
+                <option value="Manejo del estrés">🧘 Manejo del estrés</option>
+                <option value="Diversión y socializar">🎉 Diversión y socializar</option>
+                <option value="Otro">✏️ Otro...</option>
+              </select>
+              <svg className="goal-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            {goal === 'Otro' && (
+              <input
+                type="text"
+                className="goal-custom-input"
+                value={goalCustom}
+                onChange={(e) => setGoalCustom(e.target.value)}
+                placeholder="Cuéntanos tu objetivo..."
+                autoFocus
+                maxLength={120}
+              />
+            )}
+          </div>
+
           {error && (
             <div className="form-error" role="alert">
               {error}
             </div>
           )}
 
-          <p className="form-note">
-            Se renovará automáticamente cada mes. Puedes cancelar en cualquier momento.
-          </p>
+          <div className="trust-badges">
+            <span className="trust-badge">🔒 Pago seguro</span>
+            <span className="trust-badge">↩️ Cancela cuando quieras</span>
+          </div>
 
           <button
             type="submit"

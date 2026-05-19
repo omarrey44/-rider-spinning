@@ -3888,6 +3888,51 @@ section::before {
   background: var(--teal-primary);
   border-radius: 2px;
 }
+.modal-booking-banner {
+  margin: 0 32px 24px;
+  padding: 14px 18px;
+  background: rgba(29, 212, 232, 0.05);
+  border: 1px solid rgba(29, 212, 232, 0.18);
+  border-left: 3px solid var(--teal-primary);
+  border-radius: 12px;
+}
+.booking-banner-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.booking-banner-row + .booking-banner-row {
+  margin-top: 5px;
+}
+.booking-banner-class {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--white);
+}
+.booking-banner-bike {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+}
+.booking-banner-datetime {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+.booking-banner-price {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 17px;
+  color: var(--teal-primary);
+  white-space: nowrap;
+}
+.banner-sub-note {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 8px;
+  margin-bottom: 0;
+}
 .modal-summary {
   padding: 20px 32px;
   background: rgba(255, 255, 255, 0.03);

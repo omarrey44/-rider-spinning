@@ -1,23 +1,50 @@
 import { useState, useEffect, useRef } from 'react';
 import { useScrolled } from '@/hooks/useScrolled';
 
-const SECTIONS = [
-  { id: '#clases', label: 'Clases' },
+const CONTACT_WHATSAPP = 'https://wa.me/526145029482';
+
+type NavSection = { id: string; label: string; external?: string };
+
+const SECTIONS: NavSection[] = [
   { id: '#horarios', label: 'Horarios' },
   { id: '#instructores', label: 'Instructores' },
   { id: '#precios', label: 'Precios' },
+  { id: '#colaboradores', label: 'Colaboradores' },
+  { id: '#feedback', label: 'Sugerencias' },
   { id: '#mis-reservas', label: 'Mis reservas' },
-  { id: '#contacto', label: 'Contacto' },
+  { id: '#contacto', label: 'Contacto', external: CONTACT_WHATSAPP },
 ];
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navbarScrolled = useScrolled(30);
   const [activeHash, setActiveHash] = useState('');
+  const scrollYRef = useRef(0);
 
   useEffect(() => {
-    document.body.style.overflow = mobileOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    if (mobileOpen) {
+      scrollYRef.current = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollYRef.current}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.overflow = 'hidden';
+    } else {
+      const y = scrollYRef.current;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.overflow = '';
+      if (y) window.scrollTo(0, y);
+    }
+    return () => {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.overflow = '';
+    };
   }, [mobileOpen]);
 
   useEffect(() => {
@@ -32,7 +59,8 @@ export default function Navbar() {
       { rootMargin: '-40% 0px -55% 0px' }
     );
 
-    SECTIONS.forEach(({ id }) => {
+    SECTIONS.forEach(({ id, external }) => {
+      if (external) return;
       const el = document.querySelector(id);
       if (el) observer.observe(el);
     });
@@ -40,10 +68,11 @@ export default function Navbar() {
     return () => observer.disconnect();
   }, []);
 
-  const navLinks = SECTIONS.map(({ id, label }) => ({
-    href: id,
-    label,
-    active: activeHash === id,
+  const navLinks = SECTIONS.map((s) => ({
+    href: s.external ?? s.id,
+    label: s.label,
+    active: !s.external && activeHash === s.id,
+    external: !!s.external,
   }));
 
   return (
@@ -55,9 +84,13 @@ export default function Navbar() {
           </a>
 
           <ul className="nav-links">
-            {navLinks.map(({ href, label, active }) => (
+            {navLinks.map(({ href, label, active, external }) => (
               <li key={href}>
-                <a href={href} className={active ? 'active' : ''}>
+                <a
+                  href={href}
+                  className={active ? 'active' : ''}
+                  {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                >
                   {label}
                 </a>
               </li>
@@ -78,8 +111,14 @@ export default function Navbar() {
         </div>
 
         <div className={`mobile-menu ${mobileOpen ? 'open' : ''}`} id="mobileMenu">
-          {navLinks.map(({ href, label, active }) => (
-            <a key={href} href={href} className={active ? 'active' : ''} onClick={() => setMobileOpen(false)}>
+          {navLinks.map(({ href, label, active, external }) => (
+            <a
+              key={href}
+              href={href}
+              className={active ? 'active' : ''}
+              onClick={() => setMobileOpen(false)}
+              {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            >
               {label}
             </a>
           ))}
