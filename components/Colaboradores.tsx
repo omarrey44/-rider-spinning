@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 const partners = [
   {
-    image: '/Nutriologa.png',
+    image: '/nutriologa.png',
     name: 'Lic. Kristel Del Moral',
     role: 'Nutricionista',
     description:
