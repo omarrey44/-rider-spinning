@@ -142,10 +142,10 @@ export default function PackCheckoutModal({
           customer_name: name.trim(),
           customer_email: email.trim(),
           customer_phone: fullPhone,
-          class_title: 'Pack 5 Clases',
-          pack_size: 5,
-          pack_price: 950,
-          amount_cents: 95000,
+          class_title: 'Pack 3 Clases',
+          pack_size: 3,
+          pack_price: 400,
+          amount_cents: 40000,
           currency: 'MXN',
           test_mode: testMode,
         }),
@@ -160,7 +160,7 @@ export default function PackCheckoutModal({
       reset();
 
       if (data.test_mode) {
-        window.location.href = `/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=${encodeURIComponent('Pack 5 Clases')}&amount=${95000 / 100}`;
+        window.location.href = `/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=${encodeURIComponent('Pack 3 Clases')}&amount=${40000 / 100}`;
       } else {
         window.location.href = data.checkout_url;
       }
@@ -200,7 +200,7 @@ export default function PackCheckoutModal({
 
         <div className="modal-header">
           <span className="modal-eyebrow">Compra de pack</span>
-          <h3>Pack 5 clases</h3>
+          <h3>Pack 3 clases</h3>
         </div>
 
         <div className="modal-summary">
@@ -209,7 +209,7 @@ export default function PackCheckoutModal({
               <svg className="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12" /></svg>
               Producto
             </span>
-            <strong>5 clases · 30 días</strong>
+            <strong>3 clases · 7 días</strong>
           </div>
           <div className="summary-row">
             <span className="summary-icon-label">
@@ -221,7 +221,7 @@ export default function PackCheckoutModal({
           <div className="summary-divider" />
           <div className="summary-row total">
             <span>Total</span>
-            <strong>$950 MXN</strong>
+            <strong>$400 MXN</strong>
           </div>
         </div>
 

@@ -144,7 +144,7 @@ export default function SubscriptionCheckoutModal({
           customer_phone: fullPhone,
           class_title: 'Mensualidad Ilimitada',
           subscription_type: 'monthly',
-          amount_cents: 240000,
+          amount_cents: 65000,
           currency: 'MXN',
           test_mode: testMode,
         }),
@@ -159,7 +159,7 @@ export default function SubscriptionCheckoutModal({
       reset();
 
       if (data.test_mode) {
-        window.location.href = `/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=${encodeURIComponent('Mensualidad Ilimitada')}&amount=${240000 / 100}`;
+        window.location.href = `/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=${encodeURIComponent('Mensualidad Ilimitada')}&amount=${65000 / 100}`;
       } else {
         window.location.href = data.checkout_url;
       }
@@ -220,7 +220,11 @@ export default function SubscriptionCheckoutModal({
           <div className="summary-divider" />
           <div className="summary-row total">
             <span>Total mensual</span>
-            <strong>$2,400 MXN</strong>
+            <strong>$650 MXN</strong>
+          </div>
+          <div className="summary-row" style={{ fontSize: '12px', opacity: 0.65, marginTop: '-4px' }}>
+            <span>+ Cuota mantenimiento semestral</span>
+            <span>$250 MXN</span>
           </div>
         </div>
 

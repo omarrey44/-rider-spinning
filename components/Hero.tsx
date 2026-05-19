@@ -155,7 +155,7 @@ export default function Hero() {
               </div>
               <div className="hero-card-footer">
                 <span>Bike #06 · Fila 2 centro</span>
-                <strong>{nextClass ? nextClass.slot.price : '$220'} MXN</strong>
+                <strong>{nextClass ? nextClass.slot.price : '$150'} MXN</strong>
               </div>
             </div>
           </motion.div>
