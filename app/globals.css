@@ -348,19 +348,19 @@ button:focus:not(:focus-visible) {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 100;
-  padding: 16px 0;
+  padding: 10px 0;
   transition: all 0.3s ease;
-  background: rgba(8, 8, 8, 0.4);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(29, 212, 232, 0.15);
+  background: rgba(6, 6, 6, 0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(29, 212, 232, 0.12);
 }
 .navbar.scrolled {
-  background: rgba(8, 8, 8, 0.75);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border-bottom: 1px solid rgba(29, 212, 232, 0.25);
-  padding: 12px 0;
+  background: rgba(6, 6, 6, 0.97);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border-bottom: 1px solid rgba(29, 212, 232, 0.2);
+  padding: 8px 0;
 }
 .nav-inner {
   display: flex;
@@ -375,25 +375,25 @@ button:focus:not(:focus-visible) {
   color: var(--white);
 }
 .logo-img {
-  height: 155px;
+  height: 130px;
   width: auto;
   display: block;
-  border-radius: 12px;
+  border-radius: 6px;
   object-fit: contain;
   filter: brightness(1.2) contrast(1.1) saturate(0.8);
   opacity: 0.95;
 }
-.footer-brand .logo-img { height: 110px; }
+.footer-brand .logo-img { height: 80px; }
 
 .nav-links {
   display: flex;
-  gap: 40px;
+  gap: 28px;
 }
 .nav-links a {
   color: rgba(255, 255, 255, 0.78);
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.9px;
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: 0.4px;
   transition: color 0.3s ease, text-shadow 0.3s ease;
   position: relative;
 }
@@ -519,7 +519,7 @@ button:focus:not(:focus-visible) {
   background: var(--black);
   color: var(--white);
   overflow: hidden;
-  padding-top: 200px;
+  padding-top: 170px;
 }
 .hero-bg {
   position: absolute;
