@@ -29,10 +29,13 @@ export default function Colaboradores() {
   return (
     <section className="colaboradores" id="colaboradores">
       <div className="container">
-        <div className="section-head">
+        <div className="section-head" style={{ textAlign: 'center' }}>
           <span className="eyebrow">Bienestar integral</span>
-          <h2>Nuestros <span className="text-red">Colaboradores</span></h2>
-          <p className="section-sub">Como miembro de Rideon obtienes <strong>10% de descuento</strong> en servicios con estos especialistas. Muestra tu confirmación de reserva al momento de tu cita.</p>
+          <h2 style={{ textAlign: 'center' }}>
+            <span style={{ display: 'block' }}>Nuestros</span>
+            <span className="text-red" style={{ display: 'block' }}>Colaboradores</span>
+          </h2>
+          <p className="section-sub" style={{ textAlign: 'center', marginLeft: 'auto', marginRight: 'auto' }}>Como miembro de Rideon obtienes <strong>10% de descuento</strong> en servicios con estos especialistas. Muestra tu confirmación de reserva al momento de tu cita.</p>
         </div>
 
         <div className="colab-grid">
