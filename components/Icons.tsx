@@ -164,3 +164,30 @@ export const BikeIcon = ({ className = '', size = 24 }: IconProps) => (
     <path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM12 17.5V14l-3-3 4-3 2 3h2" />
   </svg>
 );
+
+// Volumen / sonido (Volume2)
+export const VolumeIcon = ({ className = '', size = 18 }: IconProps) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" {...baseProps} className={className}>
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+  </svg>
+);
+
+// Comunidad / grupo
+export const GroupIcon = ({ className = '', size = 18 }: IconProps) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" {...baseProps} className={className}>
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+);
+
+// Power icon (proof block del hero)
+export const PowerIcon = ({ className = '', size = 22 }: IconProps) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" {...baseProps} className={className}>
+    <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+    <line x1="12" y1="2" x2="12" y2="12" />
+  </svg>
+);

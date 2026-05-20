@@ -375,7 +375,7 @@ button:focus:not(:focus-visible) {
   color: var(--white);
 }
 .logo-img {
-  height: 168px;
+  height: 155px;
   width: auto;
   display: block;
   border-radius: 12px;
@@ -519,7 +519,7 @@ button:focus:not(:focus-visible) {
   background: var(--black);
   color: var(--white);
   overflow: hidden;
-  padding-top: 80px;
+  padding-top: 200px;
 }
 .hero-bg {
   position: absolute;
@@ -604,17 +604,22 @@ button:focus:not(:focus-visible) {
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-columns: 1.15fr 1fr;
-  gap: 60px;
+  grid-template-columns: auto 1fr;
+  gap: 40px;
   align-items: center;
-  padding: 60px 24px 120px;
+  padding: 32px 24px 120px;
+  /* Override .container centering — shift content toward left edge */
+  max-width: none;
+  margin: 0;
+  padding-left: clamp(56px, 13vw, 220px);
+  padding-right: clamp(24px, 6vw, 96px);
 }
 /* Texto del hero centrado dentro de su columna */
 .hero-text {
-  text-align: center;
+  text-align: left;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
 }
 .hero-eyebrow {
   display: inline-block;
@@ -624,50 +629,55 @@ button:focus:not(:focus-visible) {
   letter-spacing: 3px;
   color: var(--teal-primary);
   margin-bottom: 28px;
+  align-self: center;
 }
 .hero-title {
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: clamp(48px, 6.8vw, 96px);
-  line-height: 0.95;
+  font-size: clamp(56px, 7.4vw, 108px);
+  line-height: 0.92;
   letter-spacing: -3px;
-  margin-bottom: 32px;
+  margin-bottom: 8px;
   text-transform: uppercase;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 4px;
   position: relative;
 }
 .title-line {
   display: block;
   position: relative;
 }
-/* Línea decorativa teal entre las dos líneas del título */
-.hero-title::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 80px;
-  height: 3px;
-  background: var(--teal-primary);
-  border-radius: 2px;
+.title-line-1 {
+  color: var(--white);
+  font-weight: 800;
+}
+.title-line-2 {
+  font-style: italic;
+  font-weight: 900;
+}
+.hero-tagline {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(22px, 2.2vw, 30px);
+  color: rgba(255, 255, 255, 0.92);
+  letter-spacing: -0.4px;
+  margin: 0 0 28px;
 }
 .hero-sub {
-  font-size: 17px;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.78);
   max-width: 420px;
-  margin: 0 auto 36px;
-  line-height: 1.7;
-  letter-spacing: 0.3px;
+  margin: 0 0 32px;
+  line-height: 1.65;
+  letter-spacing: 0.2px;
   font-weight: 500;
 }
 .hero-ctas {
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   margin-bottom: 40px;
   position: relative;
   z-index: 2;
@@ -675,15 +685,27 @@ button:focus:not(:focus-visible) {
 .hero-proof {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 36px;
-  max-width: 760px;
+  justify-content: flex-start;
+  gap: 18px;
+  max-width: 520px;
   width: 100%;
   background: transparent;
   border: none;
   border-radius: 16px;
-  padding: 16px 20px;
-  padding-left: 70px;
+  padding: 14px 4px;
+}
+.hero-proof-icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--teal-primary);
+  border: 1.5px solid rgba(29, 212, 232, 0.45);
+  background: rgba(29, 212, 232, 0.08);
+  box-shadow: 0 0 22px rgba(29, 212, 232, 0.2);
 }
 .hero-bike-visual {
   position: relative;
@@ -807,19 +829,22 @@ button:focus:not(:focus-visible) {
 /* Hero card visual (mockup del salón) */
 .hero-visual {
   position: relative;
+  max-width: 380px;
+  width: 100%;
+  justify-self: start;
 }
 .hero-card {
   position: relative;
   background: linear-gradient(145deg, rgba(25, 25, 25, 0.9), rgba(8, 8, 8, 0.95));
   border: 1px solid rgba(29, 212, 232, 0.2);
-  border-radius: 24px;
-  padding: 28px;
+  border-radius: 20px;
+  padding: 22px;
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
   box-shadow:
     0 32px 80px rgba(0, 0, 0, 0.6),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  transform: rotate(-1.5deg);
+  transform: none;
   transition: transform 0.4s ease;
 }
 /* Glow pulsante via opacity en ::after — compositor-only, sin repaint */
@@ -837,7 +862,7 @@ button:focus:not(:focus-visible) {
   0%, 100% { opacity: 0.3; }
   50% { opacity: 1; }
 }
-.hero-card:hover { transform: rotate(0deg) scale(1.02); }
+.hero-card:hover { transform: scale(1.02); }
 .badge {
   display: inline-block;
   font-size: 11px;
@@ -859,43 +884,89 @@ button:focus:not(:focus-visible) {
 }
 .hero-card h3 {
   font-family: var(--font-display);
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 800;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
-.hero-card > p {
+.hero-card > p,
+.hero-card-instructor {
   color: var(--text-light);
   font-size: 14px;
-  margin-bottom: 20px;
+  margin: 0 0 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
-.bike-preview {
+.hero-card-instructor svg {
+  color: rgba(255, 255, 255, 0.6);
+  flex-shrink: 0;
+}
+.hero-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 16px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 12.5px;
+}
+.hero-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.hero-meta-item svg {
+  color: var(--teal-primary);
+}
+.hero-bike-label {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 10px;
+}
+.hero-bike-grid {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 20px;
+  gap: 6px;
+  padding: 10px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
-.bike-row {
+.hero-bike-row {
   display: flex;
-  gap: 8px;
   justify-content: center;
+  gap: 6px;
 }
-.bike {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  border: 1.5px solid;
+.hero-bike {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 30px;
+  border-radius: 7px;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--font-display);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
 }
-.bike.free { border-color: rgba(255, 255, 255, 0.4); background: transparent; }
-.bike.taken { border-color: rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.05); }
-/* En el mini-preview del hero, la bike "seleccionada" sigue siendo roja porque
-   representa una acción ya completada (lo mismo que el selector real) */
-.bike.selected {
+.hero-bike.selected {
+  border-color: var(--teal-primary);
+  color: var(--teal-primary);
+  background: rgba(29, 212, 232, 0.08);
+  box-shadow: 0 0 12px rgba(29, 212, 232, 0.25), inset 0 0 0 1px rgba(29, 212, 232, 0.4);
+}
+.hero-bike.taken {
   border-color: var(--red-primary);
   background: var(--red-primary);
-  box-shadow: 0 0 12px rgba(225, 6, 0, 0.6);
+  color: var(--white);
+  box-shadow: 0 0 14px rgba(225, 6, 0, 0.5);
 }
 .hero-card-footer {
   display: flex;
@@ -910,6 +981,83 @@ button:focus:not(:focus-visible) {
   color: var(--white);
   font-family: var(--font-display);
   font-size: 22px;
+}
+.hero-card-progress {
+  margin-top: 14px;
+}
+.hero-progress-bar {
+  position: relative;
+  height: 3px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.hero-progress-bar span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal-primary), rgba(29, 212, 232, 0.4));
+  border-radius: 3px;
+  box-shadow: 0 0 8px rgba(29, 212, 232, 0.45);
+}
+.hero-card-remaining {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 12.5px;
+  letter-spacing: 0.2px;
+}
+.hero-card-remaining svg {
+  color: var(--teal-primary);
+}
+
+/* Feature bar (fila inferior del hero) */
+.hero-features {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 28px;
+  padding: 24px 24px 100px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: -80px;
+}
+.hero-feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.hero-feature-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(29, 212, 232, 0.08);
+  border: 1px solid rgba(29, 212, 232, 0.2);
+  color: var(--teal-primary);
+  flex-shrink: 0;
+}
+.hero-feature-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.hero-feature-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--white);
+}
+.hero-feature-sub {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.4;
 }
 
 /* Slash diagonal de transición hero → blanco */
@@ -4755,7 +4903,9 @@ section::before {
   .nav-toggle span { width: 22px; height: 2px; }
   .navbar { padding: 12px 0; }
 
-  .hero-content { grid-template-columns: 1fr; gap: 40px; padding: 40px 24px 100px; }
+  .hero { padding-top: 120px; padding-bottom: 100px; }
+  .hero-content { grid-template-columns: 1fr; gap: 40px; padding: 20px 24px 40px; }
+  .hero-features { padding: 20px 24px 24px; margin-top: 0; }
   .hero-visual { max-width: 420px; margin: 0 auto; }
 
   .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
@@ -4794,19 +4944,32 @@ section::before {
   /* Hero */
   .hero { min-height: auto; }
   .hero-bg { background-image: url('/HeroMovil.png'); }
-  .hero-content { display: flex; flex-direction: column; padding: 24px 20px 40px; gap: 24px; }
-  .hero-text { order: 2; }
-  .hero-ctas { order: 1; margin-bottom: 16px; flex-direction: column; gap: 10px; }
+  .hero { padding-top: 100px; padding-bottom: 100px; }
+  .hero-content { display: flex; flex-direction: column; padding: 16px 20px 32px; gap: 24px; }
+  .hero-features { padding: 20px 20px 24px; margin-top: 0; }
+  .hero-text { order: 2; text-align: center; align-items: center; }
+  .hero-ctas { order: 1; margin-bottom: 16px; flex-direction: column; gap: 10px; justify-content: center; }
   .hero-ctas .btn { width: 100%; justify-content: center; padding: 14px 20px; }
   .hero-visual { order: 3; max-width: 100%; margin: 0 auto; }
-  .hero-title { font-size: clamp(32px, 9vw, 48px); letter-spacing: -1px; margin-bottom: 24px; }
-  .hero-title::after { width: 60px; height: 2px; }
-  .hero-sub { font-size: 15px; margin-bottom: 24px; max-width: 100%; }
-  .hero-proof { gap: 18px; padding: 14px 16px; max-width: 100%; }
+  .hero-title { font-size: clamp(40px, 11vw, 64px); letter-spacing: -1px; margin-bottom: 8px; }
+  .hero-tagline { font-size: 20px; margin-bottom: 18px; }
+  .hero-sub { font-size: 15px; margin: 0 auto 24px; max-width: 100%; }
+  .hero-proof { gap: 14px; padding: 12px 16px; max-width: 100%; justify-content: center; text-align: left; }
   .hero-bike-visual { width: 180px; }
   .proof-text .km-headline { font-size: 17px; }
   .proof-text .km-label { font-size: 12px; }
   .hero-card { padding: 20px; border-radius: 18px; }
+  .hero-card h3 { font-size: 22px; }
+  .hero-bike-grid { gap: 6px; padding: 12px; }
+  .hero-bike-row { gap: 6px; }
+  .hero-bike { width: 48px; height: 32px; font-size: 12px; }
+
+  .hero-features {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    padding: 20px 20px 140px;
+    margin-top: -60px;
+  }
 
   /* How it works — mobile bg swap */
   .how::before { background-image: url('/bikeMovil.webp'); opacity: 1; background-position: center bottom; background-size: contain; }
@@ -4972,16 +5135,28 @@ section::before {
   .mobile-menu a { padding: 14px 0; font-size: 16px; }
 
   /* Hero */
-  .hero-content { padding: 20px 16px 40px; }
+  .hero { padding-top: 90px; padding-bottom: 100px; }
+  .hero-content { padding: 12px 16px 32px; }
+  .hero-features { padding: 20px 16px 24px; margin-top: 0; }
   .hero-badge { padding: 6px 14px; font-size: 12px; margin-bottom: 20px; }
-  .hero-title { font-size: 32px; line-height: 1.1; }
-  .hero-tagline { font-size: 15px; }
+  .hero-title { font-size: 36px; line-height: 0.95; }
+  .hero-tagline { font-size: 18px; margin-bottom: 16px; }
   .hero-visual { max-width: 100%; }
   .hero-visual svg { max-width: 100%; }
-  .hero-proof { flex-direction: column; gap: 14px; padding: 16px; }
+  .hero-proof { flex-direction: row; gap: 14px; padding: 14px 12px; }
+  .hero-proof-icon { width: 40px; height: 40px; }
   .hero-bike-visual { width: 160px; }
-  .proof-text { text-align: center; }
+  .proof-text { text-align: left; }
   .proof-text .km-headline { font-size: 16px; }
+  .hero-bike { width: 44px; height: 30px; font-size: 11.5px; }
+  .hero-features {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding: 16px 16px 40px;
+  }
+  .hero-feature-icon { width: 34px; height: 34px; }
+  .hero-feature-title { font-size: 11px; letter-spacing: 1.2px; }
+  .hero-feature-sub { font-size: 12px; }
   .stat-value { font-size: 30px; }
   .stat-label { font-size: 12px; }
 
@@ -5102,7 +5277,9 @@ section::before {
   .mobile-menu a { padding: 12px 0; font-size: 15px; }
   .mobile-reserve-btn { padding: 10px 16px !important; font-size: 14px; }
 
-  .hero-content { padding: 20px 12px 48px; }
+  .hero { padding-top: 84px; padding-bottom: 100px; }
+  .hero-content { padding: 10px 12px 32px; }
+  .hero-features { padding: 16px 12px 24px; margin-top: 0; }
   .hero-title { font-size: 26px; letter-spacing: -0.5px; }
   .hero-title::after { width: 50px; height: 2px; }
   .hero-sub { font-size: 14px; }
