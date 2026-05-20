@@ -375,16 +375,14 @@ button:focus:not(:focus-visible) {
   color: var(--white);
 }
 .logo-img {
-  height: 150px;
+  height: 168px;
   width: auto;
   display: block;
   border-radius: 12px;
   object-fit: contain;
-  transition: height 0.3s ease;
   filter: brightness(1.2) contrast(1.1) saturate(0.8);
   opacity: 0.95;
 }
-.navbar.scrolled .logo-img { height: 84px; }
 .footer-brand .logo-img { height: 110px; }
 
 .nav-links {
@@ -1681,7 +1679,7 @@ section::before {
 .bike-selector--compact .sticky-checkout-bar {
   display: flex;
   position: static;
-  margin: 12px 0 0;
+  margin: 12px 0 8px;
   background: rgba(18, 24, 32, 0.6);
   border: 1px solid rgba(29, 212, 232, 0.22);
   border-radius: 12px;
@@ -3471,7 +3469,7 @@ section::before {
 .membership-expired-msg { font-size: 13px; color: rgba(255,255,255,0.4); margin: 0; text-align: center; }
 
 /* ── MembershipBookingModal ─────────────────────────────────────── */
-.modal.modal--wide { max-width: 720px; }
+.modal.modal--wide { max-width: 720px; padding-bottom: 48px; }
 
 .mem-back-btn {
   display: inline-flex; align-items: center; gap: 6px;
@@ -4966,7 +4964,7 @@ section::before {
   .container { padding-left: 16px; padding-right: 16px; }
 
   /* Navbar */
-  .logo-img { height: 56px; }
+  .logo-img { height: 70px; }
   .nav-toggle { padding: 8px; }
 
   /* Mobile menu */
@@ -5096,7 +5094,7 @@ section::before {
 @media (max-width: 380px) {
   .container { padding-left: 12px; padding-right: 12px; }
   .navbar { padding: 10px 0; }
-  .logo-img { height: 52px; }
+  .logo-img { height: 64px; }
   .nav-toggle { padding: 8px; }
   .nav-toggle span { width: 20px; height: 2px; }
 

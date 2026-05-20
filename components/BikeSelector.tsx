@@ -62,15 +62,22 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
   const totalBikes = BIKE_CONFIG.total;
   const bikeRoomRef = useRef<HTMLDivElement>(null);
 
-  // On mobile, scroll the checkout bar into view after bike selection (bar is in document flow).
+  // On mobile or compact (modal) mode, scroll the checkout bar into view after bike selection.
   useEffect(() => {
-    if (selectedBike === null || typeof window === 'undefined' || window.innerWidth > 768) return;
+    if (selectedBike === null || typeof window === 'undefined') return;
+    if (!compact && window.innerWidth > 768) return;
     const timer = setTimeout(() => {
-      const bar = document.querySelector('.sticky-checkout-bar');
-      bar?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      const bar = document.querySelector('.sticky-checkout-bar') as HTMLElement | null;
+      if (!bar) return;
+      if (compact) {
+        const modal = bar.closest('.modal') as HTMLElement | null;
+        if (modal) modal.scrollTop = modal.scrollHeight + 200;
+      } else {
+        bar.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
     }, 80);
     return () => clearTimeout(timer);
-  }, [selectedBike]);
+  }, [selectedBike, compact]);
 
   useEffect(() => {
     if (!selectedSlot) {
