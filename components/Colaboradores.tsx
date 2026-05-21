@@ -8,7 +8,7 @@ const partners = [
     description:
       'Planes personalizados de nutrición, manejo de peso, composición corporal y rendimiento deportivo. Evaluaciones antropométricas y dietas terapéuticas.',
     services: ['Nutrición deportiva', 'Manejo de peso', 'Composición corporal', 'Dietas terapéuticas'],
-    phone: '6145029482',
+    phone: '6145951782',
     whatsappMsg: 'Hola Kristel, soy miembro de Rideon y me interesa agendar una consulta.',
     colClass: 'col-nutri',
   },
@@ -22,6 +22,28 @@ const partners = [
     phone: '6144875588',
     whatsappMsg: 'Hola, soy miembro de Rideon y me interesa conocer sus tratamientos.',
     colClass: 'col-cosme',
+  },
+  {
+    image: '/logoRadiologia.jpg',
+    name: 'Alta Radiología',
+    role: 'Análisis Clínicos · Radiología',
+    description:
+      'Laboratorio de análisis clínicos y estudios de imagen. Resultados confiables con entrega rápida para apoyar tu salud y rendimiento deportivo.',
+    services: ['Análisis clínicos', 'Estudios de imagen', 'Radiología', 'Resultados en línea'],
+    phone: '6145147500',
+    whatsappMsg: 'Hola, soy miembro de Rideon y me interesa agendar un análisis clínico.',
+    colClass: 'col-radio',
+  },
+  {
+    image: '/logoPsiquiatra.jpg',
+    name: 'Dr. Luis Alberto Rodarte',
+    role: 'Psiquiatra · Tratamiento de Adicciones',
+    description:
+      'Atención psiquiátrica especializada en tratamiento de adicciones de todo tipo. Acompañamiento profesional, confidencial y sin juicios para recuperar tu bienestar.',
+    services: ['Tratamiento de adicciones', 'Salud mental', 'Consulta psiquiátrica', 'Seguimiento personalizado'],
+    phone: '6141338381',
+    whatsappMsg: 'Hola Dr. Rodarte, soy miembro de Rideon y me interesa agendar una consulta.',
+    colClass: 'col-psi',
   },
 ];
 

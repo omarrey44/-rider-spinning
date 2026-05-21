@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || '${BASE_URL}';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
 function escapeHtml(s: string): string {
   return s
