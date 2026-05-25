@@ -121,7 +121,7 @@ export default function Hero() {
     cursor = end + 1;
     return { start, end };
   });
-  const rawPrice = (nextClass?.slot.price ?? '$150 MXN').replace(/\s*MXN\s*$/i, '').trim();
+  const rawPrice = (nextClass?.slot.price ?? '$200 MXN').replace(/\s*MXN\s*$/i, '').trim();
 
   return (
     <motion.header className="hero" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>

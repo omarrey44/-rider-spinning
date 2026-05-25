@@ -25,7 +25,7 @@ export default function Pricing({ onPackClick, onSubscribeClick }: PricingProps)
             </div>
             <div className="price-row">
               <span className="currency">$</span>
-              <span className="amount">150</span>
+              <span className="amount">200</span>
               <span className="period">MXN<br />/clase</span>
             </div>
             <ul className="price-features">
@@ -53,7 +53,7 @@ export default function Pricing({ onPackClick, onSubscribeClick }: PricingProps)
               <span className="amount">400</span>
               <span className="period">MXN<br />3 clases</span>
             </div>
-            <span className="save-badge">↓ Ahorras $50 vs clase suelta</span>
+            <span className="save-badge">↓ Ahorras $200 vs 3 clases sueltas</span>
             <ul className="price-features">
               <li>3 clases · vigencia 7 días</li>
               <li>Reserva con 7 días de anticipación</li>
