@@ -8,9 +8,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Rideon Spinning Studio',
     description: 'Reserva tu clase de spinning en Chihuahua. Elige tu bici, paga en línea, llega a pedalear.',
-    url: 'https://rider-spinning.vercel.app',
+    url: 'https://rideonspinningstudio.com.mx',
     siteName: 'Rideon Spinning Studio',
-    images: [{ url: 'https://rider-spinning.vercel.app/Hero1.png', width: 1200, height: 630, alt: 'Rideon Spinning Studio' }],
+    images: [{ url: 'https://rideonspinningstudio.com.mx/Hero1.png', width: 1200, height: 630, alt: 'Rideon Spinning Studio' }],
     locale: 'es_MX',
     type: 'website',
   },
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Rideon Spinning Studio',
     description: 'Reserva tu clase de spinning en Chihuahua.',
-    images: ['https://rider-spinning.vercel.app/Hero1.png'],
+    images: ['https://rideonspinningstudio.com.mx/Hero1.png'],
   },
 };
 

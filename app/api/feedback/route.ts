@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
 const OWNER_EMAIL = 'administracion@rideonspinningstudio.com';
-const OWNER_WHATSAPP = '526145029482';
+const OWNER_WHATSAPP = process.env.WHATSAPP_ADMIN || '526145951782';
 
 function escapeHtml(s: string): string {
   return s
@@ -65,6 +65,8 @@ export async function POST(req: NextRequest) {
         );
         const url = `https://api.callmebot.com/whatsapp.php?phone=${OWNER_WHATSAPP}&text=${text}&apikey=${cbKey}`;
         const waRes = await fetch(url);
+        const waBody = await waRes.text();
+        console.log('[feedback] callmebot status:', waRes.status, waBody);
         results.whatsapp = waRes.ok;
       } catch (err) {
         console.error('[feedback] whatsapp error:', err);

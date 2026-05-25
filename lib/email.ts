@@ -2,6 +2,7 @@ import { Resend } from 'resend';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 const ADMIN_EMAIL = 'administracion@rideonspinningstudio.com';
+// Change to 'RideOn Spinning <noreply@rideonspinningstudio.com.mx>' once domain is verified in Resend
 const FROM = 'RideOn Spinning <onboarding@resend.dev>';
 
 function getResend(): Resend {
@@ -18,7 +19,7 @@ function escapeHtml(s: string): string {
     .replace(/'/g, '&#39;');
 }
 
-// ── Admin alert ──────────────────────────────────────────────────────────────
+// ── Admin alert (email) ──────────────────────────────────────────────────────
 
 async function sendAdminAlert(subject: string, html: string) {
   try {
@@ -26,6 +27,28 @@ async function sendAdminAlert(subject: string, html: string) {
     console.log(`[email] Admin alert sent: ${subject}`);
   } catch (err) {
     console.error('[email] Admin alert error:', err);
+  }
+}
+
+// ── Admin alert (WhatsApp via CallMeBot) ─────────────────────────────────────
+
+export async function sendWhatsAppAdminAlert(message: string) {
+  const apiKey = process.env.CALLMEBOT_API_KEY;
+  const phone = process.env.WHATSAPP_ADMIN;
+  if (!apiKey || !phone) {
+    console.warn('[whatsapp] CALLMEBOT_API_KEY or WHATSAPP_ADMIN not set');
+    return;
+  }
+  try {
+    const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(message)}&apikey=${apiKey}`;
+    const res = await fetch(url);
+    if (res.ok) {
+      console.log('[whatsapp] Admin alert sent');
+    } else {
+      console.error('[whatsapp] Error:', res.status, await res.text());
+    }
+  } catch (err) {
+    console.error('[whatsapp] Error:', err);
   }
 }
 
@@ -121,11 +144,15 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
     </div>
   `;
 
+  const amountLabel = data.amount === 0 ? 'Incluido en membresía' : `$${data.amount} MXN`;
+  const waMsg = `🚴 *Nueva Reserva RideOn*\n👤 ${data.customerName}\n📧 ${data.customerEmail}\n🏋️ ${data.classTitle} · ${data.instructorName}\n📅 ${formattedDate} · ${data.hour}\n🚲 Bici #${String(data.bikeNumber).padStart(2, '0')} Fila ${data.bikeRow}\n💰 ${amountLabel}\n🔖 Confirmación: ${ticketNumber}${data.goal ? `\n🎯 Objetivo: ${data.goal}` : ''}`;
+
   try {
     const resend = getResend();
     await Promise.all([
       resend.emails.send({ from: FROM, to: data.customerEmail, subject: `Confirmación de tu clase: ${data.classTitle}`, html: customerHtml }),
       sendAdminAlert(`🚴 Nueva reserva: ${data.customerName} · ${data.classTitle}`, adminHtml),
+      sendWhatsAppAdminAlert(waMsg),
     ]);
     console.log(`[email] Confirmación + alerta admin enviadas para ${data.customerEmail}`);
   } catch (err) {
@@ -195,11 +222,14 @@ export async function sendPackConfirmation(data: PackEmailData) {
     </div>
   `;
 
+  const waMsg = `🎟️ *Nuevo Pack RideOn*\n👤 ${data.customerName}\n📧 ${data.customerEmail}\n📦 Pack 3 Clases · $400 MXN\n🔖 Confirmación: ${data.confirmationNumber}${data.goal ? `\n🎯 Objetivo: ${data.goal}` : ''}`;
+
   try {
     const resend = getResend();
     await Promise.all([
       resend.emails.send({ from: FROM, to: data.customerEmail, subject: `¡Tu Pack 3 Clases está confirmado! 🎟️`, html: customerHtml }),
       sendAdminAlert(`🎟️ Nuevo pack: ${data.customerName}`, adminHtml),
+      sendWhatsAppAdminAlert(waMsg),
     ]);
     console.log(`[email] Pack confirmación + alerta admin para ${data.customerEmail}`);
   } catch (err) {
@@ -271,11 +301,14 @@ export async function sendSubscriptionConfirmation(data: SubscriptionEmailData) 
     </div>
   `;
 
+  const waMsg = `⭐ *Nueva Suscripción RideOn*\n👤 ${data.customerName}\n📧 ${data.customerEmail}\n🏷️ Mensualidad Ilimitada · $650 MXN/mes\n🔖 Membresía: ${data.confirmationNumber}${data.goal ? `\n🎯 Objetivo: ${data.goal}` : ''}`;
+
   try {
     const resend = getResend();
     await Promise.all([
       resend.emails.send({ from: FROM, to: data.customerEmail, subject: `¡Bienvenido al Club Ilimitado de Rideon! 🚴‍♂️`, html: customerHtml }),
       sendAdminAlert(`⭐ Nueva suscripción: ${data.customerName}`, adminHtml),
+      sendWhatsAppAdminAlert(waMsg),
     ]);
     console.log(`[email] Suscripción confirmación + alerta admin para ${data.customerEmail}`);
   } catch (err) {
