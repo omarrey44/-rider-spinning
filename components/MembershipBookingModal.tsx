@@ -102,7 +102,7 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
       instructorName: selectedSlot.instructorName,
       hour: selectedSlot.hour,
       period: selectedSlot.period,
-      price: membership.type === 'pack' ? 'Pack 3 Clases' : 'Membresía Ilimitada',
+      price: membership.type === 'pack' ? 'Pack 3 Horas' : 'Membresía Ilimitada',
       duration: selectedSlot.duration,
       instructorClass: selectedSlot.instructorClass,
       dayName: DAY_NAMES[dayKey] || dayKey,
@@ -185,7 +185,7 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
             <div className="modal-header">
               <span className="modal-eyebrow">
                 {membership.type === 'pack'
-                  ? `Pack 3 Clases · ${creditsLeft} crédito${creditsLeft === 1 ? '' : 's'} restante${creditsLeft === 1 ? '' : 's'}`
+                  ? `Pack 3 Horas · ${creditsLeft} hora${creditsLeft === 1 ? '' : 's'} restante${creditsLeft === 1 ? '' : 's'}`
                   : 'Membresía Ilimitada · 1 clase por día'}
               </span>
               <h3>¿Qué día quieres ir?</h3>

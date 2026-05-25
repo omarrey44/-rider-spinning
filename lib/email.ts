@@ -192,11 +192,11 @@ export async function sendPackConfirmation(data: PackEmailData) {
       <div class="content">
         <p style="font-size:20px;font-weight:700;color:#2a9d8f;">¡HOLA RIDDER!</p>
         <p><strong>Compra de: ${escapeHtml(data.customerName)}</strong></p>
-        <div class="detail-row"><div class="detail-label">Producto</div><div class="detail-value">Pack 3 Clases · válido 7 días</div></div>
+        <div class="detail-row"><div class="detail-label">Producto</div><div class="detail-value">Pack 3 Horas · válido 7 días</div></div>
         <div class="detail-row"><div class="detail-label">Beneficio</div><div class="detail-value">Cancelación hasta 1h antes por clase</div></div>
         <div class="detail-row"><div class="detail-label">Total pagado</div><div class="detail-value amount">$${data.amount.toLocaleString('es-MX')} MXN</div></div>
         ${data.goal ? `<div class="detail-row"><div class="detail-label">Tu objetivo</div><div class="detail-value">${escapeHtml(data.goal)}</div></div>` : ''}
-        <p style="margin-top:24px;"><strong>¿Qué sigue?</strong><br>Reserva tus 3 clases desde el sitio. Cada reserva descuenta una clase del pack.</p>
+        <p style="margin-top:24px;"><strong>¿Qué sigue?</strong><br>Reserva tus 3 horas desde el sitio. Cada reserva descuenta una hora del pack.</p>
         <div style="text-align:center;margin:30px 0;">
           <a href="${BASE_URL}/#horarios" style="display:inline-block;background:#2a9d8f;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">Reservar mi primera clase</a>
         </div>
@@ -215,19 +215,19 @@ export async function sendPackConfirmation(data: PackEmailData) {
           <tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Confirmación</td><td style="padding:8px 0;font-weight:700;font-family:monospace;">${escapeHtml(data.confirmationNumber)}</td></tr>
           <tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Cliente</td><td style="padding:8px 0;font-weight:600;">${escapeHtml(data.customerName)}</td></tr>
           <tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Correo</td><td style="padding:8px 0;">${escapeHtml(data.customerEmail)}</td></tr>
-          <tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Pack</td><td style="padding:8px 0;">3 clases · $${data.amount.toLocaleString('es-MX')} MXN</td></tr>
+          <tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Pack</td><td style="padding:8px 0;">3 horas · $${data.amount.toLocaleString('es-MX')} MXN</td></tr>
           ${data.goal ? `<tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Objetivo</td><td style="padding:8px 0;color:#e76f51;font-weight:600;">${escapeHtml(data.goal)}</td></tr>` : ''}
         </table>
       </div>
     </div>
   `;
 
-  const waMsg = `🎟️ *Nuevo Pack RideOn*\n👤 ${data.customerName}\n📧 ${data.customerEmail}\n📦 Pack 3 Clases · $400 MXN\n🔖 Confirmación: ${data.confirmationNumber}${data.goal ? `\n🎯 Objetivo: ${data.goal}` : ''}`;
+  const waMsg = `🎟️ *Nuevo Pack RideOn*\n👤 ${data.customerName}\n📧 ${data.customerEmail}\n📦 Pack 3 Horas · $300 MXN\n🔖 Confirmación: ${data.confirmationNumber}${data.goal ? `\n🎯 Objetivo: ${data.goal}` : ''}`;
 
   try {
     const resend = getResend();
     await Promise.all([
-      resend.emails.send({ from: FROM, to: data.customerEmail, subject: `¡Tu Pack 3 Clases está confirmado! 🎟️`, html: customerHtml }),
+      resend.emails.send({ from: FROM, to: data.customerEmail, subject: `¡Tu Pack 3 Horas está confirmado! 🎟️`, html: customerHtml }),
       sendAdminAlert(`🎟️ Nuevo pack: ${data.customerName}`, adminHtml),
       sendWhatsAppAdminAlert(waMsg),
     ]);

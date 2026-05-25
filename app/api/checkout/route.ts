@@ -227,7 +227,7 @@ export async function POST(req: NextRequest) {
     const productDescription = isClassBooking
       ? `👤 ${instructor_name || 'Por definir'} • 📅 ${date_time} • 🚴 Bici #${String(bike_number).padStart(2, '0')} Fila ${bike_row} • ⏱ ${duration || '45 min'} • 🎁 Bebida cortesía`
       : pack_size
-        ? `Pack ${pack_size} clases · válido 7 días · Cancela hasta 1h antes`
+        ? `Pack ${pack_size} horas · válido 7 días · Cancela hasta 1h antes`
         : 'Clases ilimitadas · Botella + toalla · Cancela cuando quieras';
 
     const session = await getStripe().checkout.sessions.create({
