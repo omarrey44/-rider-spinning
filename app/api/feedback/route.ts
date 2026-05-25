@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-const OWNER_EMAIL = 'omar_reii4@hotmail.com';
+const OWNER_EMAIL = 'administracion@rideonspinningstudio.com';
 const OWNER_WHATSAPP = '526145029482';
 
 function escapeHtml(s: string): string {

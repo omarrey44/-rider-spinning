@@ -1,6 +1,13 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+const ADMIN_EMAIL = 'administracion@rideonspinningstudio.com';
+const FROM = 'RideOn Spinning <onboarding@resend.dev>';
+
+function getResend(): Resend {
+  if (!process.env.RESEND_API_KEY) throw new Error('RESEND_API_KEY not configured');
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 function escapeHtml(s: string): string {
   return s
@@ -11,22 +18,18 @@ function escapeHtml(s: string): string {
     .replace(/'/g, '&#39;');
 }
 
-let _transporter: nodemailer.Transporter | null = null;
-function getTransporter(): nodemailer.Transporter {
-  if (!_transporter) {
-    if (!process.env.EMAIL_FROM || !process.env.EMAIL_PASSWORD) {
-      throw new Error('Email credentials not configured (EMAIL_FROM / EMAIL_PASSWORD)');
-    }
-    _transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_FROM,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
+// ── Admin alert ──────────────────────────────────────────────────────────────
+
+async function sendAdminAlert(subject: string, html: string) {
+  try {
+    await getResend().emails.send({ from: FROM, to: ADMIN_EMAIL, subject, html });
+    console.log(`[email] Admin alert sent: ${subject}`);
+  } catch (err) {
+    console.error('[email] Admin alert error:', err);
   }
-  return _transporter;
 }
+
+// ── Booking confirmation ─────────────────────────────────────────────────────
 
 interface BookingEmailData {
   customerName: string;
@@ -46,120 +49,91 @@ interface BookingEmailData {
 export async function sendBookingConfirmation(data: BookingEmailData) {
   const formattedDate = data.classDate
     ? new Date(data.classDate + 'T00:00:00').toLocaleDateString('es-MX', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
       })
-    : `${data.day}`;
+    : data.day;
 
   const ticketNumber = data.confirmationNumber || 'N/A';
-  const htmlContent = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <style>
-        body { font-family: Arial, sans-serif; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #2a9d8f 0%, #1d6e63 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-        .ticket-box { background: white; border: 2px solid #2a9d8f; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center; }
-        .ticket-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-        .ticket-number { font-size: 32px; font-weight: 700; color: #2a9d8f; font-family: monospace; letter-spacing: 2px; margin: 10px 0; }
-        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
-        .detail-row { margin: 15px 0; padding: 12px; background: white; border-left: 4px solid #2a9d8f; }
-        .detail-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
-        .detail-value { font-size: 16px; font-weight: 600; color: #333; margin-top: 5px; }
-        .amount { font-size: 24px; color: #2a9d8f; font-weight: 700; }
-        .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #888; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <h1>¡Tu reserva está confirmada! 🚴</h1>
+
+  const customerHtml = `
+    <!DOCTYPE html><html><head><style>
+      body{font-family:Arial,sans-serif;color:#333;}
+      .container{max-width:600px;margin:0 auto;padding:20px;}
+      .header{background:linear-gradient(135deg,#2a9d8f 0%,#1d6e63 100%);color:white;padding:30px;text-align:center;border-radius:8px 8px 0 0;}
+      .ticket-box{background:white;border:2px solid #2a9d8f;border-radius:8px;padding:20px;margin:20px 0;text-align:center;}
+      .ticket-label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;}
+      .ticket-number{font-size:32px;font-weight:700;color:#2a9d8f;font-family:monospace;letter-spacing:2px;margin:10px 0;}
+      .content{background:#f9f9f9;padding:30px;border-radius:0 0 8px 8px;}
+      .detail-row{margin:15px 0;padding:12px;background:white;border-left:4px solid #2a9d8f;}
+      .detail-label{font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;}
+      .detail-value{font-size:16px;font-weight:600;color:#333;margin-top:5px;}
+      .amount{font-size:24px;color:#2a9d8f;font-weight:700;}
+      .footer{text-align:center;margin-top:30px;padding-top:20px;border-top:1px solid #ddd;font-size:12px;color:#888;}
+    </style></head><body>
+    <div class="container">
+      <div class="header"><h1>¡Tu reserva está confirmada! 🚴</h1></div>
+      <div class="ticket-box">
+        <div class="ticket-label">Número de Confirmación</div>
+        <div class="ticket-number">${ticketNumber}</div>
+        <p style="margin:10px 0 0 0;font-size:12px;color:#888;">Presenta este código en tu primera clase</p>
+      </div>
+      <div class="content">
+        <p style="font-size:20px;font-weight:700;color:#2a9d8f;margin:0 0 10px 0;">¡HOLA RIDDER!</p>
+        <p>Tu reserva ha sido confirmada exitosamente. Aquí están los detalles:</p>
+        <div class="detail-row"><div class="detail-label">Clase</div><div class="detail-value">${escapeHtml(data.classTitle)}</div></div>
+        <div class="detail-row"><div class="detail-label">Instructor</div><div class="detail-value">${escapeHtml(data.instructorName)}</div></div>
+        <div class="detail-row"><div class="detail-label">Fecha y Hora</div><div class="detail-value">${escapeHtml(formattedDate)} • ${escapeHtml(data.hour)}</div></div>
+        <div class="detail-row"><div class="detail-label">Tu Bici</div><div class="detail-value">#${String(data.bikeNumber).padStart(2, '0')} • Fila ${data.bikeRow}</div></div>
+        <div class="detail-row"><div class="detail-label">Monto</div><div class="detail-value amount">$${data.amount.toLocaleString('es-MX')} MXN</div></div>
+        ${data.goal ? `<div class="detail-row"><div class="detail-label">Tu objetivo</div><div class="detail-value">${escapeHtml(data.goal)}</div></div>` : ''}
+        <p style="margin-top:30px;"><strong>¿Qué sigue?</strong><br>• Llega 15 minutos antes<br>• Trae tu botella de agua<br>• ¡Prepárate para una clase épica!</p>
+        <div style="background:white;border:2px dashed #2a9d8f;border-radius:8px;padding:20px;text-align:center;margin:30px 0;">
+          <p style="font-size:12px;color:#888;margin:0 0 10px 0;text-transform:uppercase;letter-spacing:0.5px;">Código QR para presentar en recepción</p>
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${ticketNumber}" alt="QR Code" style="width:150px;height:150px;margin:10px 0;">
         </div>
-        <div class="ticket-box">
-          <div class="ticket-label">Número de Confirmación</div>
-          <div class="ticket-number">${ticketNumber}</div>
-          <p style="margin: 10px 0 0 0; font-size: 12px; color: #888;">Presenta este código en tu primera clase</p>
+        <div style="text-align:center;margin:30px 0;">
+          <a href="${BASE_URL}/?email=${encodeURIComponent(data.customerEmail)}#mis-reservas" style="display:inline-block;background:#2a9d8f;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">Verificar mi Reserva</a>
         </div>
-        <div class="content">
-          <p style="font-size: 20px; font-weight: 700; color: #2a9d8f; margin: 0 0 10px 0;">¡HOLA RIDDER!</p>
-          <p style="font-size: 14px; color: #666; margin: 0 0 20px 0;"><strong>Reserva de: ${escapeHtml(data.customerName)}</strong></p>
-          <p>Tu reserva ha sido confirmada exitosamente. Aquí están los detalles:</p>
-
-          <div class="detail-row">
-            <div class="detail-label">Clase</div>
-            <div class="detail-value">${data.classTitle}</div>
-          </div>
-
-          <div class="detail-row">
-            <div class="detail-label">Instructor</div>
-            <div class="detail-value">${data.instructorName}</div>
-          </div>
-
-          <div class="detail-row">
-            <div class="detail-label">Fecha y Hora</div>
-            <div class="detail-value">${formattedDate} • ${data.hour}</div>
-          </div>
-
-          <div class="detail-row">
-            <div class="detail-label">Tu Bici</div>
-            <div class="detail-value">#${String(data.bikeNumber).padStart(2, '0')} • Fila ${data.bikeRow}</div>
-          </div>
-
-          <div class="detail-row">
-            <div class="detail-label">Monto</div>
-            <div class="detail-value amount">$${data.amount.toLocaleString('es-MX')} MXN</div>
-          </div>
-
-          ${data.goal ? `
-          <div class="detail-row">
-            <div class="detail-label">Tu objetivo</div>
-            <div class="detail-value">${escapeHtml(data.goal ?? '')}</div>
-          </div>
-          ` : ''}
-
-          <p style="margin-top: 30px;">
-            <strong>¿Qué sigue?</strong><br>
-            • Llega 15 minutos antes de la clase<br>
-            • Trae tu botella de agua<br>
-            • ¡Prepárate para una clase épica!<br>
-          </p>
-
-          <div style="background: white; border: 2px dashed #2a9d8f; border-radius: 8px; padding: 20px; text-align: center; margin: 30px 0;">
-            <p style="font-size: 12px; color: #888; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">Código QR para presentar en recepción</p>
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${ticketNumber}" alt="QR Code" style="width: 150px; height: 150px; margin: 10px 0;">
-            <p style="font-size: 11px; color: #666; margin: 10px 0 0 0;">Presenta este código en tu llegada</p>
-          </div>
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${BASE_URL}/?email=${encodeURIComponent(data.customerEmail)}#mis-reservas" style="display: inline-block; background: #2a9d8f; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Verificar mi Reserva</a>
-          </div>
-
-          <div class="footer">
-            <p><strong>Ubicación:</strong> Plaza San Agustín local 23, Chihuahua, México</p>
-            <p>📞 Soporte: administracion@rideonspinningstudio.com</p>
-            <p>Rideon Spinning Studio • Tu club de spinning favorito</p>
-          </div>
+        <div class="footer">
+          <p><strong>Ubicación:</strong> Plaza San Agustín local 23, Chihuahua, México</p>
+          <p>📞 Soporte: administracion@rideonspinningstudio.com</p>
+          <p>Rideon Spinning Studio</p>
         </div>
       </div>
-    </body>
-    </html>
+    </div></body></html>
+  `;
+
+  const adminHtml = `
+    <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;">
+      <h2 style="background:#2a9d8f;color:white;padding:16px 20px;border-radius:8px 8px 0 0;margin:0;">🚴 Nueva Reserva de Clase</h2>
+      <div style="background:#f9f9f9;padding:20px;border-radius:0 0 8px 8px;border:1px solid #ddd;">
+        <table style="width:100%;border-collapse:collapse;">
+          <tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Confirmación</td><td style="padding:8px 0;font-weight:700;font-family:monospace;">${escapeHtml(ticketNumber)}</td></tr>
+          <tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Cliente</td><td style="padding:8px 0;font-weight:600;">${escapeHtml(data.customerName)}</td></tr>
+          <tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Correo</td><td style="padding:8px 0;">${escapeHtml(data.customerEmail)}</td></tr>
+          <tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Clase</td><td style="padding:8px 0;">${escapeHtml(data.classTitle)} · ${escapeHtml(data.instructorName)}</td></tr>
+          <tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Fecha/Hora</td><td style="padding:8px 0;">${escapeHtml(formattedDate)} · ${escapeHtml(data.hour)}</td></tr>
+          <tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Bici</td><td style="padding:8px 0;">#${String(data.bikeNumber).padStart(2, '0')} · Fila ${data.bikeRow}</td></tr>
+          <tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Monto</td><td style="padding:8px 0;font-weight:700;color:#2a9d8f;">$${data.amount.toLocaleString('es-MX')} MXN</td></tr>
+          ${data.goal ? `<tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Objetivo</td><td style="padding:8px 0;color:#e76f51;font-weight:600;">${escapeHtml(data.goal)}</td></tr>` : ''}
+        </table>
+      </div>
+    </div>
   `;
 
   try {
-    await getTransporter().sendMail({
-      from: process.env.EMAIL_FROM,
-      to: data.customerEmail,
-      subject: `Confirmación de tu clase: ${data.classTitle}`,
-      html: htmlContent,
-    });
-    console.log(`[email] Confirmación enviada a ${data.customerEmail}`);
+    const resend = getResend();
+    await Promise.all([
+      resend.emails.send({ from: FROM, to: data.customerEmail, subject: `Confirmación de tu clase: ${data.classTitle}`, html: customerHtml }),
+      sendAdminAlert(`🚴 Nueva reserva: ${data.customerName} · ${data.classTitle}`, adminHtml),
+    ]);
+    console.log(`[email] Confirmación + alerta admin enviadas para ${data.customerEmail}`);
   } catch (err) {
-    console.error('[email] Error al enviar:', err);
+    console.error('[email] Error booking confirmation:', err);
   }
 }
+
+// ── Pack confirmation ────────────────────────────────────────────────────────
 
 interface PackEmailData {
   customerName: string;
@@ -170,12 +144,11 @@ interface PackEmailData {
 }
 
 export async function sendPackConfirmation(data: PackEmailData) {
-  const html = `
+  const customerHtml = `
     <!DOCTYPE html><html><head><style>
       body{font-family:Arial,sans-serif;color:#333;}
       .container{max-width:600px;margin:0 auto;padding:20px;}
       .header{background:linear-gradient(135deg,#2a9d8f 0%,#1d6e63 100%);color:white;padding:30px;text-align:center;border-radius:8px 8px 0 0;}
-      .ticket-box{background:white;border:2px solid #2a9d8f;border-radius:8px;padding:20px;margin:20px 0;text-align:center;}
       .ticket-number{font-size:32px;font-weight:700;color:#2a9d8f;font-family:monospace;letter-spacing:2px;margin:10px 0;}
       .content{background:#f9f9f9;padding:30px;border-radius:0 0 8px 8px;}
       .detail-row{margin:15px 0;padding:12px;background:white;border-left:4px solid #2a9d8f;}
@@ -185,7 +158,7 @@ export async function sendPackConfirmation(data: PackEmailData) {
     </style></head><body>
     <div class="container">
       <div class="header"><h1>¡Tu Pack está listo! 🎟️</h1></div>
-      <div class="ticket-box">
+      <div style="background:white;border:2px solid #2a9d8f;border-radius:8px;padding:20px;margin:20px 0;text-align:center;">
         <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Número de Confirmación</div>
         <div class="ticket-number">${escapeHtml(data.confirmationNumber)}</div>
       </div>
@@ -204,21 +177,37 @@ export async function sendPackConfirmation(data: PackEmailData) {
           <p>Rideon Spinning Studio · Plaza San Agustín local 23, Chihuahua, México</p>
         </div>
       </div>
-    </div>
-    </body></html>
+    </div></body></html>
   `;
+
+  const adminHtml = `
+    <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;">
+      <h2 style="background:#f4a261;color:white;padding:16px 20px;border-radius:8px 8px 0 0;margin:0;">🎟️ Nueva Compra de Pack</h2>
+      <div style="background:#f9f9f9;padding:20px;border-radius:0 0 8px 8px;border:1px solid #ddd;">
+        <table style="width:100%;border-collapse:collapse;">
+          <tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Confirmación</td><td style="padding:8px 0;font-weight:700;font-family:monospace;">${escapeHtml(data.confirmationNumber)}</td></tr>
+          <tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Cliente</td><td style="padding:8px 0;font-weight:600;">${escapeHtml(data.customerName)}</td></tr>
+          <tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Correo</td><td style="padding:8px 0;">${escapeHtml(data.customerEmail)}</td></tr>
+          <tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Pack</td><td style="padding:8px 0;">3 clases · $${data.amount.toLocaleString('es-MX')} MXN</td></tr>
+          ${data.goal ? `<tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Objetivo</td><td style="padding:8px 0;color:#e76f51;font-weight:600;">${escapeHtml(data.goal)}</td></tr>` : ''}
+        </table>
+      </div>
+    </div>
+  `;
+
   try {
-    await getTransporter().sendMail({
-      from: process.env.EMAIL_FROM,
-      to: data.customerEmail,
-      subject: `¡Tu Pack 3 Clases está confirmado! 🎟️`,
-      html,
-    });
-    console.log(`[email] Pack confirmado enviado a ${data.customerEmail}`);
+    const resend = getResend();
+    await Promise.all([
+      resend.emails.send({ from: FROM, to: data.customerEmail, subject: `¡Tu Pack 3 Clases está confirmado! 🎟️`, html: customerHtml }),
+      sendAdminAlert(`🎟️ Nuevo pack: ${data.customerName}`, adminHtml),
+    ]);
+    console.log(`[email] Pack confirmación + alerta admin para ${data.customerEmail}`);
   } catch (err) {
-    console.error('[email] Error al enviar pack:', err);
+    console.error('[email] Error pack confirmation:', err);
   }
 }
+
+// ── Subscription confirmation ────────────────────────────────────────────────
 
 interface SubscriptionEmailData {
   customerName: string;
@@ -229,12 +218,11 @@ interface SubscriptionEmailData {
 }
 
 export async function sendSubscriptionConfirmation(data: SubscriptionEmailData) {
-  const html = `
+  const customerHtml = `
     <!DOCTYPE html><html><head><style>
       body{font-family:Arial,sans-serif;color:#333;}
       .container{max-width:600px;margin:0 auto;padding:20px;}
       .header{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);color:white;padding:30px;text-align:center;border-radius:8px 8px 0 0;}
-      .ticket-box{background:white;border:2px solid #2a9d8f;border-radius:8px;padding:20px;margin:20px 0;text-align:center;}
       .ticket-number{font-size:32px;font-weight:700;color:#2a9d8f;font-family:monospace;letter-spacing:2px;margin:10px 0;}
       .content{background:#f9f9f9;padding:30px;border-radius:0 0 8px 8px;}
       .detail-row{margin:15px 0;padding:12px;background:white;border-left:4px solid #2a9d8f;}
@@ -244,7 +232,7 @@ export async function sendSubscriptionConfirmation(data: SubscriptionEmailData) 
     </style></head><body>
     <div class="container">
       <div class="header"><h1>¡Bienvenido al Club Ilimitado! 🚴‍♂️</h1></div>
-      <div class="ticket-box">
+      <div style="background:white;border:2px solid #2a9d8f;border-radius:8px;padding:20px;margin:20px 0;text-align:center;">
         <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Número de Membresía</div>
         <div class="ticket-number">${escapeHtml(data.confirmationNumber)}</div>
       </div>
@@ -265,21 +253,37 @@ export async function sendSubscriptionConfirmation(data: SubscriptionEmailData) 
           <p>Rideon Spinning Studio · Plaza San Agustín local 23, Chihuahua, México</p>
         </div>
       </div>
-    </div>
-    </body></html>
+    </div></body></html>
   `;
+
+  const adminHtml = `
+    <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;">
+      <h2 style="background:#264653;color:white;padding:16px 20px;border-radius:8px 8px 0 0;margin:0;">⭐ Nueva Suscripción Mensual</h2>
+      <div style="background:#f9f9f9;padding:20px;border-radius:0 0 8px 8px;border:1px solid #ddd;">
+        <table style="width:100%;border-collapse:collapse;">
+          <tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Membresía</td><td style="padding:8px 0;font-weight:700;font-family:monospace;">${escapeHtml(data.confirmationNumber)}</td></tr>
+          <tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Cliente</td><td style="padding:8px 0;font-weight:600;">${escapeHtml(data.customerName)}</td></tr>
+          <tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Correo</td><td style="padding:8px 0;">${escapeHtml(data.customerEmail)}</td></tr>
+          <tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Plan</td><td style="padding:8px 0;">Mensualidad Ilimitada · $${data.amount.toLocaleString('es-MX')} MXN</td></tr>
+          ${data.goal ? `<tr><td style="padding:8px 0;color:#888;font-size:12px;text-transform:uppercase;">Objetivo</td><td style="padding:8px 0;color:#e76f51;font-weight:600;">${escapeHtml(data.goal)}</td></tr>` : ''}
+        </table>
+      </div>
+    </div>
+  `;
+
   try {
-    await getTransporter().sendMail({
-      from: process.env.EMAIL_FROM,
-      to: data.customerEmail,
-      subject: `¡Bienvenido al Club Ilimitado de Rideon! 🚴‍♂️`,
-      html,
-    });
-    console.log(`[email] Suscripción confirmada enviada a ${data.customerEmail}`);
+    const resend = getResend();
+    await Promise.all([
+      resend.emails.send({ from: FROM, to: data.customerEmail, subject: `¡Bienvenido al Club Ilimitado de Rideon! 🚴‍♂️`, html: customerHtml }),
+      sendAdminAlert(`⭐ Nueva suscripción: ${data.customerName}`, adminHtml),
+    ]);
+    console.log(`[email] Suscripción confirmación + alerta admin para ${data.customerEmail}`);
   } catch (err) {
-    console.error('[email] Error al enviar suscripción:', err);
+    console.error('[email] Error subscription confirmation:', err);
   }
 }
+
+// ── Cancellation confirmation ────────────────────────────────────────────────
 
 interface CancellationEmailData {
   customerName: string;
@@ -320,18 +324,12 @@ export async function sendCancellationConfirmation(data: CancellationEmailData) 
           <p>Rideon Spinning Studio · Plaza San Agustín local 23, Chihuahua, México</p>
         </div>
       </div>
-    </div>
-    </body></html>
+    </div></body></html>
   `;
   try {
-    await getTransporter().sendMail({
-      from: process.env.EMAIL_FROM,
-      to: data.customerEmail,
-      subject: `Reserva cancelada: ${data.classTitle}`,
-      html,
-    });
+    await getResend().emails.send({ from: FROM, to: data.customerEmail, subject: `Reserva cancelada: ${data.classTitle}`, html });
     console.log(`[email] Cancelación enviada a ${data.customerEmail}`);
   } catch (err) {
-    console.error('[email] Error al enviar cancelación:', err);
+    console.error('[email] Error cancelación:', err);
   }
 }
