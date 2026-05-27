@@ -1,6 +1,18 @@
 import Image from 'next/image';
 
-const partners = [
+interface Partner {
+  image: string;
+  name: string;
+  role: string;
+  description: string;
+  services: string[];
+  phone: string;
+  whatsappMsg: string;
+  colClass: string;
+  badge?: string;
+}
+
+const partners: Partner[] = [
   {
     image: '/nutriologa.png',
     name: 'Lic. Kristel Del Moral',
@@ -45,6 +57,18 @@ const partners = [
     whatsappMsg: 'Hola Dr. Rodarte, soy miembro de Rideon y me interesa agendar una consulta.',
     colClass: 'col-psi',
   },
+  {
+    image: '/ocid.jpg',
+    name: 'OCID Servicios Médicos',
+    role: 'Control de Peso · Obesidad · Síndrome Metabólico',
+    description:
+      'Clínica especializada en control de peso, obesidad y síndrome metabólico con más de 18 años de experiencia. Planes nutricionales, sueroterapia, terapias de reemplazo hormonal y suplementación alimenticia.',
+    services: ['Control de peso', 'Planes nutricionales', 'Sueroterapia', 'Terapia hormonal'],
+    phone: 'PENDIENTE',
+    whatsappMsg: 'Hola, soy miembro de Rideon y me interesa agendar una consulta en OCID.',
+    colClass: 'col-ocid',
+    badge: 'Consulta gratis',
+  },
 ];
 
 export default function Colaboradores() {
@@ -73,8 +97,14 @@ export default function Colaboradores() {
                 />
                 <div className="colab-img-overlay" />
                 <div className="colab-discount-badge">
-                  <span className="discount-pct">10%</span>
-                  <span className="discount-label">descuento RideOn</span>
+                  {p.badge ? (
+                    <span className="discount-pct" style={{ fontSize: '13px' }}>{p.badge}</span>
+                  ) : (
+                    <>
+                      <span className="discount-pct">10%</span>
+                      <span className="discount-label">descuento RideOn</span>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -93,8 +123,8 @@ export default function Colaboradores() {
                 </ul>
 
                 <a
-                  href={`https://wa.me/52${p.phone}?text=${encodeURIComponent(p.whatsappMsg)}`}
-                  target="_blank"
+                  href={p.phone !== 'PENDIENTE' ? `https://wa.me/52${p.phone}?text=${encodeURIComponent(p.whatsappMsg)}` : '#'}
+                  target={p.phone !== 'PENDIENTE' ? '_blank' : undefined}
                   rel="noopener noreferrer"
                   className="btn btn-whatsapp"
                 >
