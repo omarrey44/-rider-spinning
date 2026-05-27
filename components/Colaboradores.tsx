@@ -64,7 +64,7 @@ const partners: Partner[] = [
     description:
       'Clínica especializada en control de peso, obesidad y síndrome metabólico con más de 18 años de experiencia. Planes nutricionales, sueroterapia, terapias de reemplazo hormonal y suplementación alimenticia.',
     services: ['Control de peso', 'Planes nutricionales', 'Sueroterapia', 'Terapia hormonal'],
-    phone: 'PENDIENTE',
+    phone: '6146047955',
     whatsappMsg: 'Hola, soy miembro de Rideon y me interesa agendar una consulta en OCID.',
     colClass: 'col-ocid',
     badge: 'Consulta gratis',
