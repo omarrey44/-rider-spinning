@@ -7603,13 +7603,26 @@ section::before {
   }
 
   .colab-grid {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 16px;
+    padding-bottom: 16px;
     width: 100%;
-    max-width: 420px;
+    max-width: 100%;
+  }
+  .colab-grid::-webkit-scrollbar { display: none; }
+
+  .colab-card {
+    flex: 0 0 82vw;
+    max-width: 340px;
+    scroll-snap-align: start;
   }
 
   .colab-img-wrap {
-    height: 240px;
+    height: 220px;
   }
 
   .colab-body {
