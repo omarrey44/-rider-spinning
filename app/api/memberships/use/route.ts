@@ -35,7 +35,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Membresía no encontrada' }, { status: 404 });
     }
 
-    // 2. Validate status
+    // 2. Verify ownership
+    if (membership.customer_email.toLowerCase() !== customer_email.toLowerCase()) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
+    }
+
+    // 3. Validate status
     if (membership.status !== 'active') {
       return NextResponse.json({ error: 'Membresía inactiva o cancelada' }, { status: 400 });
     }

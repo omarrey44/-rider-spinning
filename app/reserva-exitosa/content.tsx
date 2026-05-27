@@ -13,8 +13,6 @@ export default function ReservaContent() {
   }, []);
 
   const customerName = searchParams.get('customer_name') || 'Ciclista';
-  const customerEmail = searchParams.get('customer_email') || '';
-  const customerPhone = searchParams.get('customer_phone') || '';
   const classTitle = searchParams.get('class_title') || '';
   const instructorName = searchParams.get('instructor_name') || '';
   const day = searchParams.get('day') || '';
@@ -63,8 +61,7 @@ export default function ReservaContent() {
               </svg>
             </div>
             <div>
-              <p className="email-label">Confirmación enviada a</p>
-              <p className="email-address">{customerEmail}</p>
+              <p className="email-label">Confirmación enviada a tu correo</p>
             </div>
           </div>
 
@@ -74,20 +71,6 @@ export default function ReservaContent() {
               <span className="detail-label">Nombre</span>
               <span className="detail-value">{customerName}</span>
             </div>
-
-            {customerEmail && (
-              <div className="detail-row">
-                <span className="detail-label">Correo</span>
-                <span className="detail-value">{customerEmail}</span>
-              </div>
-            )}
-
-            {customerPhone && (
-              <div className="detail-row">
-                <span className="detail-label">Teléfono</span>
-                <span className="detail-value">{customerPhone}</span>
-              </div>
-            )}
 
             {hasClassDetails && (
               <>

@@ -65,8 +65,7 @@ export async function POST(req: NextRequest) {
         );
         const url = `https://api.callmebot.com/whatsapp.php?phone=${OWNER_WHATSAPP}&text=${text}&apikey=${cbKey}`;
         const waRes = await fetch(url);
-        const waBody = await waRes.text();
-        console.log('[feedback] callmebot status:', waRes.status, waBody);
+        console.log('[feedback] callmebot status:', waRes.status);
         results.whatsapp = waRes.ok;
       } catch (err) {
         console.error('[feedback] whatsapp error:', err);

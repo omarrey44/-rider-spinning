@@ -213,8 +213,6 @@ export async function POST(req: NextRequest) {
 
     const successParams = new URLSearchParams({
       customer_name,
-      customer_email,
-      customer_phone: customer_phone || '',
       class_title: class_title || '',
       instructor_name: instructor_name || '',
       day: day || '',
