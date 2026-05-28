@@ -2353,6 +2353,11 @@ section::before {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.class-info-item--date .class-info-value {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+}
 .class-info-divider {
   width: 1px;
   height: 30px;
@@ -5734,7 +5739,7 @@ section::before {
 }
 .sticky-checkout-info {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   flex: 1;
   min-width: 0;
@@ -5752,6 +5757,8 @@ section::before {
   font-weight: 800;
   font-size: 13px;
   flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 2px;
   box-shadow: 0 0 12px rgba(225, 6, 0, 0.45);
 }
 .sticky-text {
