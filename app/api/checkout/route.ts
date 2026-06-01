@@ -21,13 +21,22 @@ export async function POST(req: NextRequest) {
       day,
       hour,
       duration = '45 min',
-      amount_cents,
       currency,
       test_mode,
       goal,
       pack_size,
       subscription_type,
     } = body;
+
+    // Server-side price catalog — never trust client amount_cents
+    const PRICES = {
+      class: 20000,       // $200 MXN
+      pack3: 30000,       // $300 MXN
+      subscription: 65000, // $650 MXN/mes
+    } as const;
+
+    const ALLOWED_PACK_SIZES = [3] as const;
+    const ALLOWED_SUBSCRIPTION_TYPES = ['monthly'] as const;
 
     const isClassBooking = !pack_size && !subscription_type;
 
@@ -45,9 +54,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!Number.isInteger(amount_cents) || amount_cents <= 0) {
-      return NextResponse.json({ error: 'Monto inválido' }, { status: 400 });
+    // Validate pack_size and subscription_type against whitelist
+    if (pack_size !== undefined && !ALLOWED_PACK_SIZES.includes(pack_size)) {
+      return NextResponse.json({ error: 'Pack inválido' }, { status: 400 });
     }
+    if (subscription_type !== undefined && subscription_type !== null && !ALLOWED_SUBSCRIPTION_TYPES.includes(subscription_type)) {
+      return NextResponse.json({ error: 'Tipo de suscripción inválido' }, { status: 400 });
+    }
+
+    // Override amount_cents with server-side price — client value ignored
+    const serverAmountCents = isClassBooking
+      ? PRICES.class
+      : pack_size
+        ? PRICES.pack3
+        : PRICES.subscription;
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
@@ -93,7 +113,7 @@ export async function POST(req: NextRequest) {
             day: day || '',
             hour: hour || '',
             class_date: class_date || null,
-            amount_paid: amount_cents,
+            amount_paid: serverAmountCents,
             status: 'confirmed',
             goal: goal || null,
           })
@@ -121,7 +141,7 @@ export async function POST(req: NextRequest) {
           classDate: class_date || null,
           bikeNumber: bike_number,
           bikeRow: bike_row,
-          amount: amount_cents / 100,
+          amount: serverAmountCents / 100,
           confirmationNumber,
           goal: goal || undefined,
         });
@@ -145,7 +165,7 @@ export async function POST(req: NextRequest) {
           ).toISOString(),
           status: 'active',
           confirmation_number: confirmationNumber,
-          amount_paid: amount_cents,
+          amount_paid: serverAmountCents,
           goal: goal || null,
         });
 
@@ -153,7 +173,7 @@ export async function POST(req: NextRequest) {
           await sendSubscriptionConfirmation({
             customerName: customer_name,
             customerEmail: customer_email,
-            amount: amount_cents / 100,
+            amount: serverAmountCents / 100,
             confirmationNumber,
             goal: goal || undefined,
           });
@@ -161,7 +181,7 @@ export async function POST(req: NextRequest) {
           await sendPackConfirmation({
             customerName: customer_name,
             customerEmail: customer_email,
-            amount: amount_cents / 100,
+            amount: serverAmountCents / 100,
             confirmationNumber,
             goal: goal || undefined,
           });
@@ -190,7 +210,7 @@ export async function POST(req: NextRequest) {
           day: day || '',
           hour: hour || '',
           class_date: class_date || null,
-          amount_paid: amount_cents,
+          amount_paid: serverAmountCents,
           status: 'pending',
           goal: goal || null,
         })
@@ -219,7 +239,7 @@ export async function POST(req: NextRequest) {
       hour: hour || '',
       bike_number: String(bike_number || 0),
       bike_row: String(bike_row || 0),
-      amount: String(amount_cents / 100),
+      amount: String(serverAmountCents / 100),
     });
 
     const productDescription = isClassBooking
@@ -252,7 +272,7 @@ export async function POST(req: NextRequest) {
                 goal: goal || '',
               },
             },
-            unit_amount: amount_cents,
+            unit_amount: serverAmountCents,
           },
           quantity: 1,
         },
