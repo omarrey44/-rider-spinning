@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 export async function GET(req: NextRequest) {
+  const ip = getClientIp(req);
+  if (!checkRateLimit(`memberships-lookup:${ip}`, 5, 60_000)) {
+    return NextResponse.json({ error: 'Demasiadas solicitudes. Intenta en un minuto.' }, { status: 429 });
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const email = searchParams.get('email');

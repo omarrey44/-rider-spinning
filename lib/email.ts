@@ -115,7 +115,7 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
           <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${ticketNumber}" alt="QR Code" style="width:150px;height:150px;margin:10px 0;">
         </div>
         <div style="text-align:center;margin:30px 0;">
-          <a href="${BASE_URL}/?email=${encodeURIComponent(data.customerEmail)}#mis-reservas" style="display:inline-block;background:#2a9d8f;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">Verificar mi Reserva</a>
+          <a href="${escapeHtml(`${BASE_URL}/?email=${encodeURIComponent(data.customerEmail)}#mis-reservas`)}" style="display:inline-block;background:#2a9d8f;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">Verificar mi Reserva</a>
         </div>
         <div class="footer">
           <p><strong>Ubicación:</strong> Plaza San Agustín local 23, Chihuahua, México</p>

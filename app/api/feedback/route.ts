@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 const OWNER_EMAIL = 'administracion@rideonspinningstudio.com';
 const OWNER_WHATSAPP = process.env.WHATSAPP_ADMIN || '526145951782';
@@ -14,6 +15,11 @@ function escapeHtml(s: string): string {
 }
 
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req);
+  if (!checkRateLimit(`feedback:${ip}`, 5, 60_000)) {
+    return NextResponse.json({ error: 'Demasiadas solicitudes. Intenta en un minuto.' }, { status: 429 });
+  }
+
   try {
     const { email, message } = await req.json();
 

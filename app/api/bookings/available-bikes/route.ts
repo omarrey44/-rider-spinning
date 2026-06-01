@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 export async function GET(req: NextRequest) {
+  const ip = getClientIp(req);
+  if (!checkRateLimit(`available-bikes:${ip}`, 30, 60_000)) {
+    return NextResponse.json({ error: 'Demasiadas solicitudes.' }, { status: 429 });
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const classTitle = searchParams.get('class_title');
