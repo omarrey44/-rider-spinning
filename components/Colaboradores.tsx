@@ -10,6 +10,7 @@ interface Partner {
   whatsappMsg: string;
   colClass: string;
   badge?: string;
+  discountPct?: string;
 }
 
 const partners: Partner[] = [
@@ -67,7 +68,19 @@ const partners: Partner[] = [
     phone: '6146047955',
     whatsappMsg: 'Hola, soy miembro de Rideon y me interesa agendar una consulta en OCID.',
     colClass: 'col-ocid',
-    badge: 'Consulta gratis',
+    badge: 'Primera consulta gratis',
+  },
+  {
+    image: '/fisiotrain.jpg',
+    name: 'FisioTrain Cuu',
+    role: 'Fisioterapia · Rehabilitación Deportiva',
+    description:
+      'Centro de fisioterapia y prevención de lesiones con entrenamiento funcional y medicina física. 2 sucursales en Chihuahua, más de 2,000 clientes atendidos. Atienden atletas olímpicos, equipos profesionales y deportistas de todos los niveles.',
+    services: ['Fisioterapia', 'Prevención de lesiones', 'Rehabilitación deportiva', 'Entrenamiento funcional'],
+    phone: 'PENDIENTE',
+    whatsappMsg: 'Hola, soy miembro de Rideon y me interesa agendar una cita en FisioTrain.',
+    colClass: 'col-fisio',
+    discountPct: '15%',
   },
 ];
 
@@ -101,7 +114,7 @@ export default function Colaboradores() {
                     <span className="discount-pct" style={{ fontSize: '13px' }}>{p.badge}</span>
                   ) : (
                     <>
-                      <span className="discount-pct">10%</span>
+                      <span className="discount-pct">{p.discountPct || '10%'}</span>
                       <span className="discount-label">descuento RideOn</span>
                     </>
                   )}
