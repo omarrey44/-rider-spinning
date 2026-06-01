@@ -77,7 +77,7 @@ const partners: Partner[] = [
     description:
       'Centro de fisioterapia y prevención de lesiones con entrenamiento funcional y medicina física. 2 sucursales en Chihuahua, más de 2,000 clientes atendidos. Atienden atletas olímpicos, equipos profesionales y deportistas de todos los niveles.',
     services: ['Fisioterapia', 'Prevención de lesiones', 'Rehabilitación deportiva', 'Entrenamiento funcional'],
-    phone: 'PENDIENTE',
+    phone: '6142818624',
     whatsappMsg: 'Hola, soy miembro de Rideon y me interesa agendar una cita en FisioTrain.',
     colClass: 'col-fisio',
     discountPct: '15%',
