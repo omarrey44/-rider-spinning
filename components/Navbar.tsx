@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useScrolled } from '@/hooks/useScrolled';
 
-const CONTACT_WHATSAPP = 'https://wa.me/526145029482';
+const CONTACT_WHATSAPP = 'https://wa.me/5216145951782';
 
 type NavSection = { id: string; label: string; external?: string };
 
