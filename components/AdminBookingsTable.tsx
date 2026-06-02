@@ -143,6 +143,7 @@ export default function AdminBookingsTable() {
         const sid: string = (data as any).stripe_session_id ?? '';
         if (sid.startsWith('admin:membership:')) return <span style={{ color: '#1565c0', fontWeight: 700, fontSize: 12 }}>Membresía</span>;
         if (sid.startsWith('admin:pack:'))        return <span style={{ color: '#6a1b9a', fontWeight: 700, fontSize: 12 }}>Pack 3 Horas</span>;
+        if ((!value || value === 0) && !sid.startsWith('cs_')) return <span style={{ color: '#558b2f', fontWeight: 700, fontSize: 12 }}>Membresía / Pack</span>;
         return value != null ? `$${(value / 100).toLocaleString('es-MX')} MXN` : '—';
       },
     },
