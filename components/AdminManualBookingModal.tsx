@@ -16,6 +16,29 @@ const DAY_KEY_TO_NAME: Record<string, string> = {
   lun: 'Lunes', mar: 'Martes', mie: 'Miércoles', jue: 'Jueves', vie: 'Viernes', sab: 'Sábado',
 };
 
+// JS getDay(): 0=Sun,1=Mon,...,6=Sat
+const DAY_KEY_TO_DOW: Record<string, number> = {
+  lun: 1, mar: 2, mie: 3, jue: 4, vie: 5, sab: 6,
+};
+
+function isDayPast(dayKey: string): boolean {
+  const todayDow = new Date().getDay();
+  return DAY_KEY_TO_DOW[dayKey] < todayDow;
+}
+
+function slotHour24(hour: string, period: 'AM' | 'PM'): number {
+  const h = parseInt(hour.split(':')[0], 10);
+  if (period === 'AM') return h === 12 ? 0 : h;
+  return h === 12 ? 12 : h + 12;
+}
+
+function isSlotPast(hour: string, period: 'AM' | 'PM', dayKey: string): boolean {
+  const todayDow = new Date().getDay();
+  if (DAY_KEY_TO_DOW[dayKey] !== todayDow) return false;
+  const now = new Date();
+  return slotHour24(hour, period) <= now.getHours();
+}
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -40,7 +63,8 @@ export default function AdminManualBookingModal({ open, onClose, onSuccess }: Pr
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const slots = dayKey === 'sab' ? saturdaySlots : dayKey ? weekdaySlots : [];
+  const allSlots = dayKey === 'sab' ? saturdaySlots : dayKey ? weekdaySlots : [];
+  const slots = allSlots.filter((s) => !isSlotPast(s.hour, s.period, dayKey));
   const selectedSlot = selectedSlotIdx !== null ? slots[selectedSlotIdx] : null;
 
   useEffect(() => {
@@ -168,7 +192,9 @@ export default function AdminManualBookingModal({ open, onClose, onSuccess }: Pr
                 >
                   <option value="">Selecciona día…</option>
                   {DAY_OPTIONS.map((d) => (
-                    <option key={d.key} value={d.key}>{d.label}</option>
+                    <option key={d.key} value={d.key} disabled={isDayPast(d.key)}>
+                      {d.label}{isDayPast(d.key) ? ' (pasado)' : ''}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -183,6 +209,9 @@ export default function AdminManualBookingModal({ open, onClose, onSuccess }: Pr
                   className="admin-modal-select"
                 >
                   <option value="">Selecciona clase…</option>
+                  {slots.length === 0 && dayKey && (
+                    <option disabled value="">— Sin horarios disponibles —</option>
+                  )}
                   {slots.map((s, i) => (
                     <option key={i} value={i}>
                       {s.hour} {s.period} · {s.className} · {s.instructorName.split(' ')[0]}
