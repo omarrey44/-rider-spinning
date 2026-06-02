@@ -138,9 +138,13 @@ export default function AdminBookingsTable() {
     {
       field: 'amount_paid',
       headerName: 'Monto',
-      width: 100,
-      cellRenderer: ({ value }: { value: number | null }) =>
-        value != null ? `$${(value / 100).toLocaleString('es-MX')}` : '—',
+      width: 140,
+      cellRenderer: ({ value, data }: { value: number | null; data: Booking }) => {
+        const sid: string = (data as any).stripe_session_id ?? '';
+        if (sid.startsWith('admin:membership:')) return <span style={{ color: '#1565c0', fontWeight: 700, fontSize: 12 }}>Membresía</span>;
+        if (sid.startsWith('admin:pack:'))        return <span style={{ color: '#6a1b9a', fontWeight: 700, fontSize: 12 }}>Pack 3 Horas</span>;
+        return value != null ? `$${(value / 100).toLocaleString('es-MX')} MXN` : '—';
+      },
     },
     {
       field: 'created_at',

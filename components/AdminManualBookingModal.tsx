@@ -29,6 +29,7 @@ export default function AdminManualBookingModal({ open, onClose, onSuccess }: Pr
   const [takenBikes, setTakenBikes] = useState<number[]>([]);
   const [loadingBikes, setLoadingBikes] = useState(false);
 
+  const [paymentType, setPaymentType] = useState<'cash' | 'membership' | 'pack'>('cash');
   const [form, setForm] = useState({
     customer_name: '',
     customer_email: '',
@@ -69,6 +70,7 @@ export default function AdminManualBookingModal({ open, onClose, onSuccess }: Pr
     setSelectedSlotIdx(null);
     setSelectedBike(null);
     setTakenBikes([]);
+    setPaymentType('cash');
     setForm({ customer_name: '', customer_email: '', customer_phone: '', amount_paid: '200' });
     setError('');
     onClose();
@@ -91,7 +93,7 @@ export default function AdminManualBookingModal({ open, onClose, onSuccess }: Pr
       if (selectedBike <= count) { bikeRow = r + 1; break; }
     }
 
-    const amountMXN = parseFloat(form.amount_paid) || 0;
+    const amountMXN = paymentType === 'cash' ? (parseFloat(form.amount_paid) || 0) : 0;
 
     setSubmitting(true);
     try {
@@ -109,6 +111,7 @@ export default function AdminManualBookingModal({ open, onClose, onSuccess }: Pr
           day: DAY_KEY_TO_NAME[dayKey],
           hour: `${selectedSlot.hour} ${selectedSlot.period}`,
           amount_paid: Math.round(amountMXN * 100),
+          payment_type: paymentType,
         }),
       });
       const data = await res.json();
@@ -280,17 +283,33 @@ export default function AdminManualBookingModal({ open, onClose, onSuccess }: Pr
                 />
               </div>
               <div className="admin-modal-field">
-                <label>Monto cobrado (MXN) *</label>
-                <input
-                  type="number"
-                  value={form.amount_paid}
-                  onChange={(e) => setForm((f) => ({ ...f, amount_paid: e.target.value }))}
-                  min="0"
-                  step="50"
-                  className="admin-modal-input"
-                />
+                <label>Tipo de pago *</label>
+                <select
+                  value={paymentType}
+                  onChange={(e) => setPaymentType(e.target.value as 'cash' | 'membership' | 'pack')}
+                  className="admin-modal-select"
+                >
+                  <option value="cash">Efectivo</option>
+                  <option value="membership">Membresía</option>
+                  <option value="pack">Pack 3 Horas</option>
+                </select>
               </div>
             </div>
+            {paymentType === 'cash' && (
+              <div className="admin-modal-row">
+                <div className="admin-modal-field">
+                  <label>Monto cobrado (MXN) *</label>
+                  <input
+                    type="number"
+                    value={form.amount_paid}
+                    onChange={(e) => setForm((f) => ({ ...f, amount_paid: e.target.value }))}
+                    min="0"
+                    step="50"
+                    className="admin-modal-input"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {error && <p className="admin-modal-error">{error}</p>}

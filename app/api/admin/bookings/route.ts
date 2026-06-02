@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { createAdminClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
+import { randomUUID } from 'crypto';
 
 async function getAuthUser() {
   const cookieStore = await cookies();
@@ -53,6 +54,7 @@ export async function POST(req: NextRequest) {
       class_title, instructor_name, day, hour,
       amount_paid,
       goal,
+      payment_type,
     } = body;
 
     if (!customer_name?.trim() || !customer_email?.trim() || !bike_number || !bike_row || !class_title || !day || !hour) {
@@ -80,6 +82,9 @@ export async function POST(req: NextRequest) {
         amount_paid: amountCents,
         status: 'confirmed',
         goal: goal?.trim() || null,
+        stripe_session_id: payment_type && payment_type !== 'cash'
+          ? `admin:${payment_type}:${randomUUID()}`
+          : null,
       })
       .select()
       .single();
