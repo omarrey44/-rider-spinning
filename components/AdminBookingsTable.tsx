@@ -1,17 +1,28 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
-import { AgGridReact, AgGridProvider } from 'ag-grid-react';
-import { AllCommunityModule, ColDef, themeQuartz } from 'ag-grid-community';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import {
+  useReactTable,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  flexRender,
+  type ColumnDef,
+} from '@tanstack/react-table';
+import { motion } from 'framer-motion';
+import {
+  Search, RefreshCw, Plus, MoreVertical, CheckCircle2, Clock,
+  XCircle, RotateCcw, Calendar, Users, TrendingUp, CalendarCheck,
+  AlertCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight,
+  Bike,
+} from 'lucide-react';
+import { clsx } from 'clsx';
 import AdminManualBookingModal from './AdminManualBookingModal';
-
-const modules = [AllCommunityModule];
 
 interface Booking {
   id: string;
   customer_name: string;
   customer_email: string;
-  customer_phone?: string;
   class_title: string;
   instructor_name: string;
   day: string;
@@ -23,234 +34,399 @@ interface Booking {
   status: string;
   confirmation_number: string | null;
   created_at: string;
+  stripe_session_id?: string;
 }
 
-const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
-  confirmed: { label: 'Confirmada', color: '#1b5e20', bg: '#e8f5e9' },
-  pending:   { label: 'Pendiente',  color: '#e65100', bg: '#fff3e0' },
-  cancelled: { label: 'Cancelada',  color: '#b71c1c', bg: '#ffebee' },
-  refunded:  { label: 'Reembolsada',color: '#4a148c', bg: '#f3e5f5' },
-};
+const STATUS_CFG = {
+  confirmed: { label: 'Confirmada', Icon: CheckCircle2, cls: 'text-emerald-700 bg-emerald-50 border-emerald-200' },
+  pending:   { label: 'Pendiente',  Icon: Clock,         cls: 'text-amber-700  bg-amber-50  border-amber-200'  },
+  cancelled: { label: 'Cancelada',  Icon: XCircle,       cls: 'text-red-700   bg-red-50   border-red-200'   },
+  refunded:  { label: 'Reembolsada',Icon: RotateCcw,     cls: 'text-purple-700 bg-purple-50 border-purple-200' },
+} as const;
 
-function StatusCell({ value }: { value: string }) {
-  const cfg = STATUS_MAP[value] ?? { label: value, color: '#555', bg: '#f5f5f5' };
-  return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: 6,
-      padding: '3px 10px', borderRadius: 14, fontSize: 12, fontWeight: 700,
-      color: cfg.color, background: cfg.bg,
-    }}>
-      <span style={{ width: 7, height: 7, borderRadius: '50%', background: cfg.color, flexShrink: 0 }} />
-      {cfg.label}
-    </span>
-  );
+function initials(name: string) {
+  return name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
 }
 
-function ConfirmCell({ value }: { value: string | null }) {
-  if (!value) return <span style={{ color: '#bbb' }}>—</span>;
-  return (
-    <code style={{
-      background: '#e0f7fa', color: '#00695c', padding: '3px 8px',
-      borderRadius: 4, fontWeight: 700, fontSize: 11, letterSpacing: 1,
-    }}>
-      {value}
-    </code>
-  );
+const AVATAR_COLORS = [
+  'bg-blue-500','bg-emerald-500','bg-violet-500','bg-amber-500',
+  'bg-rose-500','bg-cyan-500','bg-orange-500','bg-pink-500',
+];
+function avatarColor(name: string) {
+  return AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
+}
+
+function MontoBadge({ amount, sessionId }: { amount: number | null; sessionId?: string }) {
+  if (sessionId?.startsWith('admin:membership:'))
+    return <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">Membresía</span>;
+  if (sessionId?.startsWith('admin:pack:'))
+    return <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-violet-50 text-violet-700 border border-violet-200">Pack 3h</span>;
+  if ((!amount || amount === 0) && !sessionId?.startsWith('cs_'))
+    return <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Membresía / Pack</span>;
+  return <span className="text-sm font-semibold text-gray-900">${((amount ?? 0) / 100).toLocaleString('es-MX')} MXN</span>;
 }
 
 export default function AdminBookingsTable() {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [search, setSearch] = useState('');
-  const [modalOpen, setModalOpen] = useState(false);
+  const [bookings, setBookings]     = useState<Booking[]>([]);
+  const [loading, setLoading]       = useState(true);
+  const [error, setError]           = useState<string | null>(null);
+  const [search, setSearch]         = useState('');
+  const [statusFilter, setStatus]   = useState('all');
+  const [modalOpen, setModalOpen]   = useState(false);
+  const [menuId, setMenuId]         = useState<string | null>(null);
 
-  useEffect(() => { fetchBookings(); }, []);
-
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const res = await fetch('/api/admin/bookings');
+      const res  = await fetch('/api/admin/bookings');
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error al cargar reservas');
-      setBookings(data.bookings || []);
+      if (!res.ok) throw new Error(data.error);
+      setBookings(data.bookings ?? []);
       setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const stats = useMemo(() => {
-    const today = new Date().toDateString();
-    return {
-      total: bookings.length,
-      confirmed: bookings.filter((b) => b.status === 'confirmed').length,
-      pending: bookings.filter((b) => b.status === 'pending').length,
-      todayConfirmed: bookings.filter(
-        (b) => b.status === 'confirmed' && new Date(b.created_at).toDateString() === today
-      ).length,
-    };
-  }, [bookings]);
+  useEffect(() => { fetchBookings(); }, [fetchBookings]);
 
-  const filteredBookings = useMemo(() => {
+  const today = useMemo(() => new Date().toDateString(), []);
+
+  const stats = useMemo(() => ({
+    total:     bookings.length,
+    confirmed: bookings.filter((b) => b.status === 'confirmed').length,
+    pending:   bookings.filter((b) => b.status === 'pending').length,
+    today:     bookings.filter((b) => b.status === 'confirmed' && new Date(b.created_at).toDateString() === today).length,
+  }), [bookings, today]);
+
+  const filtered = useMemo(() => {
     let list = bookings;
     if (statusFilter !== 'all') list = list.filter((b) => b.status === statusFilter);
     if (search.trim()) {
-      const q = search.trim().toLowerCase();
+      const q = search.toLowerCase();
       list = list.filter(
         (b) =>
           b.customer_name.toLowerCase().includes(q) ||
           b.customer_email.toLowerCase().includes(q) ||
-          (b.confirmation_number ?? '').toLowerCase().includes(q) ||
-          b.class_title.toLowerCase().includes(q)
+          (b.confirmation_number ?? '').toLowerCase().includes(q),
       );
     }
     return list;
   }, [bookings, statusFilter, search]);
 
-  const colDefs: ColDef[] = [
-    { field: 'confirmation_number', headerName: 'Confirm.', width: 120, cellRenderer: ({ value }: { value: string | null }) => <ConfirmCell value={value} /> },
-    { field: 'customer_name',       headerName: 'Cliente',   width: 150 },
-    { field: 'customer_email',      headerName: 'Email',     width: 200 },
-    { field: 'status',              headerName: 'Estado',    width: 130, cellRenderer: ({ value }: { value: string }) => <StatusCell value={value} /> },
+  const columns: ColumnDef<Booking>[] = useMemo(() => [
     {
-      field: 'class_date',
-      headerName: 'Fecha',
-      width: 130,
-      cellRenderer: ({ value }: { value: string | null }) =>
-        value
-          ? new Date(value + 'T00:00:00').toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' })
-          : '—',
-    },
-    { field: 'instructor_name',     headerName: 'Instructor',width: 140 },
-    { field: 'day',                 headerName: 'Día',       width: 110 },
-    { field: 'hour',                headerName: 'Hora',      width: 110 },
-    {
-      field: 'bike_number',
-      headerName: 'Bici',
-      width: 110,
-      cellRenderer: ({ data }: { data: Booking }) =>
-        `#${String(data.bike_number).padStart(2, '0')} · F${data.bike_row}`,
-    },
-    {
-      field: 'amount_paid',
-      headerName: 'Monto',
-      width: 140,
-      cellRenderer: ({ value, data }: { value: number | null; data: Booking }) => {
-        const sid: string = (data as any).stripe_session_id ?? '';
-        if (sid.startsWith('admin:membership:')) return <span style={{ color: '#1565c0', fontWeight: 700, fontSize: 12 }}>Membresía</span>;
-        if (sid.startsWith('admin:pack:'))        return <span style={{ color: '#6a1b9a', fontWeight: 700, fontSize: 12 }}>Pack 3 Horas</span>;
-        if ((!value || value === 0) && !sid.startsWith('cs_')) return <span style={{ color: '#558b2f', fontWeight: 700, fontSize: 12 }}>Membresía / Pack</span>;
-        return value != null ? `$${(value / 100).toLocaleString('es-MX')} MXN` : '—';
+      id: 'confirmation_number',
+      header: 'CONFIRMACIÓN',
+      accessorKey: 'confirmation_number',
+      cell: ({ getValue }) => {
+        const v = getValue() as string | null;
+        return v
+          ? <code className="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-mono font-bold tracking-widest">{v}</code>
+          : <span className="text-gray-300">—</span>;
       },
     },
     {
-      field: 'created_at',
-      headerName: 'Registrada',
-      width: 150,
-      sort: 'desc',
-      cellRenderer: ({ value }: { value: string }) =>
-        new Date(value).toLocaleDateString('es-MX', {
-          month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
-        }),
+      id: 'customer',
+      header: 'CLIENTE',
+      accessorKey: 'customer_name',
+      cell: ({ row }) => (
+        <div className="flex items-center gap-3">
+          <div className={clsx('w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0', avatarColor(row.original.customer_name))}>
+            {initials(row.original.customer_name)}
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-gray-900 truncate">{row.original.customer_name}</p>
+            <p className="text-xs text-gray-400 truncate">{row.original.customer_email}</p>
+          </div>
+        </div>
+      ),
     },
-  ];
+    {
+      id: 'status',
+      header: 'ESTADO',
+      accessorKey: 'status',
+      cell: ({ getValue }) => {
+        const s = (getValue() as string) || 'pending';
+        const cfg = STATUS_CFG[s as keyof typeof STATUS_CFG] ?? { label: s, Icon: AlertCircle, cls: 'text-gray-600 bg-gray-50 border-gray-200' };
+        const Icon = cfg.Icon;
+        return (
+          <span className={clsx('inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border', cfg.cls)}>
+            <Icon size={11} />
+            {cfg.label}
+          </span>
+        );
+      },
+    },
+    {
+      id: 'class_date',
+      header: 'FECHA',
+      accessorKey: 'class_date',
+      cell: ({ getValue }) => {
+        const v = getValue() as string | null;
+        return v ? (
+          <div className="flex items-center gap-1.5 text-sm text-gray-600">
+            <Calendar size={13} className="text-gray-400 flex-shrink-0" />
+            {new Date(v + 'T00:00:00').toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}
+          </div>
+        ) : <span className="text-gray-300">—</span>;
+      },
+    },
+    {
+      id: 'instructor_name',
+      header: 'INSTRUCTOR',
+      accessorKey: 'instructor_name',
+      cell: ({ getValue }) => {
+        const name = getValue() as string;
+        return (
+          <div className="flex items-center gap-2">
+            <div className={clsx('w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0', avatarColor(name))}>
+              {initials(name)}
+            </div>
+            <span className="text-sm text-gray-700 truncate">{name.split(' ')[0]} {name.split(' ')[1] ?? ''}</span>
+          </div>
+        );
+      },
+    },
+    {
+      id: 'day',
+      header: 'DÍA',
+      accessorKey: 'day',
+      cell: ({ getValue }) => <span className="text-sm text-gray-600">{getValue() as string}</span>,
+    },
+    {
+      id: 'hour',
+      header: 'HORA',
+      accessorKey: 'hour',
+      cell: ({ getValue }) => (
+        <div className="flex items-center gap-1.5 text-sm text-gray-600">
+          <Clock size={13} className="text-gray-400" />
+          {getValue() as string}
+        </div>
+      ),
+    },
+    {
+      id: 'bike',
+      header: 'BICI',
+      accessorKey: 'bike_number',
+      cell: ({ row }) => (
+        <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
+          <Bike size={13} className="text-gray-400" />
+          #{String(row.original.bike_number).padStart(2, '0')} · F{row.original.bike_row}
+        </div>
+      ),
+    },
+    {
+      id: 'amount',
+      header: 'MONTO',
+      accessorKey: 'amount_paid',
+      cell: ({ row }) => (
+        <MontoBadge amount={row.original.amount_paid} sessionId={(row.original as any).stripe_session_id} />
+      ),
+    },
+    {
+      id: 'actions',
+      header: '',
+      cell: ({ row }) => (
+        <div className="relative">
+          <button
+            onClick={(e) => { e.stopPropagation(); setMenuId(menuId === row.original.id ? null : row.original.id); }}
+            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors opacity-0 group-hover:opacity-100"
+          >
+            <MoreVertical size={15} />
+          </button>
+          {menuId === row.original.id && (
+            <div className="absolute right-0 top-8 z-50 w-44 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 text-sm">
+              <button className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors">Ver detalles</button>
+              <div className="my-1 border-t border-gray-100" />
+              <button className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 transition-colors">Cancelar reserva</button>
+            </div>
+          )}
+        </div>
+      ),
+    },
+  ], [menuId]);
 
-  if (error) {
-    return (
-      <div className="admin-error">
-        <p>{error}</p>
-        <button onClick={fetchBookings} className="btn btn-secondary">Reintentar</button>
-      </div>
-    );
-  }
+  const table = useReactTable({
+    data: filtered,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: { pagination: { pageSize: 15 } },
+  });
+
+  const statCards = [
+    { label: 'Total Reservas', value: stats.total,     Icon: Users,         iconCls: 'text-blue-600',    bgCls: 'bg-blue-50'    },
+    { label: 'Confirmadas',    value: stats.confirmed, Icon: CheckCircle2,  iconCls: 'text-emerald-600', bgCls: 'bg-emerald-50' },
+    { label: 'Pendientes',     value: stats.pending,   Icon: Clock,         iconCls: 'text-amber-600',   bgCls: 'bg-amber-50'   },
+    { label: 'Hoy',            value: stats.today,     Icon: CalendarCheck, iconCls: 'text-violet-600',  bgCls: 'bg-violet-50'  },
+  ];
 
   return (
     <>
-      <AdminManualBookingModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSuccess={() => { fetchBookings(); }}
-      />
+      <AdminManualBookingModal open={modalOpen} onClose={() => setModalOpen(false)} onSuccess={fetchBookings} />
+      {menuId && <div className="fixed inset-0 z-40" onClick={() => setMenuId(null)} />}
 
-      {/* Stats bar */}
-      <div className="admin-stats-bar">
-        <div className="admin-stat-card">
-          <span className="admin-stat-value">{stats.total}</span>
-          <span className="admin-stat-label">Total</span>
-        </div>
-        <div className="admin-stat-card confirmed">
-          <span className="admin-stat-value">{stats.confirmed}</span>
-          <span className="admin-stat-label">Confirmadas</span>
-        </div>
-        <div className="admin-stat-card pending">
-          <span className="admin-stat-value">{stats.pending}</span>
-          <span className="admin-stat-label">Pendientes</span>
-        </div>
-        <div className="admin-stat-card today">
-          <span className="admin-stat-value">{stats.todayConfirmed}</span>
-          <span className="admin-stat-label">Hoy</span>
-        </div>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {statCards.map((card, i) => (
+          <motion.div
+            key={card.label}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.06, duration: 0.3 }}
+            className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-all duration-200 cursor-default"
+          >
+            <div className="flex items-start justify-between mb-3">
+              <div className={clsx('p-2 rounded-lg', card.bgCls)}>
+                <card.Icon size={18} className={card.iconCls} />
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-gray-900 mb-1 tracking-tight">{card.value}</p>
+            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">{card.label}</p>
+            {card.label === 'Confirmadas' && stats.confirmed > 0 && (
+              <div className="mt-2 flex items-center gap-1">
+                <TrendingUp size={11} className="text-emerald-500" />
+                <span className="text-xs text-emerald-600 font-semibold">Activas</span>
+              </div>
+            )}
+          </motion.div>
+        ))}
       </div>
 
-      {/* Toolbar */}
-      <div className="admin-toolbar">
-        <div className="admin-toolbar-left">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar cliente, email, confirmación…"
-            className="admin-search-input"
-          />
+      {/* Filter Bar */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 mb-4">
+        <div className="flex flex-wrap gap-3 items-center">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar cliente, email, confirmación..."
+              className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-all placeholder:text-gray-400"
+            />
+          </div>
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="admin-status-filter"
+            onChange={(e) => setStatus(e.target.value)}
+            className="text-sm border border-gray-200 rounded-lg px-3 py-2.5 bg-gray-50/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 text-gray-600 transition-all"
           >
             <option value="all">Todos los estados</option>
             <option value="confirmed">Confirmadas</option>
             <option value="pending">Pendientes</option>
             <option value="cancelled">Canceladas</option>
           </select>
-        </div>
-        <div className="admin-toolbar-right">
-          <button className="btn btn-outline btn-sm" onClick={fetchBookings} disabled={loading}>
-            {loading ? 'Cargando…' : '↻ Refrescar'}
+          <button
+            onClick={fetchBookings}
+            disabled={loading}
+            className="flex items-center gap-2 text-sm px-4 py-2.5 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-50 bg-white"
+          >
+            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+            Actualizar
           </button>
           <button
-            className="btn btn-primary btn-sm admin-btn-cash"
             onClick={() => setModalOpen(true)}
+            className="flex items-center gap-2 text-sm px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-lg font-medium transition-colors shadow-sm"
           >
-            + Reserva en efectivo
+            <Plus size={15} />
+            Nueva Reserva
           </button>
         </div>
       </div>
 
-      {/* Grid */}
-      <AgGridProvider modules={modules}>
-        <div className="ag-theme-quartz ag-theme-quartz-custom" style={{ width: '100%', height: 560 }}>
-          <AgGridReact
-            rowData={filteredBookings}
-            columnDefs={colDefs}
-            theme={themeQuartz}
-            rowHeight={48}
-            headerHeight={44}
-            defaultColDef={{ resizable: true, sortable: true }}
-            pagination
-            paginationPageSize={15}
-            paginationPageSizeSelector={[10, 15, 25, 50]}
-            loading={loading}
-          />
-        </div>
-      </AgGridProvider>
+      {/* Table */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25 }}
+        className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden"
+      >
+        {error ? (
+          <div className="p-10 text-center">
+            <AlertCircle className="mx-auto mb-3 text-red-400" size={28} />
+            <p className="text-red-600 text-sm font-medium mb-3">{error}</p>
+            <button onClick={fetchBookings} className="text-sm text-blue-600 hover:underline">Reintentar</button>
+          </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  {table.getHeaderGroups().map((hg) => (
+                    <tr key={hg.id} className="border-b border-gray-100 bg-gray-50/60">
+                      {hg.headers.map((header) => (
+                        <th key={header.id} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider whitespace-nowrap">
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                        </th>
+                      ))}
+                    </tr>
+                  ))}
+                </thead>
+                <tbody>
+                  {loading ? (
+                    Array.from({ length: 6 }).map((_, i) => (
+                      <tr key={i} className="border-b border-gray-50">
+                        {columns.map((_, j) => (
+                          <td key={j} className="px-4 py-3.5">
+                            <div className={clsx('h-4 bg-gray-100 rounded-md animate-pulse', j === 1 ? 'w-32' : 'w-16')} />
+                          </td>
+                        ))}
+                      </tr>
+                    ))
+                  ) : table.getRowModel().rows.length === 0 ? (
+                    <tr>
+                      <td colSpan={columns.length} className="text-center py-16 text-gray-400 text-sm">
+                        <Users size={28} className="mx-auto mb-3 text-gray-200" />
+                        No se encontraron reservas
+                      </td>
+                    </tr>
+                  ) : (
+                    table.getRowModel().rows.map((row) => (
+                      <tr
+                        key={row.id}
+                        className="border-b border-gray-50 hover:bg-blue-50/40 transition-colors group"
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <td key={cell.id} className="px-4 py-3.5 whitespace-nowrap">
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </td>
+                        ))}
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
 
-      <p className="admin-showing-label">
-        Mostrando {filteredBookings.length} de {bookings.length} reservas
-      </p>
+            {/* Pagination */}
+            <div className="flex items-center justify-between px-4 py-3.5 border-t border-gray-100">
+              <p className="text-xs text-gray-400">
+                Mostrando {filtered.length} de {bookings.length} reservas
+              </p>
+              <div className="flex items-center gap-1">
+                <button onClick={() => table.setPageIndex(0)} disabled={!table.getCanPreviousPage()} className="p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-30 transition-colors">
+                  <ChevronsLeft size={14} className="text-gray-500" />
+                </button>
+                <button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()} className="p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-30 transition-colors">
+                  <ChevronLeft size={14} className="text-gray-500" />
+                </button>
+                <span className="px-3 py-1.5 text-xs text-gray-600 font-medium bg-gray-50 rounded-lg border border-gray-100 min-w-[60px] text-center">
+                  {table.getState().pagination.pageIndex + 1} / {Math.max(table.getPageCount(), 1)}
+                </span>
+                <button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()} className="p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-30 transition-colors">
+                  <ChevronRight size={14} className="text-gray-500" />
+                </button>
+                <button onClick={() => table.setPageIndex(table.getPageCount() - 1)} disabled={!table.getCanNextPage()} className="p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-30 transition-colors">
+                  <ChevronsRight size={14} className="text-gray-500" />
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+      </motion.div>
     </>
   );
 }

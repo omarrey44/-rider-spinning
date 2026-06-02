@@ -4,69 +4,78 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import AdminBookingsTable from '@/components/AdminBookingsTable';
+import { LogOut, LayoutDashboard } from 'lucide-react';
 
-interface User {
-  id: string;
-  email: string;
-}
+interface User { id: string; email: string }
 
 export default function AdminDashboard() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser]     = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const checkAuth = async () => {
+    (async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        router.push('/admin');
-        return;
-      }
-
+      if (!user) { router.push('/admin'); return; }
       setUser(user as User);
       setLoading(false);
-    };
-
-    checkAuth();
+    })();
   }, [router]);
 
   const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    await createClient().auth.signOut();
     router.push('/admin');
   };
 
   if (loading) {
-    return <div className="admin-loading">Cargando…</div>;
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+        <div className="flex items-center gap-3 text-gray-400 text-sm">
+          <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          Cargando…
+        </div>
+      </div>
+    );
   }
 
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
+
+  const firstName = user.email.split('@')[0];
 
   return (
-    <div className="admin-dashboard">
-      <header className="admin-header">
-        <div className="admin-header-content">
-          <div>
-            <h1>Panel de Administración</h1>
-            <p className="admin-subtitle">Gestiona todas las reservas y clientes</p>
+    <div className="min-h-screen bg-[#F8FAFC]">
+      {/* Top nav */}
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-10 shadow-sm">
+        <div className="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <LayoutDashboard size={16} className="text-white" />
+            </div>
+            <span className="text-sm font-semibold text-gray-700">Panel de Reservas</span>
           </div>
-          <div className="admin-user-info">
-            <span className="admin-user-email">{user.email}</span>
+          <div className="flex items-center gap-4">
+            <span className="text-xs text-gray-400 font-medium hidden sm:block">{user.email}</span>
             <button
               onClick={handleLogout}
-              className="btn btn-secondary btn-logout"
+              className="flex items-center gap-2 text-sm px-3 py-2 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 transition-all font-medium"
             >
-              Cerrar sesión
+              <LogOut size={15} />
+              Salir
             </button>
           </div>
         </div>
       </header>
 
-      <main className="admin-main">
+      {/* Page header */}
+      <div className="max-w-screen-xl mx-auto px-6 pt-8 pb-2">
+        <p className="text-sm text-gray-400 mb-1">¡Bienvenido de nuevo, {firstName}! 👋</p>
+        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Panel de Reservas</h1>
+        <p className="text-sm text-gray-400 mt-1">Gestiona todas las reservas y clientes desde aquí.</p>
+      </div>
+
+      {/* Content */}
+      <main className="max-w-screen-xl mx-auto px-6 py-6">
         <AdminBookingsTable />
       </main>
     </div>
