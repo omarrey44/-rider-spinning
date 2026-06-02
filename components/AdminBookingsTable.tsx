@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { AgGridReact, AgGridProvider } from 'ag-grid-react';
 import { AllCommunityModule, ColDef, themeQuartz } from 'ag-grid-community';
+import AdminManualBookingModal from './AdminManualBookingModal';
 
 const modules = [AllCommunityModule];
 
@@ -10,6 +11,7 @@ interface Booking {
   id: string;
   customer_name: string;
   customer_email: string;
+  customer_phone?: string;
   class_title: string;
   instructor_name: string;
   day: string;
@@ -23,26 +25,57 @@ interface Booking {
   created_at: string;
 }
 
+const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
+  confirmed: { label: 'Confirmada', color: '#1b5e20', bg: '#e8f5e9' },
+  pending:   { label: 'Pendiente',  color: '#e65100', bg: '#fff3e0' },
+  cancelled: { label: 'Cancelada',  color: '#b71c1c', bg: '#ffebee' },
+  refunded:  { label: 'Reembolsada',color: '#4a148c', bg: '#f3e5f5' },
+};
+
+function StatusCell({ value }: { value: string }) {
+  const cfg = STATUS_MAP[value] ?? { label: value, color: '#555', bg: '#f5f5f5' };
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 6,
+      padding: '3px 10px', borderRadius: 14, fontSize: 12, fontWeight: 700,
+      color: cfg.color, background: cfg.bg,
+    }}>
+      <span style={{ width: 7, height: 7, borderRadius: '50%', background: cfg.color, flexShrink: 0 }} />
+      {cfg.label}
+    </span>
+  );
+}
+
+function ConfirmCell({ value }: { value: string | null }) {
+  if (!value) return <span style={{ color: '#bbb' }}>—</span>;
+  return (
+    <code style={{
+      background: '#e0f7fa', color: '#00695c', padding: '3px 8px',
+      borderRadius: 4, fontWeight: 700, fontSize: 11, letterSpacing: 1,
+    }}>
+      {value}
+    </code>
+  );
+}
+
 export default function AdminBookingsTable() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [search, setSearch] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
 
-  useEffect(() => {
-    fetchBookings();
-  }, []);
+  useEffect(() => { fetchBookings(); }, []);
 
   const fetchBookings = async () => {
     try {
       setLoading(true);
       const res = await fetch('/api/admin/bookings');
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Error al cargar reservas');
-      }
-
+      if (!res.ok) throw new Error(data.error || 'Error al cargar reservas');
       setBookings(data.bookings || []);
+      setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
     } finally {
@@ -50,140 +83,66 @@ export default function AdminBookingsTable() {
     }
   };
 
-  const statusRenderer = (params: any) => {
-    const status = params.value;
-    const statusMap: Record<string, { label: string; color: string }> = {
-      confirmed: { label: 'Confirmada', color: '#2e7d32' },
-      pending: { label: 'Pendiente', color: '#f57c00' },
-      cancelled: { label: 'Cancelada', color: '#d32f2f' },
-      refunded: { label: 'Reembolsada', color: '#7b1fa2' },
+  const stats = useMemo(() => {
+    const today = new Date().toDateString();
+    return {
+      total: bookings.length,
+      confirmed: bookings.filter((b) => b.status === 'confirmed').length,
+      pending: bookings.filter((b) => b.status === 'pending').length,
+      todayConfirmed: bookings.filter(
+        (b) => b.status === 'confirmed' && new Date(b.created_at).toDateString() === today
+      ).length,
     };
+  }, [bookings]);
 
-    const config = statusMap[status] || { label: status, color: '#666' };
-    const isPending = status === 'pending';
-
-    return (
-      <div className={isPending ? 'status-badge-pending' : ''} style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        gap: '8px',
-        padding: '6px 12px',
-        borderRadius: '18px',
-        backgroundColor: `${config.color}20`,
-        color: config.color,
-        fontWeight: 700,
-        fontSize: '13px',
-        height: '100%',
-        width: 'fit-content',
-      }}>
-        <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: config.color, flexShrink: 0 }}></span>
-        {config.label}
-      </div>
-    );
-  };
-
-  const dateRenderer = (params: any) => {
-    if (!params.value) return '—';
-    return new Date(params.value).toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
-  };
-
-  const bikeRenderer = (params: any) => {
-    return `#${String(params.data.bike_number).padStart(2, '0')} · Fila ${params.data.bike_row}`;
-  };
-
-  const confirmationRenderer = (params: any) => {
-    return params.value ? (
-      <code style={{
-        backgroundColor: '#e0f2f1',
-        color: '#00695c',
-        padding: '4px 8px',
-        borderRadius: '4px',
-        fontWeight: 600,
-        fontSize: '11px',
-        fontFamily: 'monospace',
-        letterSpacing: '1px',
-      }}>
-        {params.value}
-      </code>
-    ) : '—';
-  };
-
-  const amountRenderer = (params: any) => {
-    const amount = params.value ? (params.value / 100) : 0;
-    return `$${amount.toLocaleString('es-MX')}`;
-  };
-
-  const createdAtRenderer = (params: any) => {
-    return new Date(params.value).toLocaleDateString('es-MX', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  const filteredBookings = useMemo(() => {
+    let list = bookings;
+    if (statusFilter !== 'all') list = list.filter((b) => b.status === statusFilter);
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      list = list.filter(
+        (b) =>
+          b.customer_name.toLowerCase().includes(q) ||
+          b.customer_email.toLowerCase().includes(q) ||
+          (b.confirmation_number ?? '').toLowerCase().includes(q) ||
+          b.class_title.toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [bookings, statusFilter, search]);
 
   const colDefs: ColDef[] = [
-    {
-      field: 'customer_name',
-      headerName: 'Cliente',
-      width: 140,
-      sort: 'asc',
-    },
-    {
-      field: 'customer_email',
-      headerName: 'Email',
-      width: 180,
-    },
-    {
-      field: 'confirmation_number',
-      headerName: 'Confirmación',
-      width: 130,
-      cellRenderer: confirmationRenderer,
-    },
-    {
-      field: 'class_title',
-      headerName: 'Clase',
-      width: 140,
-    },
-    {
-      field: 'instructor_name',
-      headerName: 'Instructor',
-      width: 150,
-    },
-    {
-      field: 'hour',
-      headerName: 'Horario',
-      width: 100,
-    },
+    { field: 'confirmation_number', headerName: 'Confirm.', width: 120, cellRenderer: ({ value }: { value: string | null }) => <ConfirmCell value={value} /> },
+    { field: 'customer_name',       headerName: 'Cliente',   width: 150 },
+    { field: 'customer_email',      headerName: 'Email',     width: 200 },
+    { field: 'status',              headerName: 'Estado',    width: 130, cellRenderer: ({ value }: { value: string }) => <StatusCell value={value} /> },
+    { field: 'class_title',         headerName: 'Clase',     width: 150 },
+    { field: 'instructor_name',     headerName: 'Instructor',width: 140 },
+    { field: 'day',                 headerName: 'Día',       width: 110 },
+    { field: 'hour',                headerName: 'Hora',      width: 110 },
     {
       field: 'bike_number',
       headerName: 'Bici',
-      width: 120,
-      cellRenderer: bikeRenderer,
+      width: 110,
+      cellRenderer: ({ data }: { data: Booking }) =>
+        `#${String(data.bike_number).padStart(2, '0')} · F${data.bike_row}`,
     },
     {
       field: 'amount_paid',
       headerName: 'Monto',
       width: 100,
-      cellRenderer: amountRenderer,
-    },
-    {
-      field: 'status',
-      headerName: 'Estado',
-      width: 130,
-      cellRenderer: statusRenderer,
+      cellRenderer: ({ value }: { value: number | null }) =>
+        value != null ? `$${(value / 100).toLocaleString('es-MX')}` : '—',
     },
     {
       field: 'created_at',
-      headerName: 'Fecha Reserva',
-      width: 160,
-      cellRenderer: createdAtRenderer,
+      headerName: 'Registrada',
+      width: 150,
       sort: 'desc',
+      cellRenderer: ({ value }: { value: string }) =>
+        new Date(value).toLocaleDateString('es-MX', {
+          month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+        }),
     },
   ];
 
@@ -191,34 +150,94 @@ export default function AdminBookingsTable() {
     return (
       <div className="admin-error">
         <p>{error}</p>
-        <button onClick={fetchBookings} className="btn btn-secondary">
-          Reintentar
-        </button>
+        <button onClick={fetchBookings} className="btn btn-secondary">Reintentar</button>
       </div>
     );
   }
 
   return (
-    <AgGridProvider modules={modules}>
-      <section className="admin-bookings">
-        <div className="ag-theme-quartz ag-theme-quartz-custom" style={{ width: '100%', height: '600px' }}>
+    <>
+      <AdminManualBookingModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSuccess={() => { fetchBookings(); }}
+      />
+
+      {/* Stats bar */}
+      <div className="admin-stats-bar">
+        <div className="admin-stat-card">
+          <span className="admin-stat-value">{stats.total}</span>
+          <span className="admin-stat-label">Total</span>
+        </div>
+        <div className="admin-stat-card confirmed">
+          <span className="admin-stat-value">{stats.confirmed}</span>
+          <span className="admin-stat-label">Confirmadas</span>
+        </div>
+        <div className="admin-stat-card pending">
+          <span className="admin-stat-value">{stats.pending}</span>
+          <span className="admin-stat-label">Pendientes</span>
+        </div>
+        <div className="admin-stat-card today">
+          <span className="admin-stat-value">{stats.todayConfirmed}</span>
+          <span className="admin-stat-label">Hoy</span>
+        </div>
+      </div>
+
+      {/* Toolbar */}
+      <div className="admin-toolbar">
+        <div className="admin-toolbar-left">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar cliente, email, confirmación…"
+            className="admin-search-input"
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="admin-status-filter"
+          >
+            <option value="all">Todos los estados</option>
+            <option value="confirmed">Confirmadas</option>
+            <option value="pending">Pendientes</option>
+            <option value="cancelled">Canceladas</option>
+          </select>
+        </div>
+        <div className="admin-toolbar-right">
+          <button className="btn btn-outline btn-sm" onClick={fetchBookings} disabled={loading}>
+            {loading ? 'Cargando…' : '↻ Refrescar'}
+          </button>
+          <button
+            className="btn btn-primary btn-sm admin-btn-cash"
+            onClick={() => setModalOpen(true)}
+          >
+            + Reserva en efectivo
+          </button>
+        </div>
+      </div>
+
+      {/* Grid */}
+      <AgGridProvider modules={modules}>
+        <div className="ag-theme-quartz ag-theme-quartz-custom" style={{ width: '100%', height: 560 }}>
           <AgGridReact
-            rowData={bookings}
+            rowData={filteredBookings}
             columnDefs={colDefs}
             theme={themeQuartz}
-            rowHeight={50}
-            headerHeight={45}
-            defaultColDef={{
-              resizable: true,
-              sortable: true,
-            }}
-            pagination={true}
+            rowHeight={48}
+            headerHeight={44}
+            defaultColDef={{ resizable: true, sortable: true }}
+            pagination
             paginationPageSize={15}
             paginationPageSizeSelector={[10, 15, 25, 50]}
             loading={loading}
           />
         </div>
-      </section>
-    </AgGridProvider>
+      </AgGridProvider>
+
+      <p className="admin-showing-label">
+        Mostrando {filteredBookings.length} de {bookings.length} reservas
+      </p>
+    </>
   );
 }
