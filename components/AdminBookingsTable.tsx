@@ -116,7 +116,15 @@ export default function AdminBookingsTable() {
     { field: 'customer_name',       headerName: 'Cliente',   width: 150 },
     { field: 'customer_email',      headerName: 'Email',     width: 200 },
     { field: 'status',              headerName: 'Estado',    width: 130, cellRenderer: ({ value }: { value: string }) => <StatusCell value={value} /> },
-    { field: 'class_title',         headerName: 'Clase',     width: 150 },
+    {
+      field: 'class_date',
+      headerName: 'Fecha',
+      width: 130,
+      cellRenderer: ({ value }: { value: string | null }) =>
+        value
+          ? new Date(value + 'T00:00:00').toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' })
+          : '—',
+    },
     { field: 'instructor_name',     headerName: 'Instructor',width: 140 },
     { field: 'day',                 headerName: 'Día',       width: 110 },
     { field: 'hour',                headerName: 'Hora',      width: 110 },
