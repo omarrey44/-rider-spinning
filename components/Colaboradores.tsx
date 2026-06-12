@@ -71,6 +71,18 @@ const partners: Partner[] = [
     badge: 'Primera consulta gratis',
   },
   {
+    image: '/olmo.jpg',
+    name: 'Olmo Healthy Kitchen',
+    role: 'Restaurante de Comida Saludable · Asesoría Alimenticia',
+    description:
+      'Restaurante especializado en comida saludable con asesoría personalizada en planes alimenticios. La combinación perfecta para complementar tu entrenamiento en Rideon con una alimentación de calidad.',
+    services: ['Comida saludable', 'Planes semanales', 'Planes mensuales', 'Asesoría alimenticia'],
+    phone: '6142181635',
+    whatsappMsg: 'Hola, soy miembro de Rideon y me interesa conocer sus planes alimenticios en Olmo Healthy Kitchen.',
+    colClass: 'col-olmo',
+    badge: '5% plan semanal · 10% plan mensual',
+  },
+  {
     image: '/fisiotrain.jpg',
     name: 'FisioTrain Cuu',
     role: 'Fisioterapia · Rehabilitación Deportiva',
