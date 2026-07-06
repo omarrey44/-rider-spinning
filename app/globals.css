@@ -2899,8 +2899,8 @@ section::before {
 
 .b3d-img {
   /* 3:2 ratio fijo — todos ocupan idéntico bounding box */
-  width: 74px;
-  height: 49px;
+  width: 88px;
+  height: 59px;
   object-fit: contain;
   display: block;
   pointer-events: none;
@@ -3119,7 +3119,7 @@ section::before {
   }
 
   /* Bigger bikes, 3:2 ratio */
-  .b3d-img { width: 64px; height: 43px; object-fit: contain; }
+  .b3d-img { width: 74px; height: 49px; object-fit: contain; }
   .b3d-num { font-size: 9px; margin-top: -3px; }
   .b3d--row1 { transform: translate(-50%, -50%) scale(1.0); }
   .b3d--row2 { transform: translate(-50%, -50%) scale(1.0); }
