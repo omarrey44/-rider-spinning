@@ -2857,7 +2857,7 @@ section::before {
 /* === ISO FLOOR — bikes positioned absolutely by x/y % on neon circuit lanes === */
 .s3d-floor {
   position: absolute;
-  left: 56px; right: 56px;
+  left: 44px; right: 44px;
   top: 152px; bottom: 32px;
   z-index: 5;
 }
@@ -2883,10 +2883,10 @@ section::before {
 .b3d--row1 { transform: translate(-50%, -50%) scale(0.95); z-index: 3; }
 .b3d--row2 { transform: translate(-50%, -50%) scale(0.95); z-index: 5; }
 .b3d--row3 { transform: translate(-50%, -50%) scale(0.95); z-index: 7; }
-/* Edge-right bikes — misma escala que el resto para uniformidad */
-.b3d--edge-right.b3d--row1 { transform: translate(-50%, -50%) scale(0.95); }
-.b3d--edge-right.b3d--row2 { transform: translate(-50%, -50%) scale(0.95); }
-.b3d--edge-right.b3d--row3 { transform: translate(-50%, -50%) scale(0.95); }
+/* Edge-right bikes (05, 11) — aisladas se perciben más chicas; boost para igualar visualmente */
+.b3d--edge-right.b3d--row1 { transform: translate(-50%, -50%) scale(1.12); }
+.b3d--edge-right.b3d--row2 { transform: translate(-50%, -50%) scale(1.12); }
+.b3d--edge-right.b3d--row3 { transform: translate(-50%, -50%) scale(1.12); }
 
 /* Hover */
 .b3d:hover:not(:disabled) {
