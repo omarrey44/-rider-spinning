@@ -17,8 +17,8 @@ const FAQS: FaqItem[] = [
     a: 'Ropa cómoda que respire, una toalla pequeña, una botella de agua, y tenis deportivos cerrados. Si tienes cleats SPD compatibles puedes traerlos; si no, las bicis tienen pedales con jaulas universales.',
   },
   {
-    q: '¿Hay regaderas y vestidores?',
-    a: 'Sí. Vestidores con regaderas, lockers, secadora de pelo y amenidades básicas. Trae tu candado o pide uno en recepción.',
+    q: '¿Hay vestidores?',
+    a: 'Contamos con área de cambio y lockers disponibles. No contamos con regaderas por el momento.',
   },
   {
     q: '¿Qué pasa si llego tarde?',

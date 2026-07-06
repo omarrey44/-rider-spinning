@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { DayKey, days, weekdaySlots, saturdaySlots, ScheduleSlot } from '@/data/schedule';
+import { DayKey, days, weekdaySlots, saturdaySlots, ScheduleSlot, BIKE_CONFIG } from '@/data/schedule';
 import { ArrowRight, ClockIcon, SignalIcon, MoonIcon, InfoIcon } from './Icons';
 import { createClient } from '@/lib/supabase/client';
 
@@ -268,7 +268,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
             <>
               {visibleSlots.map((slot, idx) => {
                 const isNext = isToday && nextSlot !== null && slot === nextSlot;
-                const cap = slot.capacity ?? 10;
+                const cap = slot.capacity ?? BIKE_CONFIG.total;
                 const countKey = `${slot.className}|${dayKeyToName[activeDay]}|${slot.hour} ${slot.period}`;
                 const taken = slotCounts[countKey] ?? 0;
                 const available = Math.max(0, cap - taken);

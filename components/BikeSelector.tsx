@@ -21,19 +21,22 @@ interface BikeSelectorProps {
 }
 
 /* Coordenadas % por bici dentro de .s3d-floor — extraídas de la referencia
-   del circuito neón. Fila 1 (4 bicis arriba, espaciado angosto por perspectiva),
-   Fila 2 (3 bicis centro, popular = 06), Fila 3 (3 bicis abajo, espaciado amplio). */
+   del circuito neón. Fila 1 (5 bicis frente, principiantes),
+   Fila 2 (6 bicis atrás, popular = 08). */
 const BIKE_COORDS: { x: number; y: number }[] = [
-  { x: 18, y: 20 }, // 01
-  { x: 38, y: 20 }, // 02
-  { x: 58, y: 20 }, // 03
-  { x: 78, y: 20 }, // 04
-  { x: 28, y: 52 }, // 05
-  { x: 50, y: 52 }, // 06
-  { x: 72, y: 52 }, // 07
-  { x: 25, y: 83 }, // 08
-  { x: 50, y: 83 }, // 09
-  { x: 75, y: 83 }, // 10
+  // Fila 1 · frente · principiantes (5 bicis)
+  { x: 14, y: 25 }, // 01
+  { x: 32, y: 25 }, // 02
+  { x: 50, y: 25 }, // 03
+  { x: 68, y: 25 }, // 04
+  { x: 86, y: 25 }, // 05
+  // Fila 2 · atrás (6 bicis)
+  { x: 11, y: 74 }, // 06
+  { x: 26.6, y: 74 }, // 07
+  { x: 42.2, y: 74 }, // 08
+  { x: 57.8, y: 74 }, // 09
+  { x: 73.4, y: 74 }, // 10
+  { x: 89, y: 74 }, // 11
 ];
 
 function LockIcon({ className }: { className?: string }) {
@@ -143,8 +146,7 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
     if (row === 1) return 'Fila 1 · Principiantes · Frente al instructor';
     if (row === 2) return isPopular
       ? 'Fila 2 · Centro · Posición popular ⭐'
-      : 'Fila 2 · Visibilidad balanceada';
-    if (row === 3) return 'Fila 3 · Espacio amplio · Cerca de salida';
+      : 'Fila 2 · Espacio amplio · Cerca de salida';
     return null;
   };
 
@@ -363,22 +365,17 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
             {/* Row labels — absolutely positioned left */}
             <div className="s3d-row-labels" aria-hidden="true">
               <div className="s3d-rl s3d-rl--1"><span className="s3d-fila">FILA 1</span><span className="s3d-desc">Principiantes</span></div>
-              <div className="s3d-rl s3d-rl--2"><span className="s3d-fila">FILA 2</span><span className="s3d-desc">Equilibrio</span></div>
-              <div className="s3d-rl s3d-rl--3"><span className="s3d-fila">FILA 3</span><span className="s3d-desc">Más aire</span></div>
+              <div className="s3d-rl s3d-rl--2"><span className="s3d-fila">FILA 2</span><span className="s3d-desc">Más espacio</span></div>
             </div>
 
             {/* Mobile-only row strips — labels above each row */}
             <div className="s3d-mobile-rows" aria-hidden="true">
               <div className="s3d-mrow s3d-mrow--1">
                 <span className="s3d-mfila">FILA 1 · Principiantes</span>
-                <span className="s3d-mperk"><FanIcon size={12} />Más aire</span>
-              </div>
-              <div className="s3d-mrow s3d-mrow--2">
-                <span className="s3d-mfila">FILA 2 · Equilibrio</span>
                 <span className="s3d-mperk"><EyeIcon size={12} />Mejor vista</span>
               </div>
-              <div className="s3d-mrow s3d-mrow--3">
-                <span className="s3d-mfila">FILA 3 · Más aire</span>
+              <div className="s3d-mrow s3d-mrow--2">
+                <span className="s3d-mfila">FILA 2 · Más espacio</span>
                 <span className="s3d-mperk"><StarIcon size={12} />Popular</span>
               </div>
             </div>
@@ -392,7 +389,7 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
                 const popular = BIKE_CONFIG.popular.includes(num);
                 const selected = selectedBike === num;
                 const tooltip = getBikeTooltip(num);
-                const isEdgeRight = num === 4 || num === 7 || num === 10;
+                const isEdgeRight = num === 5 || num === 11;
                 const cls = [
                   'b3d',
                   `b3d--row${row}`,

@@ -2832,9 +2832,8 @@ section::before {
   gap: 1px;
   transform: translateY(-50%);
 }
-.s3d-rl--1 { top: 20%; }
-.s3d-rl--2 { top: 52%; }
-.s3d-rl--3 { top: 83%; }
+.s3d-rl--1 { top: 25%; }
+.s3d-rl--2 { top: 74%; }
 
 .s3d-fila {
   font-size: 9px;
@@ -2858,7 +2857,7 @@ section::before {
 /* === ISO FLOOR — bikes positioned absolutely by x/y % on neon circuit lanes === */
 .s3d-floor {
   position: absolute;
-  left: 80px; right: 80px;
+  left: 56px; right: 56px;
   top: 152px; bottom: 32px;
   z-index: 5;
 }
@@ -2884,10 +2883,10 @@ section::before {
 .b3d--row1 { transform: translate(-50%, -50%) scale(0.95); z-index: 3; }
 .b3d--row2 { transform: translate(-50%, -50%) scale(0.95); z-index: 5; }
 .b3d--row3 { transform: translate(-50%, -50%) scale(0.95); z-index: 7; }
-/* Edge-right bikes (04, 07, 10) — compensate visual perception of being smaller */
-.b3d--edge-right.b3d--row1 { transform: translate(-50%, -50%) scale(1.05); }
-.b3d--edge-right.b3d--row2 { transform: translate(-50%, -50%) scale(1.05); }
-.b3d--edge-right.b3d--row3 { transform: translate(-50%, -50%) scale(1.05); }
+/* Edge-right bikes — misma escala que el resto para uniformidad */
+.b3d--edge-right.b3d--row1 { transform: translate(-50%, -50%) scale(0.95); }
+.b3d--edge-right.b3d--row2 { transform: translate(-50%, -50%) scale(0.95); }
+.b3d--edge-right.b3d--row3 { transform: translate(-50%, -50%) scale(0.95); }
 
 /* Hover */
 .b3d:hover:not(:disabled) {
@@ -2900,8 +2899,8 @@ section::before {
 
 .b3d-img {
   /* 3:2 ratio fijo — todos ocupan idéntico bounding box */
-  width: 120px;
-  height: 80px;
+  width: 74px;
+  height: 49px;
   object-fit: contain;
   display: block;
   pointer-events: none;
@@ -3100,8 +3099,7 @@ section::before {
     font-family: var(--font-display);
   }
   .s3d-mrow--1 { top: 3%; }
-  .s3d-mrow--2 { top: 35%; }
-  .s3d-mrow--3 { top: 66%; }
+  .s3d-mrow--2 { top: 50%; }
   .s3d-mfila {
     font-size: 10px;
     font-weight: 700;
@@ -3121,8 +3119,8 @@ section::before {
   }
 
   /* Bigger bikes, 3:2 ratio */
-  .b3d-img { width: 84px; height: 56px; object-fit: contain; }
-  .b3d-num { font-size: 10px; margin-top: -3px; }
+  .b3d-img { width: 64px; height: 43px; object-fit: contain; }
+  .b3d-num { font-size: 9px; margin-top: -3px; }
   .b3d--row1 { transform: translate(-50%, -50%) scale(1.0); }
   .b3d--row2 { transform: translate(-50%, -50%) scale(1.0); }
   .b3d--row3 { transform: translate(-50%, -50%) scale(1.0); }
