@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { BIKE_CONFIG } from '@/data/schedule';
 import { BoltIcon, UserIcon, CalendarIcon, CalendarDaysIcon, AlarmClockIcon, StopwatchIcon, FanIcon, EyeIcon, StarIcon } from './Icons';
 
@@ -20,24 +21,19 @@ interface BikeSelectorProps {
   compact?: boolean;
 }
 
-/* Coordenadas % por bici dentro de .s3d-floor — extraídas de la referencia
-   del circuito neón. Fila 1 (5 bicis frente, principiantes),
-   Fila 2 (6 bicis atrás, popular = 08). */
-const BIKE_COORDS: { x: number; y: number }[] = [
-  // Fila 1 · frente · principiantes (5 bicis)
-  { x: 14, y: 25 }, // 01
-  { x: 32, y: 25 }, // 02
-  { x: 50, y: 25 }, // 03
-  { x: 68, y: 25 }, // 04
-  { x: 86, y: 25 }, // 05
-  // Fila 2 · atrás (6 bicis)
-  { x: 11, y: 74 }, // 06
-  { x: 26.6, y: 74 }, // 07
-  { x: 42.2, y: 74 }, // 08
-  { x: 57.8, y: 74 }, // 09
-  { x: 73.4, y: 74 }, // 10
-  { x: 89, y: 74 }, // 11
-];
+/* Filas del salón derivadas de BIKE_CONFIG.rowConfig — [inicio, fin] por fila.
+   Fila 1 (frente al instructor, más lejos de la cámara) se renderiza más chica;
+   Fila 2 (atrás, más cerca de la cámara) más grande. Perspectiva 3/4 trasera. */
+function getRowRanges(): { start: number; end: number }[] {
+  let cursor = 1;
+  return BIKE_CONFIG.rowConfig.map((count) => {
+    const start = cursor;
+    const end = cursor + count - 1;
+    cursor = end + 1;
+    return { start, end };
+  });
+}
+const ROW_RANGES = getRowRanges();
 
 function LockIcon({ className }: { className?: string }) {
   return (
@@ -143,7 +139,9 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
     if (takenBikes.includes(num)) return null;
     const { row } = getBikePosition(num);
     const isPopular = BIKE_CONFIG.popular.includes(num);
-    if (row === 1) return 'Fila 1 · Principiantes · Frente al instructor';
+    if (row === 1) return isPopular
+      ? 'Fila 1 · Principiantes · Posición popular ⭐'
+      : 'Fila 1 · Principiantes · Frente al instructor';
     if (row === 2) return isPopular
       ? 'Fila 2 · Centro · Posición popular ⭐'
       : 'Fila 2 · Espacio amplio · Cerca de salida';
@@ -194,13 +192,6 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
             )}
           </div>
           <p>Vista del salón en tiempo real. Las primeras filas tienen mejor visibilidad del instructor; las laterales reciben más aire.</p>
-
-          <ul className="bike-legend">
-            <li><span className="dot dot-free"></span> Disponible</li>
-            <li><span className="dot dot-selected"></span> Tu selección</li>
-            <li><span className="dot dot-taken"></span> Ocupada</li>
-            <li><span className="dot dot-popular"></span> Popular</li>
-          </ul>
 
           <div className="bike-summary">
             {!selectedSlot ? (
@@ -330,6 +321,14 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
             </div>
           )}
 
+          {/* Leyenda dentro del panel — como la referencia */}
+          <ul className="bike-legend bike-legend--room" aria-label="Leyenda de estados">
+            <li><span className="dot dot-free"></span> Disponible</li>
+            <li><span className="dot dot-selected"></span> Tu selección</li>
+            <li><span className="dot dot-taken"></span> Ocupada</li>
+            <li><span className="dot dot-popular"></span> Popular</li>
+          </ul>
+
           {/* Counter de disponibilidad */}
           {selectedSlot && (
             <div className={`availability-counter ${availableCount <= 3 ? 'critical' : availableCount <= 5 ? 'low' : ''}`}>
@@ -380,56 +379,72 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
               </div>
             </div>
 
-            {/* Iso 3D floor — bikes posicionadas con x/y % sobre los lanes del circuito */}
+            {/* Iso 3D floor — 2 filas en perspectiva, misma bici 3/4 trasera reutilizada */}
             <div className="s3d-floor">
-              {BIKE_COORDS.map((coord, idx) => {
-                const num = idx + 1;
-                const { row } = getBikePosition(num);
-                const taken = takenBikes.includes(num);
-                const popular = BIKE_CONFIG.popular.includes(num);
-                const selected = selectedBike === num;
-                const tooltip = getBikeTooltip(num);
-                const isEdgeRight = num === 5 || num === 11;
-                const cls = [
-                  'b3d',
-                  `b3d--row${row}`,
-                  isEdgeRight && 'b3d--edge-right',
-                  taken && 'b3d--taken',
-                  popular && !taken && !selected && 'b3d--popular',
-                  selected && 'b3d--selected',
-                ].filter(Boolean).join(' ');
+              {ROW_RANGES.map(({ start, end }, rowIdx) => (
+                <div key={rowIdx} className={`s3d-row s3d-row--${rowIdx + 1}`}>
+                  {Array.from({ length: end - start + 1 }, (_, i) => {
+                    const num = start + i;
+                    const row = rowIdx + 1;
+                    const count = end - start + 1;
+                    const taken = takenBikes.includes(num);
+                    const popular = BIKE_CONFIG.popular.includes(num);
+                    const selected = selectedBike === num;
+                    const tooltip = getBikeTooltip(num);
+                    /* Lado derecho de la fila volteado — todas miran al instructor */
+                    const flip = i + 1 > Math.ceil(count / 2);
+                    const cls = [
+                      'b3d',
+                      `b3d--row${row}`,
+                      flip && 'b3d--flip',
+                      taken && 'b3d--taken',
+                      popular && !taken && !selected && 'b3d--popular',
+                      selected && 'b3d--selected',
+                    ].filter(Boolean).join(' ');
 
-                return (
-                  <button
-                    key={num}
-                    className={cls}
-                    disabled={taken}
-                    style={{ left: `${coord.x}%`, top: `${coord.y}%` }}
-                    title={taken ? `Bicicleta ${num} - Ocupada` : tooltip || `Bicicleta ${num}`}
-                    aria-label={taken ? `Bicicleta ${num}, ocupada` : `Bicicleta ${num}`}
-                    aria-pressed={selected}
-                    onClick={() => handleBikeClick(num)}
-                  >
-                    <div className="b3d-glow" aria-hidden="true" />
-                    <img
-                      src="/bike-3d.png"
-                      alt=""
-                      className="b3d-img"
-                      draggable={false}
-                    />
-                    <span className="b3d-num">{String(num).padStart(2, '0')}</span>
-                    {taken && <LockIcon className="b3d-lock" />}
-                    {popular && !taken && <span className="b3d-star" aria-hidden="true">★</span>}
-                  </button>
-                );
-              })}
+                    return (
+                      <motion.button
+                        key={num}
+                        className={cls}
+                        disabled={taken}
+                        title={taken ? `Bicicleta ${num} - Ocupada` : tooltip || `Bicicleta ${num}`}
+                        aria-label={taken ? `Bicicleta ${num}, ocupada` : `Bicicleta ${num}`}
+                        aria-pressed={selected}
+                        onClick={() => handleBikeClick(num)}
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{
+                          opacity: 1,
+                          y: 0,
+                          scale: selected ? 1.05 : 1,
+                          rotate: selected ? 2.5 : 0,
+                        }}
+                        transition={{ delay: num * 0.04, type: 'spring', stiffness: 260, damping: 22 }}
+                        whileHover={taken ? undefined : { y: -5, scale: selected ? 1.05 : 1.04 }}
+                        whileTap={taken ? undefined : { scale: 0.97 }}
+                      >
+                        <img
+                          src="/bike-3d.png"
+                          alt=""
+                          className="b3d-img"
+                          draggable={false}
+                        />
+                        <div className="b3d-platform" aria-hidden="true">
+                          <span className="b3d-num">{String(num).padStart(2, '0')}</span>
+                        </div>
+                        <div className="b3d-glow" aria-hidden="true" />
+                        {taken && <LockIcon className="b3d-lock" />}
+                        {popular && !taken && <span className="b3d-star" aria-hidden="true">★</span>}
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              ))}
             </div>
 
             {/* Icons — right */}
             <div className="s3d-icons" aria-hidden="true">
-              <div className="s3d-icon"><FanIcon size={15} /><span>Más aire</span></div>
               <div className="s3d-icon"><EyeIcon size={15} /><span>Mejor vista</span></div>
-              <div className="s3d-icon"><StarIcon size={15} /><span>Popular</span></div>
+              <div className="s3d-icon"><FanIcon size={15} /><span>Más aire</span></div>
             </div>
 
             <p className="s3d-bottom" aria-hidden="true">↓ FONDO · SALIDA</p>
@@ -453,7 +468,7 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
             className="btn btn-primary sticky-checkout-cta"
             onClick={handleCheckout}
           >
-            Continuar
+            Continuar reserva →
           </button>
         </div>
       )}

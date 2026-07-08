@@ -37,14 +37,14 @@ export const days: Array<{ key: DayKey; label: string }> = [
   { key: 'vie', label: 'Vie' }, { key: 'sab', label: 'Sáb' },
 ];
 
-/* Studio: 11 bicis. Fila 1: 5 (principiantes, frente), Fila 2: 6 (atrás).
-   Popular = centro fila 2 (bike 8). */
+/* Studio: 11 bicis. Fila 1: 6 (principiantes, frente al instructor),
+   Fila 2: 5 (atrás, más cerca de la cámara). Popular = 09 (centro fila 2) y 04. */
 export const BIKE_CONFIG = {
   rows: 2,
-  rowConfig: [5, 6] as number[], // bikes per row
+  rowConfig: [6, 5] as number[], // bikes per row
   total: 11,
   taken: [] as number[],
-  popular: [8],
+  popular: [9, 4],
 };
 
 // TODO: When Supabase realtime is integrated, add a server-side fetch here:

@@ -2671,6 +2671,17 @@ section::before {
 
 /* Locked: also dim the new studio-scene */
 .bike-room-locked .studio-scene { opacity: 0.3; filter: grayscale(40%); pointer-events: none; user-select: none; }
+.bike-room-locked .bike-legend--room { opacity: 0.32; filter: grayscale(35%); }
+
+/* Leyenda dentro del panel — como la referencia */
+.bike-legend--room {
+  margin: 4px 0 10px;
+  gap: 18px;
+  font-size: 12px;
+  justify-content: flex-start;
+  align-items: center;
+}
+.bike-legend--room .dot { width: 11px; height: 11px; border-radius: 50%; }
 
 /* =====================================================
    STUDIO SCENE — cinematic 3D with perspective depth
@@ -2678,7 +2689,7 @@ section::before {
 
 .studio-scene {
   position: relative;
-  height: 440px;
+  height: 464px;
   overflow: hidden;
   background:
     radial-gradient(ellipse at 50% 0%, rgba(0,45,58,0.9) 0%, transparent 55%),
@@ -2801,12 +2812,50 @@ section::before {
   justify-content: center;
   position: relative;
   z-index: 2;
+  padding-bottom: 10px;
+}
+
+/* Plataforma oval del instructor — borde neón como la referencia */
+.s3d-platform::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 215px;
+  height: 54px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 28%, rgba(22,32,40,0.98) 0%, rgba(8,14,18,0.99) 72%);
+  border: 1px solid rgba(29,212,232,0.4);
+  box-shadow:
+    0 0 16px rgba(29,212,232,0.55),
+    0 0 38px rgba(29,212,232,0.22),
+    0 10px 22px rgba(0,0,0,0.7),
+    inset 0 -8px 16px rgba(29,212,232,0.28);
+  z-index: 0;
+}
+
+/* Cono de luz hacia el salón */
+.s3d-stage-wrap::after {
+  content: '';
+  position: absolute;
+  top: 82%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 330px;
+  height: 140px;
+  clip-path: polygon(37% 0, 63% 0, 100% 100%, 0 100%);
+  background: linear-gradient(to bottom, rgba(29,212,232,0.18) 0%, transparent 82%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .s3d-platform-bike {
   display: block;
   width: 160px;
   height: auto;
+  position: relative;
+  z-index: 1;
   filter:
     drop-shadow(0 0 14px rgba(29,212,232,0.5))
     drop-shadow(0 8px 14px rgba(0,0,0,0.85));
@@ -2832,8 +2881,8 @@ section::before {
   gap: 1px;
   transform: translateY(-50%);
 }
-.s3d-rl--1 { top: 25%; }
-.s3d-rl--2 { top: 74%; }
+.s3d-rl--1 { top: 21%; }
+.s3d-rl--2 { top: 76%; }
 
 .s3d-fila {
   font-size: 9px;
@@ -2854,17 +2903,67 @@ section::before {
   white-space: nowrap;
 }
 
-/* === ISO FLOOR — bikes positioned absolutely by x/y % on neon circuit lanes === */
+/* === ISO FLOOR — 2 filas flex en perspectiva; cámara detrás del usuario === */
 .s3d-floor {
   position: absolute;
-  left: 44px; right: 44px;
-  top: 152px; bottom: 32px;
+  left: 56px; right: 56px;
+  top: 148px; bottom: 26px;
   z-index: 5;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
 }
 
-/* === BIKE OBJECT — iso 3D asset, absolute on floor lanes === */
-.b3d {
+.s3d-row {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 6px;
+  padding: 0 14px 8px;
+}
+/* Losa de piso — plataforma escalonada con celdas, como la referencia */
+.s3d-row::before {
+  content: '';
   position: absolute;
+  left: -10px; right: -10px;
+  top: 42%; bottom: -6px;
+  background-image:
+    linear-gradient(90deg, transparent calc(100% - 1px), rgba(29,212,232,0.12) calc(100% - 1px)),
+    linear-gradient(180deg, rgba(17,27,34,0.94) 0%, rgba(7,13,17,0.97) 100%);
+  background-repeat: repeat-x, no-repeat;
+  border-top: 1px solid rgba(29,212,232,0.22);
+  border-radius: 4px;
+  transform: perspective(700px) rotateX(24deg);
+  transform-origin: 50% 100%;
+  box-shadow: 0 16px 26px rgba(0,0,0,0.55);
+  pointer-events: none;
+  z-index: 0;
+}
+/* Cara frontal del escalón */
+.s3d-row::after {
+  content: '';
+  position: absolute;
+  left: -10px; right: -10px;
+  bottom: -15px;
+  height: 10px;
+  background: linear-gradient(180deg, rgba(22,34,42,0.92) 0%, rgba(3,7,9,0.96) 100%);
+  border-radius: 0 0 6px 6px;
+  pointer-events: none;
+  z-index: 0;
+}
+.s3d-row--1::before { background-size: calc(100%/6) 100%, 100% 100%; }
+.s3d-row--2::before { background-size: calc(100%/5) 100%, 100% 100%; }
+/* Filas: mismo tamaño de bici en ambas.
+   Fila 1 leve boost — 6 bicis juntas se perciben más chicas que las 5 de atrás */
+.s3d-row--1 { z-index: 3; }
+.s3d-row--1 .b3d-img { width: 93px; height: 115px; }
+.s3d-row--2 { z-index: 6; }
+
+/* === BIKE OBJECT — un solo asset 3/4 trasero reutilizado; objeto físico en el salón === */
+.b3d {
+  position: relative;
+  z-index: 1;
   background: none;
   border: none;
   padding: 0;
@@ -2872,150 +2971,177 @@ section::before {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0;
   outline: none;
-  filter: opacity(0.92) brightness(1.05) contrast(1.08);
-  transition: filter 0.25s ease, transform 0.25s ease;
-  will-change: filter, transform;
+  will-change: transform;
 }
 
-/* Todas las filas misma proporción */
-.b3d--row1 { transform: translate(-50%, -50%) scale(0.95); z-index: 3; }
-.b3d--row2 { transform: translate(-50%, -50%) scale(0.95); z-index: 5; }
-.b3d--row3 { transform: translate(-50%, -50%) scale(0.95); z-index: 7; }
-/* Edge-right bikes (05, 11) — aisladas se perciben más chicas; boost para igualar visualmente */
-.b3d--edge-right.b3d--row1 { transform: translate(-50%, -50%) scale(1.12); }
-.b3d--edge-right.b3d--row2 { transform: translate(-50%, -50%) scale(1.12); }
-.b3d--edge-right.b3d--row3 { transform: translate(-50%, -50%) scale(1.12); }
-
-/* Hover */
-.b3d:hover:not(:disabled) {
-  filter: opacity(1) brightness(1.18) contrast(1.12);
-  z-index: 15;
+.b3d:focus-visible {
+  outline: 2px solid rgba(29,212,232,0.9);
+  outline-offset: 4px;
+  border-radius: 10px;
 }
-.b3d--row1:hover:not(:disabled) { transform: translate(-50%, -50%) scale(1.05); }
-.b3d--row2:hover:not(:disabled) { transform: translate(-50%, -50%) scale(1.05); }
-.b3d--row3:hover:not(:disabled) { transform: translate(-50%, -50%) scale(1.05); }
 
 .b3d-img {
-  /* 3:2 ratio fijo — todos ocupan idéntico bounding box */
+  /* Asset 3/4 trasero recortado (700x868) — proporción vertical.
+     El PNG ya trae glow/reflexión de piso integrados. */
   width: 88px;
-  height: 59px;
+  height: 109px;
   object-fit: contain;
   display: block;
+  position: relative;
+  z-index: 2;
+  margin-bottom: -18px; /* la bici "asienta" sobre la plataforma */
   pointer-events: none;
   user-select: none;
-  filter: drop-shadow(0 8px 14px rgba(0,0,0,0.85));
+  filter:
+    brightness(1.45) contrast(1.06)
+    drop-shadow(0 8px 14px rgba(0,0,0,0.8))
+    drop-shadow(0 0 8px rgba(29,212,232,0.45));
+  transition: filter 0.25s ease;
+}
+
+/* Orientación hacia el instructor (centro-arriba):
+   izquierdas miran a la derecha con leve giro; derechas espejadas simétricas */
+.b3d .b3d-img { transform: rotate(-7deg); transform-origin: 50% 78%; }
+.b3d--flip .b3d-img { transform: scaleX(-1) rotate(-7deg); }
+
+.b3d:hover:not(:disabled) .b3d-img {
+  filter:
+    brightness(1.6) contrast(1.08)
+    drop-shadow(0 10px 16px rgba(0,0,0,0.8))
+    drop-shadow(0 0 12px rgba(29,212,232,0.7));
+}
+
+/* Plataforma de cristal — losa con perspectiva, glow según estado */
+.b3d-platform {
+  position: relative;
+  z-index: 1;
+  width: 94%;
+  height: 30px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: perspective(300px) rotateX(30deg);
+  transform-origin: 50% 100%;
+  background: linear-gradient(180deg, rgba(34,197,94,0.34) 0%, rgba(8,38,22,0.55) 100%);
+  border: 1.5px solid rgba(74,222,128,0.75);
+  box-shadow:
+    0 10px 20px rgba(0,0,0,0.55),
+    0 0 14px rgba(34,197,94,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    inset 0 0 12px rgba(34,197,94,0.22);
+  backdrop-filter: blur(2px);
+  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
 }
 
 .b3d-num {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.9px;
   line-height: 1;
-  color: rgba(255,255,255,0.85);
-  margin-top: -6px;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+  color: rgba(255,255,255,0.96);
+  text-shadow: 0 0 8px rgba(34,197,94,0.7), 0 1px 3px rgba(0,0,0,0.9);
   transition: color 0.2s;
 }
 
+/* Aro de luz bajo la plataforma */
 .b3d-glow {
   position: absolute;
-  bottom: 4px;
+  bottom: -5px;
   left: 50%;
   transform: translateX(-50%);
-  width: 56%;
-  height: 11px;
-  background: linear-gradient(180deg, rgba(34,197,94,0.32) 0%, rgba(34,197,94,0.12) 100%);
-  border: 1px solid rgba(34,197,94,0.75);
-  border-radius: 3px;
-  box-shadow:
-    0 0 8px rgba(34,197,94,0.45),
-    inset 0 0 4px rgba(34,197,94,0.38);
+  width: 82%;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(34,197,94,0.45) 0%, transparent 70%);
+  filter: blur(5px);
   pointer-events: none;
-  animation: b3dAvailPulse 2.4s ease-in-out infinite;
-  transition: background 0.3s, width 0.3s, height 0.3s, border-color 0.3s, box-shadow 0.3s;
+  animation: b3dAvailPulse 2.6s ease-in-out infinite;
+  transition: background 0.3s;
 }
 
 @keyframes b3dAvailPulse {
-  0%, 100% { opacity: 0.7; }
+  0%, 100% { opacity: 0.65; }
   50%      { opacity: 1.0; }
 }
 
 .b3d-lock {
   position: absolute;
-  top: 6px; right: 6px;
+  top: 2px; right: 4px;
   width: 13px; height: 13px;
-  opacity: 0.85;
+  z-index: 3;
+  opacity: 0.9;
   color: rgba(255,90,90,0.95);
   filter: drop-shadow(0 0 4px rgba(0,0,0,0.7));
 }
 
 .b3d-star {
   position: absolute;
-  top: 4px; right: 8px;
+  top: -2px; right: 6px;
+  z-index: 3;
   font-size: 12px;
   color: #1dd4e8;
   line-height: 1;
   text-shadow: 0 0 6px rgba(29,212,232,0.85);
 }
 
-/* Selected — cian glow + bright + cian number */
-.b3d--selected {
-  filter: brightness(1.25) drop-shadow(0 0 12px rgba(0,229,255,0.8));
-  z-index: 20;
+/* Selected — plataforma cian, aro pulsante lento, bici iluminada */
+.b3d--selected { z-index: 20; }
+.b3d--selected .b3d-img {
+  filter:
+    brightness(1.7) contrast(1.08)
+    drop-shadow(0 10px 16px rgba(0,0,0,0.85))
+    drop-shadow(0 0 16px rgba(29,212,232,0.9));
 }
-.b3d--selected .b3d-num { color: #00E5FF; font-size: 13px; }
+.b3d--selected .b3d-num {
+  color: #0b1418;
+  text-shadow: none;
+}
+.b3d--selected .b3d-platform {
+  background: linear-gradient(180deg, rgba(29,212,232,0.9) 0%, rgba(29,212,232,0.55) 100%);
+  border-color: rgba(29,212,232,1);
+  box-shadow:
+    0 10px 22px rgba(0,0,0,0.55),
+    0 0 18px rgba(29,212,232,0.75),
+    0 0 36px rgba(29,212,232,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.35);
+}
 .b3d--selected .b3d-glow {
-  background: linear-gradient(180deg, rgba(0,229,255,0.6) 0%, rgba(0,229,255,0.2) 100%);
-  width: 64%;
-  height: 13px;
-  border-color: rgba(0,229,255,0.95);
-  border-radius: 3px;
-  box-shadow:
-    0 0 14px rgba(0,229,255,0.7),
-    0 0 26px rgba(0,229,255,0.35),
-    inset 0 0 6px rgba(0,229,255,0.55);
-  animation: s3dFloorPulse 2s ease-in-out infinite;
-}
-/* Selected scale uniforme */
-.b3d--selected.b3d--row1,
-.b3d--selected.b3d--row1:hover:not(:disabled),
-.b3d--selected.b3d--row2,
-.b3d--selected.b3d--row2:hover:not(:disabled),
-.b3d--selected.b3d--row3,
-.b3d--selected.b3d--row3:hover:not(:disabled) { transform: translate(-50%, -50%) scale(1.05); }
-
-@keyframes s3dFloorPulse {
-  0%, 100% { opacity: 0.72; }
-  50%      { opacity: 1.0; }
+  background: radial-gradient(ellipse, rgba(29,212,232,0.75) 0%, transparent 72%);
+  animation: b3dSelectedPulse 2s ease-in-out infinite;
 }
 
-/* Taken — desaturated + red wash so estado lee rojo de inmediato */
-.b3d--taken {
-  cursor: not-allowed;
-  filter: brightness(0.55) sepia(1) saturate(4.5) hue-rotate(-40deg) opacity(0.85);
+@keyframes b3dSelectedPulse {
+  0%, 100% { opacity: 0.6; transform: translateX(-50%) scaleX(0.92); }
+  50%      { opacity: 1.0; transform: translateX(-50%) scaleX(1.08); }
 }
-.b3d--taken:hover {
-  filter: brightness(0.55) sepia(1) saturate(4.5) hue-rotate(-40deg) opacity(0.85);
-}
+
+/* Taken — bici desaturada roja, plataforma roja, sin animación */
+.b3d--taken { cursor: not-allowed; }
 .b3d--taken .b3d-img {
-  filter: drop-shadow(0 0 8px rgba(230,57,70,0.8)) drop-shadow(0 4px 8px rgba(0,0,0,0.7));
+  filter:
+    brightness(0.55) sepia(1) saturate(4.5) hue-rotate(-40deg) opacity(0.85)
+    drop-shadow(0 0 8px rgba(230,57,70,0.7));
 }
-.b3d--taken .b3d-num { color: rgba(255,120,120,1); font-weight: 700; }
-.b3d--taken .b3d-glow {
-  background: linear-gradient(180deg, rgba(230,57,70,0.4) 0%, rgba(230,57,70,0.12) 100%);
-  width: 56%;
-  height: 11px;
-  border-color: rgba(230,57,70,0.7);
-  border-radius: 3px;
+.b3d--taken .b3d-num {
+  color: rgba(255,140,140,1);
+  text-shadow: 0 0 6px rgba(230,57,70,0.55), 0 1px 3px rgba(0,0,0,0.9);
+}
+.b3d--taken .b3d-platform {
+  background: linear-gradient(180deg, rgba(230,57,70,0.16) 0%, rgba(255,255,255,0.02) 100%);
+  border-color: rgba(230,57,70,0.6);
   box-shadow:
-    0 0 8px rgba(230,57,70,0.4),
-    inset 0 0 4px rgba(230,57,70,0.35);
+    0 10px 20px rgba(0,0,0,0.55),
+    0 0 10px rgba(230,57,70,0.3),
+    inset 0 0 10px rgba(230,57,70,0.14);
+}
+.b3d--taken .b3d-glow {
+  background: radial-gradient(ellipse, rgba(230,57,70,0.35) 0%, transparent 70%);
   animation: none;
 }
 
-/* Popular — inherits green available pad, only star badge added */
+/* Popular — hereda plataforma verde disponible, solo agrega estrella */
 
 /* === RIGHT ICONS — alineados a los mismos % que las filas === */
 .s3d-icons {
@@ -3038,9 +3164,8 @@ section::before {
   gap: 3px;
   color: rgba(29,212,232,0.65);
 }
-.s3d-icon:nth-child(1) { top: 20%; } /* Más aire — Fila 1 */
-.s3d-icon:nth-child(2) { top: 52%; } /* Mejor vista — Fila 2 */
-.s3d-icon:nth-child(3) { top: 83%; } /* Popular — Fila 3 */
+.s3d-icon:nth-child(1) { top: 21%; } /* Mejor vista — Fila 1 */
+.s3d-icon:nth-child(2) { top: 76%; } /* Más aire — Fila 2 */
 .s3d-icon span {
   font-size: 8px;
   text-transform: uppercase;
@@ -3098,8 +3223,8 @@ section::before {
     padding: 0 4px;
     font-family: var(--font-display);
   }
-  .s3d-mrow--1 { top: 3%; }
-  .s3d-mrow--2 { top: 50%; }
+  .s3d-mrow--1 { top: 0; }
+  .s3d-mrow--2 { top: 54%; }
   .s3d-mfila {
     font-size: 10px;
     font-weight: 700;
@@ -3118,24 +3243,22 @@ section::before {
     text-transform: uppercase;
   }
 
-  /* Bigger bikes, 3:2 ratio */
-  .b3d-img { width: 74px; height: 49px; object-fit: contain; }
-  .b3d-num { font-size: 9px; margin-top: -3px; }
-  .b3d--row1 { transform: translate(-50%, -50%) scale(1.0); }
-  .b3d--row2 { transform: translate(-50%, -50%) scale(1.0); }
-  .b3d--row3 { transform: translate(-50%, -50%) scale(1.0); }
-  .b3d--edge-right.b3d--row1,
-  .b3d--edge-right.b3d--row2,
-  .b3d--edge-right.b3d--row3 { transform: translate(-50%, -50%) scale(1.08); }
-  .b3d--row1:hover:not(:disabled),
-  .b3d--row2:hover:not(:disabled),
-  .b3d--row3:hover:not(:disabled) { transform: translate(-50%, -50%) scale(1.08); }
-  .b3d--selected.b3d--row1,
-  .b3d--selected.b3d--row1:hover:not(:disabled),
-  .b3d--selected.b3d--row2,
-  .b3d--selected.b3d--row2:hover:not(:disabled),
-  .b3d--selected.b3d--row3,
-  .b3d--selected.b3d--row3:hover:not(:disabled) { transform: translate(-50%, -50%) scale(1.05); }
+  /* Bicis compactas para 6 por fila sin traslape */
+  .s3d-row { gap: 3px; padding: 0 6px 6px; }
+  .s3d-row::before { left: -4px; right: -4px; }
+  .s3d-row::after { left: -4px; right: -4px; bottom: -12px; height: 8px; }
+  .s3d-platform::before { width: 150px; height: 40px; }
+  .s3d-stage-wrap::after { width: 240px; height: 100px; }
+  .b3d-img {
+    width: 54px;
+    height: 67px;
+    margin-bottom: -12px;
+  }
+  .s3d-row--1 .b3d-img { width: 57px; height: 71px; }
+  .b3d-platform { height: 19px; border-radius: 7px; }
+  .b3d-num { font-size: 9px; }
+  .b3d-star { font-size: 10px; top: -1px; right: 3px; }
+  .b3d-lock { width: 11px; height: 11px; top: 1px; right: 2px; }
 
   .s3d-platform-bike { width: 130px; }
 }
@@ -5708,11 +5831,26 @@ section::before {
 }
 
 /* =====================================================
-   STICKY CHECKOUT BAR (mobile only)
-   Aparece cuando ya hay clase + bici seleccionadas
+   STICKY CHECKOUT BAR
+   Aparece cuando ya hay clase + bici seleccionadas.
+   Desktop: barra estática premium bajo el salón (como la referencia).
+   Mobile: barra propia (media query abajo).
    ===================================================== */
 .sticky-checkout-bar {
-  display: none;
+  display: flex;
+  position: relative;
+  max-width: 1140px;
+  margin: 22px auto 0;
+  background: linear-gradient(135deg, rgba(18, 24, 32, 0.92) 0%, rgba(10, 16, 22, 0.96) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(29, 212, 232, 0.22);
+  border-radius: 16px;
+  padding: 16px 20px;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(29, 212, 232, 0.06);
+  animation: stickyBarFadeIn 0.3s ease;
 }
 @media (max-width: 768px) {
   .sticky-checkout-bar {
