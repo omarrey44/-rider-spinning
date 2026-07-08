@@ -58,6 +58,8 @@ function getBikePosition(num: number): { row: number; col: number; rowCount: num
 export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, compact }: BikeSelectorProps) {
   const [selectedBike, setSelectedBike] = useState<number | null>(null);
   const [takenBikes, setTakenBikes] = useState<number[]>([]);
+  const [isLoadingBikes, setIsLoadingBikes] = useState(false);
+  const [bikesError, setBikesError] = useState(false);
   const totalBikes = BIKE_CONFIG.total;
   const bikeRoomRef = useRef<HTMLDivElement>(null);
 
@@ -81,10 +83,15 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
   useEffect(() => {
     if (!selectedSlot) {
       setTakenBikes([]);
+      setBikesError(false);
       return;
     }
 
+    let cancelled = false;
+
     const fetchTakenBikes = async () => {
+      setIsLoadingBikes(true);
+      setBikesError(false);
       try {
         const params = new URLSearchParams({
           class_title: selectedSlot.className,
@@ -92,15 +99,22 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
           hour: `${selectedSlot.hour} ${selectedSlot.period}`,
         });
         const res = await fetch(`/api/bookings/available-bikes?${params}`);
+        if (!res.ok) throw new Error('Request failed');
         const data = await res.json();
+        if (cancelled) return;
         setTakenBikes(data.takenBikes || []);
       } catch (err) {
+        if (cancelled) return;
         console.error('Error fetching taken bikes:', err);
-        setTakenBikes([]);
+        // No asumir disponibilidad en error — el usuario podría reservar una bici ya ocupada
+        setBikesError(true);
+      } finally {
+        if (!cancelled) setIsLoadingBikes(false);
       }
     };
 
     fetchTakenBikes();
+    return () => { cancelled = true; };
   }, [selectedSlot]);
 
   const availableCount = totalBikes - takenBikes.length;
@@ -123,7 +137,7 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
       scrollToHorarios();
       return;
     }
-    if (takenBikes.includes(num)) return;
+    if (isLoadingBikes || bikesError || takenBikes.includes(num)) return;
     setSelectedBike(num);
   };
 
@@ -330,8 +344,17 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
           </ul>
 
           {/* Counter de disponibilidad */}
-          {selectedSlot && (
-            <div className={`availability-counter ${availableCount <= 3 ? 'critical' : availableCount <= 5 ? 'low' : ''}`}>
+          {selectedSlot && bikesError ? (
+            <div className="availability-counter critical" role="alert">
+              <span className="availability-dot" aria-hidden="true"></span>
+              No se pudo verificar disponibilidad — intenta de nuevo
+            </div>
+          ) : selectedSlot && !isLoadingBikes && (
+            <div
+              className={`availability-counter ${availableCount <= 3 ? 'critical' : availableCount <= 5 ? 'low' : ''}`}
+              role="status"
+              aria-live="polite"
+            >
               <span className="availability-dot" aria-hidden="true"></span>
               <strong>{availableCount}</strong> de {totalBikes} disponibles
               {availableCount <= 5 && <span className="availability-warn">{availableCount <= 3 ? '⚠️ ¡Últimos lugares!' : '⚡ Pocos lugares'}</span>}
@@ -388,6 +411,7 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
                     const row = rowIdx + 1;
                     const count = end - start + 1;
                     const taken = takenBikes.includes(num);
+                    const pending = isLoadingBikes || bikesError;
                     const popular = BIKE_CONFIG.popular.includes(num);
                     const selected = selectedBike === num;
                     const tooltip = getBikeTooltip(num);
@@ -398,17 +422,19 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
                       `b3d--row${row}`,
                       flip && 'b3d--flip',
                       taken && 'b3d--taken',
+                      pending && !taken && 'b3d--pending',
                       popular && !taken && !selected && 'b3d--popular',
                       selected && 'b3d--selected',
                     ].filter(Boolean).join(' ');
+                    const isDisabled = taken || pending;
 
                     return (
                       <motion.button
                         key={num}
                         className={cls}
-                        disabled={taken}
-                        title={taken ? `Bicicleta ${num} - Ocupada` : tooltip || `Bicicleta ${num}`}
-                        aria-label={taken ? `Bicicleta ${num}, ocupada` : `Bicicleta ${num}`}
+                        disabled={isDisabled}
+                        title={taken ? `Bicicleta ${num} - Ocupada` : pending ? `Bicicleta ${num} - Verificando disponibilidad` : tooltip || `Bicicleta ${num}`}
+                        aria-label={taken ? `Bicicleta ${num}, ocupada` : pending ? `Bicicleta ${num}, verificando disponibilidad` : `Bicicleta ${num}`}
                         aria-pressed={selected}
                         onClick={() => handleBikeClick(num)}
                         initial={{ opacity: 0, y: 16 }}
@@ -419,8 +445,8 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
                           rotate: selected ? 2.5 : 0,
                         }}
                         transition={{ delay: num * 0.04, type: 'spring', stiffness: 260, damping: 22 }}
-                        whileHover={taken ? undefined : { y: -5, scale: selected ? 1.05 : 1.04 }}
-                        whileTap={taken ? undefined : { scale: 0.97 }}
+                        whileHover={isDisabled ? undefined : { y: -5, scale: selected ? 1.05 : 1.04 }}
+                        whileTap={isDisabled ? undefined : { scale: 0.97 }}
                       >
                         <img
                           src="/bike-3d.png"
