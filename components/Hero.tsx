@@ -147,11 +147,11 @@ export default function Hero() {
           </motion.h1>
 
           <motion.p className="hero-tagline" variants={fadeUp} transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>
-            Llega más lejos.
+            No importa lo despacio que vayas, siempre que no te detengas.
           </motion.p>
 
           <motion.p className="hero-sub" variants={fadeUp} transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>
-            Spinning de alta intensidad. Reserva tu bici, elige tu lugar y prepárate para sudar.
+            Porque entendemos lo importante de ayudarte a lograr tus metas.
           </motion.p>
 
           <motion.div className="hero-ctas" variants={fadeUp} transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>

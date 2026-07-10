@@ -21,7 +21,7 @@ const partners: Partner[] = [
     description:
       'Planes personalizados de nutrición, manejo de peso, composición corporal y rendimiento deportivo. Evaluaciones antropométricas y dietas terapéuticas.',
     services: ['Nutrición deportiva', 'Manejo de peso', 'Composición corporal', 'Dietas terapéuticas'],
-    phone: '6145951782',
+    phone: '6145029482',
     whatsappMsg: 'Hola Kristel, soy miembro de Rideon y me interesa agendar una consulta.',
     colClass: 'col-nutri',
   },
