@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import TestModeDetector from '@/components/TestModeDetector';
 import Launch from '@/components/Launch';
+import GrandOpening from '@/components/GrandOpening';
 import HowItWorks from '@/components/HowItWorks';
 import Schedule from '@/components/Schedule';
 import BikeSelector from '@/components/BikeSelector';
@@ -154,6 +155,7 @@ export default function Home() {
       <Hero />
 
         <main id="main">
+        <RevealSection><GrandOpening /></RevealSection>
         <RevealSection><Launch /></RevealSection>
         <RevealSection delay={100}><HowItWorks /></RevealSection>
         <RevealSection delay={150}><Schedule onSelectSlot={handleSelectSlot} /></RevealSection>

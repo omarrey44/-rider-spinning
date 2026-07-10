@@ -141,13 +141,13 @@ export default function Hero() {
             // SPINNING STUDIO · CHIHUAHUA
           </motion.span>
 
-          <motion.h1 className="hero-title" variants={fadeUp} transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>
-            <span className="title-line title-line-1">Pedalea</span>
-            <span className="title-line title-line-2 text-red">Rápido</span>
+          <motion.h1 className="hero-title hero-title--quote" variants={fadeUp} transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>
+            <span className="title-line title-line-1">No importa lo despacio</span>
+            <span className="title-line title-line-2 text-red">que vayas</span>
           </motion.h1>
 
           <motion.p className="hero-tagline" variants={fadeUp} transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>
-            No importa lo despacio que vayas, siempre que no te detengas.
+            siempre que no te detengas.
           </motion.p>
 
           <motion.p className="hero-sub" variants={fadeUp} transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>

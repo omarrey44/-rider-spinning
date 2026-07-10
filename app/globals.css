@@ -656,6 +656,14 @@ button:focus:not(:focus-visible) {
   font-style: italic;
   font-weight: 900;
 }
+
+/* Título largo (frase/quote en vez de 1-2 palabras) — reduce tamaño y letter-spacing */
+.hero-title--quote {
+  font-size: clamp(38px, 5.4vw, 76px);
+  letter-spacing: -1.5px;
+  line-height: 1.08;
+  text-transform: none;
+}
 .hero-tagline {
   font-family: var(--font-display);
   font-weight: 500;
@@ -1078,6 +1086,114 @@ button:focus:not(:focus-visible) {
 /* =====================================================
    LAUNCH ANNOUNCEMENT (reemplaza stats — negocio nuevo)
    ===================================================== */
+/* =====================================================
+   GRAND OPENING — banner de evento, fondo oscuro con acento teal/rojo
+   ===================================================== */
+.opening {
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(29, 212, 232, 0.14) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 100%, rgba(230, 57, 70, 0.12) 0%, transparent 50%),
+    var(--black);
+  color: var(--white);
+  overflow: hidden;
+}
+.opening-inner {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.opening-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  background: rgba(29, 212, 232, 0.12);
+  color: var(--teal-primary);
+  border: 1px solid rgba(29, 212, 232, 0.35);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+.opening-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(32px, 5vw, 56px);
+  letter-spacing: -1px;
+  line-height: 1.05;
+  margin-bottom: 12px;
+}
+.opening-sub {
+  font-size: 17px;
+  color: var(--text-light);
+  margin-bottom: 40px;
+}
+.opening-facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+.opening-fact {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  text-align: left;
+}
+.opening-fact svg { color: var(--teal-primary); flex-shrink: 0; }
+.opening-fact-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-light);
+  opacity: 0.65;
+  margin-bottom: 2px;
+}
+.opening-fact strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--white);
+}
+.opening-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 520px;
+  margin: 0 auto 40px;
+  text-align: left;
+}
+.opening-tips li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 15px;
+  color: var(--text-light);
+  line-height: 1.5;
+}
+.opening-tips svg {
+  color: var(--teal-primary);
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.opening-cta {
+  display: inline-flex;
+}
+
+@media (max-width: 640px) {
+  .opening-facts { flex-direction: column; align-items: stretch; }
+  .opening-fact { justify-content: flex-start; }
+}
+
 .launch {
   background: linear-gradient(180deg, var(--white) 0%, rgba(255, 255, 255, 0.99) 100%);
   padding: 100px 0 0;
