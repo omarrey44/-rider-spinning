@@ -142,8 +142,8 @@ export default function Hero() {
           </motion.span>
 
           <motion.h1 className="hero-title hero-title--quote" variants={fadeUp} transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>
-            <span className="title-line title-line-1">No importa lo despacio</span>
-            <span className="title-line title-line-2 text-red">que vayas</span>
+            <span className="title-line title-line-1">No importa lo</span>
+            <span className="title-line title-line-2 text-red">despacio que vayas</span>
           </motion.h1>
 
           <motion.p className="hero-tagline" variants={fadeUp} transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>
