@@ -174,9 +174,9 @@ export default function Hero() {
               <PowerIcon size={24} />
             </div>
             <div className="proof-text">
-              <span className="km-eyebrow">Próximamente en Chihuahua</span>
+              <span className="km-eyebrow">Gran Apertura · Sábado 8 de Agosto</span>
               <span className="km-headline">Sé parte del <strong>primer ride</strong></span>
-              <span className="km-label">Reserva tu lugar antes de que abran las puertas</span>
+              <span className="km-label">Clase gratuita de 9:00 AM a 1:00 PM — reserva tu lugar</span>
             </div>
           </motion.div>
         </motion.div>
