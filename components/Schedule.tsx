@@ -2,8 +2,21 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { DayKey, days, weekdaySlots, saturdaySlots, ScheduleSlot, BIKE_CONFIG } from '@/data/schedule';
-import { ArrowRight, ClockIcon, SignalIcon, MoonIcon, InfoIcon } from './Icons';
+import { ArrowRight, ClockIcon, SignalIcon, MoonIcon, InfoIcon, CalendarDaysIcon } from './Icons';
 import { createClient } from '@/lib/supabase/client';
+
+// Las reservas en línea abren hasta que el estudio inicia operación regular.
+// El 8 de agosto es la Gran Apertura (clase gratuita); operación regular inicia el 10.
+// Comparación anclada a la fecha calendario de Chihuahua (no al huso horario del visitante).
+const OPENING_DATE_STR = '2026-08-10';
+function getTodayChihuahuaStr(): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Chihuahua',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+}
 
 const jsDayToKey: Record<number, DayKey> = {
   1: 'lun', 2: 'mar', 3: 'mie', 4: 'jue', 5: 'vie', 6: 'sab',
@@ -87,6 +100,8 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
   const [animKey, setAnimKey] = useState(0);
   const [clockTime, setClockTime] = useState('--:--');
   const [currentHour24, setCurrentHour24] = useState<number | null>(null);
+  // false por defecto (determinista para SSR) — se corrige en el efecto de hidratación
+  const [isPrelaunch, setIsPrelaunch] = useState(false);
 
   // slotsByDow: rows agrupadas por day_of_week (1-6). Vacío hasta que cargue Supabase.
   // Si la query falla o devuelve [], usamos los arrays estáticos como fallback.
@@ -162,6 +177,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
     setTodayKey(today);
     // Domingo: dejar activeDay='lun' (próximo día con clases). Otros: forzar al día actual.
     if (today !== null) setActiveDay(today);
+    setIsPrelaunch(getTodayChihuahuaStr() < OPENING_DATE_STR);
 
     const updateNow = () => {
       const n = new Date();
@@ -203,6 +219,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
   }, [isToday, baseSlots, currentHour24]);
 
   const handleReserve = (slot: ScheduleSlot) => {
+    if (isPrelaunch) return;
     onSelectSlot(slot, activeDay);
     const el = document.getElementById('reservar');
     el?.scrollIntoView({ behavior: 'smooth' });
@@ -226,7 +243,15 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
           <p>Selecciona un día y reserva tu lugar antes de que se llene.</p>
         </div>
 
-        {isSunday && (
+        {isPrelaunch ? (
+          <div className="sunday-banner prelaunch-banner" role="status">
+            <CalendarDaysIcon size={20} />
+            <div className="sunday-banner-text">
+              <strong>Reservas en línea abren el 10 de agosto</strong>
+              <span>El 8 de agosto es nuestra <em>Gran Apertura</em> con clase gratuita — <a href="#apertura">ver detalles</a></span>
+            </div>
+          </div>
+        ) : isSunday && (
           <div className="sunday-banner" role="status">
             <MoonIcon />
             <div className="sunday-banner-text">
@@ -281,7 +306,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                     data-status={slot.status}
                     data-class-color={slot.classColor}
                     style={{ '--stagger-delay': `${idx * 80}ms` } as React.CSSProperties}
-                    onDoubleClick={() => handleReserve(slot)}
+                    onDoubleClick={() => !isPrelaunch && handleReserve(slot)}
                   >
                     {isNext && (
                       <span className="next-badge">
@@ -323,8 +348,10 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                       <button
                         className="slot-cta"
                         onClick={() => handleReserve(slot)}
+                        disabled={isPrelaunch}
+                        title={isPrelaunch ? 'Reservas disponibles a partir del 10 de agosto' : undefined}
                       >
-                        Reservar <ArrowRight />
+                        {isPrelaunch ? 'Disponible el 10 ago' : <>Reservar <ArrowRight /></>}
                       </button>
                     </div>
                   </article>

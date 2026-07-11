@@ -1918,6 +1918,17 @@ section::before {
   transition: transform 0.2s ease;
 }
 .slot-cta:hover svg { transform: translateX(3px); }
+.slot-cta:disabled {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  box-shadow: none;
+  cursor: not-allowed;
+  font-size: 11px;
+}
+.slot:hover .slot-cta:disabled {
+  transform: none;
+  box-shadow: none;
+}
 
 /* =====================================================
    BIKE SELECTOR
@@ -6615,6 +6626,12 @@ section::before {
   color: var(--teal-primary);
   font-style: normal;
   font-weight: 600;
+}
+.sunday-banner-text a {
+  color: var(--teal-primary);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 @media (max-width: 540px) {
   .sunday-banner { padding: 12px 16px; gap: 10px; }
