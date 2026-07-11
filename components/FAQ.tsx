@@ -17,10 +17,6 @@ const FAQS: FaqItem[] = [
     a: 'Ropa cómoda que respire, una toalla pequeña, una botella de agua, y tenis deportivos cerrados. Si tienes cleats SPD compatibles puedes traerlos; si no, las bicis tienen pedales con jaulas universales.',
   },
   {
-    q: '¿Hay vestidores?',
-    a: 'Contamos con área de cambio y lockers disponibles. No contamos con regaderas por el momento.',
-  },
-  {
     q: '¿Qué pasa si llego tarde?',
     a: 'Tu lugar se libera 5 minutos después del inicio de la clase para no interrumpir al grupo. Si llegas dentro de los primeros 5 minutos, puedes integrarte. Si pierdes la clase no se aplica reembolso.',
   },
