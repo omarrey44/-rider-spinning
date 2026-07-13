@@ -109,6 +109,29 @@ export default function AdminManualBookingModal({ open, onClose, onSuccess }: Pr
     if (!form.customer_name.trim()) { setError('Nombre requerido'); return; }
     if (!form.customer_email.trim()) { setError('Correo requerido'); return; }
 
+    // Re-verificar disponibilidad justo antes de enviar — la bici pudo ocuparse
+    // mientras se llenaba el formulario (otro admin o un cliente en línea).
+    // La garantía real es el índice único en la DB; esto solo mejora el mensaje.
+    setSubmitting(true);
+    try {
+      const dayName = DAY_KEY_TO_NAME[dayKey];
+      const hour = `${selectedSlot.hour} ${selectedSlot.period}`;
+      const checkRes = await fetch(
+        `/api/bookings/available-bikes?class_title=${encodeURIComponent(selectedSlot.className)}&day=${encodeURIComponent(dayName)}&hour=${encodeURIComponent(hour)}`
+      );
+      const checkData = await checkRes.json();
+      const freshTaken: number[] = checkData.takenBikes || [];
+      if (freshTaken.includes(selectedBike)) {
+        setTakenBikes(freshTaken);
+        setSelectedBike(null);
+        setError('Esa bici se acaba de ocupar mientras llenabas el formulario. Elige otra.');
+        setSubmitting(false);
+        return;
+      }
+    } catch {
+      // Si la verificación falla, seguimos — el índice único en la DB sigue protegiendo el insert.
+    }
+
     const { rowConfig } = BIKE_CONFIG;
     let bikeRow = 1;
     let count = 0;
@@ -119,7 +142,6 @@ export default function AdminManualBookingModal({ open, onClose, onSuccess }: Pr
 
     const amountMXN = paymentType === 'cash' ? (parseFloat(form.amount_paid) || 0) : 0;
 
-    setSubmitting(true);
     try {
       const res = await fetch('/api/admin/bookings', {
         method: 'POST',
