@@ -94,6 +94,17 @@ const partners: Partner[] = [
     colClass: 'col-fisio',
     discountPct: '15%',
   },
+  {
+    image: '/mayra-rosales.png',
+    name: 'Mayra Rosales Extensiones',
+    role: 'Extensiones de Cabello',
+    description:
+      'Coletas de cabello 100% humano en tallas 18", 20", 22", 24", 26", 28" y 30". Disponibles en texturas lacias, rizadas y onduladas.',
+    services: ['Coletas 100% humano', 'Lacias', 'Rizadas', 'Onduladas'],
+    phone: '6143646246',
+    whatsappMsg: 'Hola Mayra, soy miembro de Rideon y me interesa conocer tus extensiones de cabello.',
+    colClass: 'col-mayra',
+  },
 ];
 
 export default function Colaboradores() {
