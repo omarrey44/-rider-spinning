@@ -8169,6 +8169,9 @@ section::before {
   margin-top: 52px;
 }
 
+/* Hint de deslizar — solo visible en móvil (scroll horizontal) */
+.colab-swipe-hint { display: none; }
+
 .colab-card {
   background: #111;
   border: 1px solid rgba(255, 255, 255, 0.07);
@@ -8350,6 +8353,34 @@ section::before {
     max-width: 100%;
   }
   .colab-grid::-webkit-scrollbar { display: none; }
+
+  /* Hint "Desliza para ver más" con flecha animada */
+  .colab-swipe-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px 0 0;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--teal-primary);
+    text-transform: uppercase;
+  }
+  .colab-swipe-hint svg {
+    width: 20px;
+    height: 20px;
+    animation: colabSwipeNudge 1.4s ease-in-out infinite;
+  }
+  @keyframes colabSwipeNudge {
+    0%, 100% { transform: translateX(0); opacity: 0.7; }
+    50%      { transform: translateX(6px); opacity: 1; }
+  }
+  /* Respeta usuarios con reduce-motion */
+  @media (prefers-reduced-motion: reduce) {
+    .colab-swipe-hint svg { animation: none; }
+  }
 
   .colab-card {
     flex: 0 0 82vw;

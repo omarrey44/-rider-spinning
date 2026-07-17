@@ -120,6 +120,13 @@ export default function Colaboradores() {
           <p className="section-sub" style={{ textAlign: 'center', marginLeft: 'auto', marginRight: 'auto' }}>Como miembro de Rideon obtienes <strong>10% de descuento</strong> en servicios con estos especialistas. Muestra tu confirmación de reserva al momento de tu cita.</p>
         </div>
 
+        <p className="colab-swipe-hint" aria-hidden="true">
+          Desliza para ver más
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
+        </p>
+
         <div className="colab-grid">
           {partners.map((p) => (
             <article key={p.name} className={`colab-card ${p.colClass}`}>
