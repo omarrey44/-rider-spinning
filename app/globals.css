@@ -1653,69 +1653,114 @@ section::before {
   margin: 0;
 }
 
-/* ============ GLASS CARDS — layout horizontal ============ */
+/* ============ GLASS CARDS — layout horizontal con foto por clase ============ */
+/* Color de acento por clase — usado en borde, glow, tag y botón */
+.slot[data-class-color="sunrise"]   { --slot-accent: #FF9A3C; }
+.slot[data-class-color="power"]     { --slot-accent: #F39C12; }
+.slot[data-class-color="energy"]    { --slot-accent: #FFC93C; }
+.slot[data-class-color="afterwork"] { --slot-accent: #9B59B6; }
+.slot[data-class-color="sunset"]    { --slot-accent: #E74C3C; }
+.slot[data-class-color="night"]     { --slot-accent: #5D3FD3; }
+.slot[data-class-color="sweat"]     { --slot-accent: #1ABC9C; }
+.slot[data-class-color="marathon"]  { --slot-accent: #2ECC71; }
+.slot { --slot-accent: #1dd4e8; } /* fallback */
+
 .slot {
   display: grid;
-  grid-template-columns: auto auto 1fr auto;
-  gap: 24px;
+  grid-template-columns: 240px 1fr auto;
+  gap: 28px;
   align-items: center;
-  padding: 20px 28px;
-  background: linear-gradient(135deg, rgba(18, 24, 32, 0.72) 0%, rgba(12, 18, 24, 0.82) 100%);
-  backdrop-filter: blur(12px) saturate(120%);
-  -webkit-backdrop-filter: blur(12px) saturate(120%);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.06);
+  padding: 0 30px 0 0;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--slot-accent) 16%, #11161d) 0%,
+    color-mix(in srgb, var(--slot-accent) 7%, #0a0f15) 100%);
+  border: 1px solid color-mix(in srgb, var(--slot-accent) 42%, transparent);
+  box-shadow:
+    0 4px 24px rgba(0,0,0,0.4),
+    0 0 24px color-mix(in srgb, var(--slot-accent) 12%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.05);
   border-radius: 20px;
   color: var(--white);
   position: relative;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s;
   overflow: hidden;
+  min-height: 150px;
 }
 .slot:hover {
-  background: linear-gradient(135deg, rgba(20, 30, 42, 0.88) 0%, rgba(14, 22, 32, 0.92) 100%);
   transform: translateY(-6px);
-  border: 1px solid rgba(29, 212, 232, 0.5);
+  border-color: color-mix(in srgb, var(--slot-accent) 80%, transparent);
   box-shadow:
-    0 20px 50px rgba(0, 0, 0, 0.4),
-    0 0 20px rgba(29, 212, 232, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    0 20px 50px rgba(0, 0, 0, 0.5),
+    0 0 30px color-mix(in srgb, var(--slot-accent) 35%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 .slot[data-status="full"] { opacity: 0.5; pointer-events: none; }
 
-/* Columna 1: Hora */
+/* Columna 1: Foto de la clase con hora superpuesta */
+.slot-photo {
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  padding-left: 30px;
+  overflow: hidden;
+}
+/* La foto — difuminada hacia la derecha */
+.slot-photo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--slot-img);
+  background-size: cover;
+  background-position: center top;
+  -webkit-mask-image: linear-gradient(90deg, #000 45%, transparent 100%);
+  mask-image: linear-gradient(90deg, #000 45%, transparent 100%);
+  opacity: 0.9;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.slot:hover .slot-photo::before { transform: scale(1.06); }
+/* Scrim oscuro (legibilidad de la hora) + tinte de color de la clase sobre la foto */
+.slot-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 35%, transparent 66%),
+    linear-gradient(90deg,
+      color-mix(in srgb, var(--slot-accent) 22%, transparent) 0%,
+      transparent 70%);
+  pointer-events: none;
+}
+
 .slot-time {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  min-width: 80px;
+  align-items: flex-start;
 }
 .time-hour {
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: 36px;
+  font-size: 44px;
   line-height: 1;
   color: var(--white);
-  letter-spacing: -1.5px;
+  letter-spacing: -2px;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.7);
 }
 .time-period {
   font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
-  letter-spacing: 3px;
-  margin-top: 6px;
+  font-weight: 700;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 4px;
+  margin-top: 4px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.7);
 }
 
-/* Columna 2: separador vertical */
-.slot-divider {
-  width: 1px;
-  height: 64px;
-  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-}
-
-/* Columna 3: Info de la clase */
-.slot-info { min-width: 0; }
+/* Columna 2: Info de la clase */
+.slot-info { min-width: 0; padding: 20px 0; }
 .slot h4 {
   font-family: var(--font-display);
   font-weight: 700;
@@ -1827,8 +1872,9 @@ section::before {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 8px;
-  min-width: 170px;
+  gap: 12px;
+  min-width: 180px;
+  padding: 20px 0;
 }
 .slot-status {
   display: inline-flex;
@@ -1883,34 +1929,38 @@ section::before {
 
 .slot-price {
   font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 22px;
+  font-weight: 800;
+  font-size: 30px;
   color: var(--white);
-  letter-spacing: -0.5px;
+  letter-spacing: -1px;
+  line-height: 1;
 }
 
-/* CTA pill */
+/* CTA pill — color por clase */
 .slot-cta {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: linear-gradient(135deg, #FF3030 0%, #E10600 100%);
-  color: var(--white);
-  padding: 11px 22px;
+  gap: 8px;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--slot-accent) 88%, white 12%) 0%,
+    var(--slot-accent) 100%);
+  color: #0b1016;
+  padding: 13px 26px;
   border-radius: var(--radius-pill);
   font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 800;
   font-size: 12px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  box-shadow: 0 4px 14px rgba(225, 6, 0, 0.4);
+  box-shadow: 0 4px 18px color-mix(in srgb, var(--slot-accent) 45%, transparent);
   transition: all 0.25s ease;
   margin-top: 4px;
 }
 .slot:hover .slot-cta {
-  transform: translateY(-2px) scale(1.08);
-  box-shadow: 0 8px 28px rgba(225, 6, 0, 0.6), 0 0 16px rgba(225, 6, 0, 0.4);
-  color: var(--white);
+  transform: translateY(-2px) scale(1.06);
+  box-shadow:
+    0 8px 30px color-mix(in srgb, var(--slot-accent) 60%, transparent),
+    0 0 18px color-mix(in srgb, var(--slot-accent) 45%, transparent);
 }
 .slot-cta svg {
   width: 14px;
@@ -5272,20 +5322,40 @@ section::before {
   /* Horarios — glass cards stack vertical en móvil */
   .slot {
     grid-template-columns: 1fr;
-    gap: 14px;
-    padding: 24px 28px;
+    gap: 0;
+    padding: 0 0 20px;
     min-width: 0;
+    min-height: 0;
   }
   .slot-divider { display: none; }
+  /* Foto tipo banner arriba, hora superpuesta */
+  .slot-photo {
+    align-self: auto;
+    height: 200px;
+    padding: 0 20px;
+    align-items: flex-end;
+    padding-bottom: 14px;
+  }
+  .slot-photo::before {
+    -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 100%);
+    mask-image: linear-gradient(180deg, #000 62%, transparent 100%);
+    background-position: center 18%;
+  }
+  .slot-photo::after {
+    background:
+      linear-gradient(0deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.15) 45%, transparent 70%),
+      linear-gradient(180deg,
+        color-mix(in srgb, var(--slot-accent) 20%, transparent) 0%,
+        transparent 70%);
+  }
   .slot-time {
     flex-direction: row;
     align-items: baseline;
     gap: 10px;
-    min-width: 0;
   }
-  .time-hour { font-size: 28px; }
+  .time-hour { font-size: 34px; }
   .time-period { margin-top: 0; font-size: 12px; letter-spacing: 2px; }
-  .slot-info { min-width: 0; }
+  .slot-info { min-width: 0; padding: 16px 20px 0; }
   .slot h4 { font-size: 20px; margin-bottom: 6px; word-wrap: break-word; }
   .slot-meta { gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
   .meta-item { font-size: 12px; }
@@ -5296,8 +5366,9 @@ section::before {
     justify-content: space-between;
     min-width: 0;
     gap: 10px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-top: 14px;
+    margin: 6px 20px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
   }
   .slot-cta { flex: 1 1 100%; justify-content: center; }
 
@@ -5452,8 +5523,9 @@ section::before {
   .schedule-grid { gap: 10px; }
 
   /* Schedule cards — más compactas en pantallas chicas */
-  .slot { padding: 16px 18px; gap: 12px; border-radius: 16px; }
-  .time-hour { font-size: 26px; }
+  .slot { padding: 0 0 18px; gap: 0; border-radius: 16px; }
+  .slot-photo { height: 180px; }
+  .time-hour { font-size: 30px; }
   .time-period { font-size: 11px; }
   .slot h4 { font-size: 18px; }
   .slot-meta { gap: 8px; flex-wrap: wrap; }
@@ -5462,13 +5534,12 @@ section::before {
   .slot-instructor strong { font-size: 13px; }
   .avatar-mini { width: 30px; height: 30px; font-size: 12px; }
   .slot-status { font-size: 12px; }
-  .slot-price { font-size: 18px; }
+  .slot-price { font-size: 24px; }
   .slot-cta {
     padding: 14px 16px;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     min-height: 48px;
-    background: linear-gradient(135deg, var(--red-primary), var(--red-hover));
   }
 
   /* Bike selector */
@@ -5556,9 +5627,10 @@ section::before {
   .how-card { padding: 16px 12px; }
   .how-num { font-size: 28px; }
 
-  .slot { padding: 14px 16px; gap: 10px; }
+  .slot { padding: 0 0 16px; gap: 0; }
   .slot h4 { font-size: 16px; }
-  .time-hour { font-size: 22px; }
+  .slot-photo { height: 160px; }
+  .time-hour { font-size: 26px; }
   .time-period { font-size: 10px; letter-spacing: 1.5px; }
 
   .bike-seat { width: 20px; height: 20px; font-size: 8px; }

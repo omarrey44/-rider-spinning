@@ -305,7 +305,10 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                     className={`slot ${isNext ? 'slot-next' : ''}`}
                     data-status={slot.status}
                     data-class-color={slot.classColor}
-                    style={{ '--stagger-delay': `${idx * 80}ms` } as React.CSSProperties}
+                    style={{
+                      '--stagger-delay': `${idx * 80}ms`,
+                      '--slot-img': `url(/class-${slot.classColor}.webp)`,
+                    } as React.CSSProperties}
                     onDoubleClick={() => !isPrelaunch && handleReserve(slot)}
                   >
                     {isNext && (
@@ -313,11 +316,12 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                         Próxima <span className="next-badge-dot" />
                       </span>
                     )}
-                    <div className="slot-time">
-                      <span className="time-hour">{slot.hour}</span>
-                      <span className="time-period">{slot.period}</span>
+                    <div className="slot-photo" aria-hidden="true">
+                      <div className="slot-time">
+                        <span className="time-hour">{slot.hour}</span>
+                        <span className="time-period">{slot.period}</span>
+                      </div>
                     </div>
-                    <span className="slot-divider" aria-hidden="true"></span>
                     <div className="slot-info">
                       <h4>{slot.className}</h4>
                       <span className={`class-type-tag class-type-tag--${slot.classColor}`}>
@@ -351,7 +355,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                         disabled={isPrelaunch}
                         title={isPrelaunch ? 'Reservas disponibles a partir del 10 de agosto' : undefined}
                       >
-                        {isPrelaunch ? 'Disponible el 10 ago' : <>Reservar <ArrowRight /></>}
+                        {isPrelaunch ? 'Disponible el 10 ago' : <>Seleccionar bici <ArrowRight /></>}
                       </button>
                     </div>
                   </article>
