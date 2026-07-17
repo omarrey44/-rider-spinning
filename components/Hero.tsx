@@ -287,7 +287,7 @@ export default function Hero() {
 
       <div className="hero-slash" aria-hidden="true">
         <svg viewBox="0 0 1440 100" preserveAspectRatio="none">
-          <polygon points="0,100 1440,0 1440,100" fill="#FFFFFF" />
+          <polygon points="0,100 1440,0 1440,100" fill="#05080b" />
           <polygon points="0,100 1440,30 1440,40 0,100" fill="var(--teal-primary)" opacity="0.9" />
         </svg>
       </div>
