@@ -352,7 +352,8 @@ export default function AdminBookingsTable() {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
+            {/* Desktop: tabla */}
+            <div className="overflow-x-auto hidden md:block">
               <table className="w-full text-sm border-collapse">
                 <thead>
                   {table.getHeaderGroups().map((hg) => (
@@ -399,6 +400,83 @@ export default function AdminBookingsTable() {
                   )}
                 </tbody>
               </table>
+            </div>
+
+            {/* Móvil: lista de tarjetas (sin scroll horizontal) */}
+            <div className="md:hidden divide-y divide-gray-100">
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="p-4 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-gray-100 animate-pulse" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-3.5 w-32 bg-gray-100 rounded animate-pulse" />
+                        <div className="h-3 w-40 bg-gray-100 rounded animate-pulse" />
+                      </div>
+                    </div>
+                    <div className="h-3 w-full bg-gray-100 rounded animate-pulse" />
+                  </div>
+                ))
+              ) : table.getRowModel().rows.length === 0 ? (
+                <div className="text-center py-16 text-gray-400 text-sm">
+                  <Users size={28} className="mx-auto mb-3 text-gray-200" />
+                  No se encontraron reservas
+                </div>
+              ) : (
+                table.getRowModel().rows.map((row) => {
+                  const b = row.original;
+                  const cfg = STATUS_CFG[b.status as keyof typeof STATUS_CFG]
+                    ?? { label: b.status, Icon: AlertCircle, cls: 'text-gray-600 bg-gray-50 border-gray-200' };
+                  const StatusIcon = cfg.Icon;
+                  return (
+                    <div key={row.id} className="p-4">
+                      {/* Cliente + estado */}
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className={clsx('w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0', avatarColor(b.customer_name))}>
+                            {initials(b.customer_name)}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 truncate">{b.customer_name}</p>
+                            <p className="text-xs text-gray-400 truncate">{b.customer_email}</p>
+                          </div>
+                        </div>
+                        <span className={clsx('inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold border flex-shrink-0', cfg.cls)}>
+                          <StatusIcon size={11} />
+                          {cfg.label}
+                        </span>
+                      </div>
+
+                      {/* Detalles en grid */}
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-gray-600 pl-12">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar size={12} className="text-gray-400 flex-shrink-0" />
+                          {b.class_date
+                            ? new Date(b.class_date + 'T00:00:00').toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })
+                            : b.day}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Clock size={12} className="text-gray-400 flex-shrink-0" />
+                          {b.hour}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Bike size={12} className="text-gray-400 flex-shrink-0" />
+                          #{String(b.bike_number).padStart(2, '0')} · F{b.bike_row}
+                        </div>
+                        <div className="flex items-center gap-1.5 justify-self-start">
+                          <MontoBadge amount={b.amount_paid} sessionId={b.stripe_session_id} />
+                        </div>
+                        {b.confirmation_number && (
+                          <div className="col-span-2 flex items-center gap-1.5 pt-1">
+                            <span className="text-gray-400">Confirmación:</span>
+                            <code className="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded text-[11px] font-mono font-bold tracking-widest">{b.confirmation_number}</code>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
 
             {/* Pagination */}
