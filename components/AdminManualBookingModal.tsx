@@ -39,16 +39,27 @@ function isSlotPast(hour: string, period: 'AM' | 'PM', dayKey: string): boolean 
   return slotHour24(hour, period) <= now.getHours();
 }
 
-// Fecha ISO (YYYY-MM-DD) de la próxima ocurrencia del día elegido (hoy incluido).
-function nextDateForDay(dayKey: string): string {
+// Próxima ocurrencia del día elegido (hoy incluido) como objeto Date.
+function nextDateObj(dayKey: string): Date {
   const targetDow = DAY_KEY_TO_DOW[dayKey];
   const d = new Date();
   const diff = (targetDow - d.getDay() + 7) % 7;
   d.setDate(d.getDate() + diff);
+  return d;
+}
+
+// Fecha ISO (YYYY-MM-DD) de la próxima ocurrencia del día elegido.
+function nextDateForDay(dayKey: string): string {
+  const d = nextDateObj(dayKey);
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${day}`;
+}
+
+// Etiqueta legible: "sábado 26 de julio".
+function formatDateLabel(dayKey: string): string {
+  return nextDateObj(dayKey).toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
 }
 
 interface Props {
@@ -255,6 +266,11 @@ export default function AdminManualBookingModal({ open, onClose, onSuccess }: Pr
                 </select>
               </div>
             </div>
+            {dayKey && (
+              <p className="admin-modal-datehint">
+                📅 {formatDateLabel(dayKey)}
+              </p>
+            )}
           </div>
 
           {/* ── Sección 2: Bici ── */}

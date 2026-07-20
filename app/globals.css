@@ -8119,6 +8119,13 @@ section::before {
   color: #888;
   margin: 0;
 }
+.admin-modal-datehint {
+  margin: 12px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563eb;
+  text-transform: capitalize;
+}
 .admin-modal-close {
   background: none;
   border: none;
