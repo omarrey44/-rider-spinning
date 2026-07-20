@@ -39,6 +39,18 @@ function isSlotPast(hour: string, period: 'AM' | 'PM', dayKey: string): boolean 
   return slotHour24(hour, period) <= now.getHours();
 }
 
+// Fecha ISO (YYYY-MM-DD) de la próxima ocurrencia del día elegido (hoy incluido).
+function nextDateForDay(dayKey: string): string {
+  const targetDow = DAY_KEY_TO_DOW[dayKey];
+  const d = new Date();
+  const diff = (targetDow - d.getDay() + 7) % 7;
+  d.setDate(d.getDate() + diff);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -156,6 +168,7 @@ export default function AdminManualBookingModal({ open, onClose, onSuccess }: Pr
           instructor_name: selectedSlot.instructorName,
           day: DAY_KEY_TO_NAME[dayKey],
           hour: `${selectedSlot.hour} ${selectedSlot.period}`,
+          class_date: nextDateForDay(dayKey),
           amount_paid: Math.round(amountMXN * 100),
           payment_type: paymentType,
         }),
