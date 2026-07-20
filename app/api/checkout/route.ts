@@ -248,56 +248,87 @@ export async function POST(req: NextRequest) {
         ? `Pack ${pack_size} horas · válido 7 días · Cancela hasta 1h antes`
         : 'Clases ilimitadas · Botella + toalla · Cancela cuando quieras';
 
-    const session = await getStripe().checkout.sessions.create({
-      mode: 'payment',
-      payment_method_types: ['card'],
+    const sharedMetadata = {
+      booking_id: bookingId || '',
+      confirmation_number: confirmationNumber,
+      customer_name,
       customer_email,
-      line_items: [
-        {
-          price_data: {
-            currency: currency?.toLowerCase() || 'mxn',
-            product_data: {
-              name: class_title || 'Clase Rideon',
-              description: productDescription,
-              metadata: {
-                customer_name,
-                customer_phone: customer_phone || '',
-                bike_number: String(bike_number || 0),
-                bike_row: String(bike_row || 0),
-                class_title: class_title || '',
-                instructor_name: instructor_name || '',
-                date_time: date_time || '',
-                day: day || '',
-                hour: hour || '',
-                goal: goal || '',
-              },
-            },
-            unit_amount: serverAmountCents,
-          },
-          quantity: 1,
-        },
-      ],
-      metadata: {
-        booking_id: bookingId || '',
-        confirmation_number: confirmationNumber,
-        customer_name,
+      customer_phone: customer_phone || '',
+      bike_number: String(bike_number || 0),
+      bike_row: String(bike_row || 0),
+      class_title: class_title || '',
+      instructor_name: instructor_name || '',
+      date_time: date_time || '',
+      class_date: class_date || '',
+      day: day || '',
+      hour: hour || '',
+      goal: goal || '',
+      pack_size: pack_size ? String(pack_size) : '',
+      subscription_type: subscription_type || '',
+    };
+
+    let session;
+    if (subscription_type) {
+      // ── SUSCRIPCIÓN RECURRENTE ──────────────────────────────────────
+      // Cobro automático mensual + inscripción única en el primer recibo.
+      // La cuota semestral se agrega en el webhook (cada 6º recibo).
+      const monthlyPrice = process.env.STRIPE_PRICE_MONTHLY;
+      const inscriptionPrice = process.env.STRIPE_PRICE_INSCRIPTION;
+      if (!monthlyPrice || !inscriptionPrice) {
+        return NextResponse.json(
+          { error: 'Suscripción no configurada: faltan STRIPE_PRICE_MONTHLY / STRIPE_PRICE_INSCRIPTION' },
+          { status: 500 }
+        );
+      }
+      session = await getStripe().checkout.sessions.create({
+        mode: 'subscription',
+        payment_method_types: ['card'],
         customer_email,
-        customer_phone: customer_phone || '',
-        bike_number: String(bike_number || 0),
-        bike_row: String(bike_row || 0),
-        class_title: class_title || '',
-        instructor_name: instructor_name || '',
-        date_time: date_time || '',
-        class_date: class_date || '',
-        day: day || '',
-        hour: hour || '',
-        goal: goal || '',
-        pack_size: pack_size ? String(pack_size) : '',
-        subscription_type: subscription_type || '',
-      },
-      success_url: `${baseUrl}/reserva-exitosa?session_id={CHECKOUT_SESSION_ID}&${successParams}`,
-      cancel_url: `${baseUrl}/?payment=cancelled`,
-    });
+        line_items: [
+          { price: monthlyPrice, quantity: 1 },       // recurrente $650/mes
+          { price: inscriptionPrice, quantity: 1 },   // inscripción única $250 (primer recibo)
+        ],
+        subscription_data: { metadata: sharedMetadata },
+        metadata: sharedMetadata,
+        success_url: `${baseUrl}/reserva-exitosa?session_id={CHECKOUT_SESSION_ID}&${successParams}`,
+        cancel_url: `${baseUrl}/?payment=cancelled`,
+      });
+    } else {
+      // ── PAGO ÚNICO (clase / pack) ───────────────────────────────────
+      session = await getStripe().checkout.sessions.create({
+        mode: 'payment',
+        payment_method_types: ['card'],
+        customer_email,
+        line_items: [
+          {
+            price_data: {
+              currency: currency?.toLowerCase() || 'mxn',
+              product_data: {
+                name: class_title || 'Clase Rideon',
+                description: productDescription,
+                metadata: {
+                  customer_name,
+                  customer_phone: customer_phone || '',
+                  bike_number: String(bike_number || 0),
+                  bike_row: String(bike_row || 0),
+                  class_title: class_title || '',
+                  instructor_name: instructor_name || '',
+                  date_time: date_time || '',
+                  day: day || '',
+                  hour: hour || '',
+                  goal: goal || '',
+                },
+              },
+              unit_amount: serverAmountCents,
+            },
+            quantity: 1,
+          },
+        ],
+        metadata: sharedMetadata,
+        success_url: `${baseUrl}/reserva-exitosa?session_id={CHECKOUT_SESSION_ID}&${successParams}`,
+        cancel_url: `${baseUrl}/?payment=cancelled`,
+      });
+    }
 
     return NextResponse.json({ checkout_url: session.url });
   } catch (err: unknown) {
