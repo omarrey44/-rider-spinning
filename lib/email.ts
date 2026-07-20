@@ -2,8 +2,8 @@ import { Resend } from 'resend';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 const ADMIN_EMAIL = 'administracion@rideonspinningstudio.com';
-// Change to 'RideOn Spinning <noreply@rideonspinningstudio.com.mx>' once domain is verified in Resend
-const FROM = 'RideOn Spinning <onboarding@resend.dev>';
+// Dominio verificado en Resend (rideonspinningstudio.com.mx) → envía a cualquier destinatario
+const FROM = 'RideOn Spinning <noreply@rideonspinningstudio.com.mx>';
 
 function getResend(): Resend {
   if (!process.env.RESEND_API_KEY) throw new Error('RESEND_API_KEY not configured');
