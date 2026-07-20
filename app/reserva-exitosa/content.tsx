@@ -21,11 +21,16 @@ export default function ReservaContent() {
   const bikeNumber = searchParams.get('bike_number') || '';
   const bikeRow = searchParams.get('bike_row') || '';
   const testMode = searchParams.get('test') === 'true';
+  const isFree = searchParams.get('free') === 'true' || parseFloat(amount) === 0;
 
   if (!isClient) return null;
 
   const hasClassDetails = classTitle && day && hour;
-  const displayAmount = amount ? `$${parseFloat(amount).toLocaleString('es-MX')} MXN` : '';
+  const displayAmount = isFree
+    ? 'Gratis'
+    : amount
+      ? `$${parseFloat(amount).toLocaleString('es-MX')} MXN`
+      : '';
 
   return (
     <main className="success-page">
@@ -127,7 +132,7 @@ export default function ReservaContent() {
                 <span className="step-icon">2</span>
                 <div>
                   <p className="step-title">Llega 15 minutos antes</p>
-                  <p className="step-desc">Estacionamiento disponible · Vestiarios con duchas · Casilleros</p>
+                  <p className="step-desc">Estacionamiento disponible · Área de cambio · Casilleros</p>
                 </div>
               </li>
             )}

@@ -25,6 +25,8 @@ interface CheckoutModalProps {
   priceCents: number;
   currency: string;
   classDate: string;
+  /** Evento gratuito (Gran Apertura): omite Stripe y confirma directo. */
+  isFree?: boolean;
 }
 
 interface ConfirmCloseProps {
@@ -66,6 +68,7 @@ export default function CheckoutModal({
   priceCents,
   currency,
   classDate,
+  isFree,
 }: CheckoutModalProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -164,39 +167,59 @@ export default function CheckoutModal({
     try {
       const testMode = typeof window !== 'undefined' && sessionStorage.getItem('test_mode') === 'true';
       const fullPhone = `${countryCode}${phone.trim()}`;
+      const goalValue = goal === 'Otro' ? (goalCustom.trim() || 'Otro') : (goal.trim() || undefined);
 
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customer_name: name.trim(),
-          customer_email: email.trim(),
-          customer_phone: fullPhone,
-          bike_number: bikeNumber,
-          bike_row: bikeRow,
-          class_title: classTitle,
-          instructor_name: instructorName,
-          date_time: dateTime,
-          class_date: classDate,
-          day,
-          hour,
-          amount_cents: priceCents,
-          currency,
-          test_mode: testMode,
-          goal: goal === 'Otro' ? (goalCustom.trim() || 'Otro') : (goal.trim() || undefined),
-        }),
-      });
+      // Evento gratuito (Gran Apertura): endpoint dedicado, sin Stripe.
+      const res = isFree
+        ? await fetch('/api/bookings/free', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              customer_name: name.trim(),
+              customer_email: email.trim(),
+              customer_phone: fullPhone,
+              bike_number: bikeNumber,
+              bike_row: bikeRow,
+              class_title: classTitle,
+              instructor_name: instructorName,
+              hour,
+              goal: goalValue,
+            }),
+          })
+        : await fetch('/api/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              customer_name: name.trim(),
+              customer_email: email.trim(),
+              customer_phone: fullPhone,
+              bike_number: bikeNumber,
+              bike_row: bikeRow,
+              class_title: classTitle,
+              instructor_name: instructorName,
+              date_time: dateTime,
+              class_date: classDate,
+              day,
+              hour,
+              amount_cents: priceCents,
+              currency,
+              test_mode: testMode,
+              goal: goalValue,
+            }),
+          });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Error al crear la sesión de pago');
+        throw new Error(data.error || (isFree ? 'Error al confirmar tu reserva' : 'Error al crear la sesión de pago'));
       }
 
       reset();
 
-      if (data.test_mode) {
-        window.open(`/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=${encodeURIComponent(classTitle)}&instructor_name=${encodeURIComponent(instructorName)}&day=${encodeURIComponent(day)}&hour=${encodeURIComponent(hour)}&bike_number=${bikeNumber}&bike_row=${bikeRow}&amount=${priceCents / 100}`, '_blank');
+      if (data.free || data.test_mode) {
+        // Reserva confirmada sin Stripe (evento gratuito o modo prueba).
+        const flag = data.free ? 'free=true' : 'test=true';
+        window.open(`/reserva-exitosa?${flag}&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=${encodeURIComponent(classTitle)}&instructor_name=${encodeURIComponent(instructorName)}&day=${encodeURIComponent(day)}&hour=${encodeURIComponent(hour)}&bike_number=${bikeNumber}&bike_row=${bikeRow}&amount=${priceCents / 100}`, '_blank');
       } else {
         window.open(data.checkout_url, '_blank');
       }
@@ -235,7 +258,7 @@ export default function CheckoutModal({
         </button>
 
         <div className="modal-header">
-          <span className="modal-eyebrow">Checkout rápido</span>
+          <span className="modal-eyebrow">{isFree ? 'Reserva gratuita' : 'Checkout rápido'}</span>
           <h3>Tu reserva</h3>
         </div>
 
@@ -246,7 +269,7 @@ export default function CheckoutModal({
           </div>
           <div className="booking-banner-row">
             <span className="booking-banner-datetime">{dateTime}</span>
-            <span className="booking-banner-price">${(priceCents / 100).toLocaleString('es-MX')} {currency}</span>
+            <span className="booking-banner-price">{isFree ? 'Gratis' : `$${(priceCents / 100).toLocaleString('es-MX')} ${currency}`}</span>
           </div>
         </div>
 
@@ -349,7 +372,7 @@ export default function CheckoutModal({
           )}
 
           <div className="trust-badges">
-            <span className="trust-badge">🔒 Pago seguro</span>
+            <span className="trust-badge">{isFree ? '🎁 Clase sin costo' : '🔒 Pago seguro'}</span>
             <span className="trust-badge">↩️ Cancelable hasta 1h antes</span>
           </div>
 
@@ -359,7 +382,9 @@ export default function CheckoutModal({
             disabled={loading}
           >
             {loading && <span className="loading-spinner" />}
-            {loading ? 'Redirigiendo a pago...' : 'Pagar y reservar'}
+            {isFree
+              ? (loading ? 'Confirmando reserva...' : 'Reservar gratis')
+              : (loading ? 'Redirigiendo a pago...' : 'Pagar y reservar')}
           </button>
         </form>
       </div>

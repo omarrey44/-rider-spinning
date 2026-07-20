@@ -15,6 +15,7 @@ interface BikeSelectorProps {
     dayName: string;
     date: string;
     fullDateTime: string;
+    isFree?: boolean;
   } | null;
   onCheckout: (bikeNumber: number, bikeRow: number) => void;
   hideHeader?: boolean;
@@ -185,7 +186,7 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
             <li className="step-line" aria-hidden="true"></li>
             <li className={`step step-${stepPay}`}>
               <span className="step-num">3</span>
-              <span className="step-label">Pago</span>
+              <span className="step-label">{selectedSlot?.isFree ? 'Confirmar' : 'Pago'}</span>
             </li>
           </ol>
         </div>
@@ -269,7 +270,7 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
                     className="btn btn-primary btn-confirm-reservation"
                     onClick={handleCheckout}
                   >
-                    Confirmar reserva
+                    {selectedSlot.isFree ? 'Reservar gratis' : 'Confirmar reserva'}
                   </button>
                 </div>
               </div>

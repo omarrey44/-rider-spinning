@@ -21,7 +21,7 @@ import CheckoutModal from '@/components/CheckoutModal';
 import PackCheckoutModal from '@/components/PackCheckoutModal';
 import SubscriptionCheckoutModal from '@/components/SubscriptionCheckoutModal';
 import BackToTop from '@/components/BackToTop';
-import { DayKey, ScheduleSlot } from '@/data/schedule';
+import { DayKey, ScheduleSlot, EVENT_DAY_LABEL } from '@/data/schedule';
 
 function RevealSection({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -129,8 +129,33 @@ export default function Home() {
     return target.toISOString().split('T')[0];
   };
 
+  // Formatea una fecha de evento fija (ISO 'YYYY-MM-DD') a "8 de agosto".
+  // Se ancla a mediodía para evitar corrimiento por zona horaria.
+  const formatEventDate = (iso: string): string =>
+    new Date(`${iso}T12:00:00`).toLocaleDateString('es-MX', { day: 'numeric', month: 'long' });
+
+  const isFreeSlot = selectedSlot?.slot.isFree === true;
+  const eventDate = selectedSlot?.slot.eventDate;
+
+  // Día usado para reservar/consultar disponibilidad. Los slots de evento se
+  // aíslan bajo EVENT_DAY_LABEL para no chocar con los sábados normales.
+  const bookingDay = isFreeSlot ? EVENT_DAY_LABEL : dayLabel;
+
+  // Fecha mostrada / ISO: para slots de evento usamos la fecha fija; si no, la recurrente.
+  const displayDate = selectedSlot
+    ? (eventDate ? formatEventDate(eventDate) : getDateForDay(selectedSlot.day))
+    : '';
+  const isoDate = selectedSlot
+    ? (eventDate ? eventDate : getClassDateISO(selectedSlot.day))
+    : '';
+  const fullDateTime = selectedSlot
+    ? (eventDate
+        ? `${dayLabel} ${formatEventDate(eventDate)} ${selectedSlot.slot.hour} ${selectedSlot.slot.period}`
+        : getFullDateTime(selectedSlot.day))
+    : '';
+
   const priceStr = selectedSlot?.slot.price.replace(/[$,\s]/g, '') ?? '200';
-  const priceCents = Math.round(parseFloat(priceStr) * 100);
+  const priceCents = isFreeSlot ? 0 : Math.round(parseFloat(priceStr) * 100);
 
   return (
     <>
@@ -168,9 +193,10 @@ export default function Home() {
             price: selectedSlot.slot.price,
             duration: selectedSlot.slot.duration,
             instructorClass: selectedSlot.slot.instructorClass,
-            dayName: dayLabel,
-            date: getDateForDay(selectedSlot.day),
-            fullDateTime: getFullDateTime(selectedSlot.day),
+            dayName: bookingDay,
+            date: displayDate,
+            fullDateTime: fullDateTime,
+            isFree: isFreeSlot,
           } : null}
           onCheckout={handleCheckout}
         /></RevealSection>
@@ -193,13 +219,14 @@ export default function Home() {
           bikeRow={checkoutBike.row}
           className={selectedSlot.slot.className}
           instructorName={selectedSlot.slot.instructorName}
-          dateTime={getFullDateTime(selectedSlot.day)}
-          day={dayLabel}
+          dateTime={fullDateTime}
+          day={bookingDay}
           hour={`${selectedSlot.slot.hour} ${selectedSlot.slot.period}`}
           duration={selectedSlot.slot.duration}
           priceCents={priceCents}
-          classDate={getClassDateISO(selectedSlot.day)}
+          classDate={isoDate}
           currency="MXN"
+          isFree={isFreeSlot}
         />
       )}
 

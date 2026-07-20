@@ -39,7 +39,7 @@ function PeopleIcon({ size = 18 }: { size?: number }) {
 
 const facts = [
   { Icon: CalendarDaysIcon, label: 'Fecha', value: 'Sábado 8 de agosto' },
-  { Icon: AlarmClockIcon, label: 'Horario', value: '9:00 AM – 1:00 PM' },
+  { Icon: AlarmClockIcon, label: 'Horario', value: '8:00 AM – 1:00 PM' },
   { Icon: MapPinIcon, label: 'Ubicación', value: 'Plaza San Agustín,\nAv. Tecnológico 4101, Local 23' },
 ];
 

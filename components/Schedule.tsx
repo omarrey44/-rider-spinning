@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { DayKey, days, weekdaySlots, saturdaySlots, ScheduleSlot, BIKE_CONFIG } from '@/data/schedule';
+import { DayKey, days, weekdaySlots, saturdaySlots, aug8EventSlots, EVENT_DAY_LABEL, ScheduleSlot, BIKE_CONFIG } from '@/data/schedule';
 import { ArrowRight, ClockIcon, SignalIcon, MoonIcon, InfoIcon, CalendarDaysIcon } from './Icons';
 import { createClient } from '@/lib/supabase/client';
 
@@ -175,9 +175,12 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
   useEffect(() => {
     const today = getCurrentDayKey();
     setTodayKey(today);
-    // Domingo: dejar activeDay='lun' (próximo día con clases). Otros: forzar al día actual.
-    if (today !== null) setActiveDay(today);
-    setIsPrelaunch(getTodayChihuahuaStr() < OPENING_DATE_STR);
+    const prelaunch = getTodayChihuahuaStr() < OPENING_DATE_STR;
+    setIsPrelaunch(prelaunch);
+    // Prelaunch: enfocar el sábado (Gran Apertura, único día reservable).
+    // Operación regular: domingo → dejar 'lun'; otros → día actual.
+    if (prelaunch) setActiveDay('sab');
+    else if (today !== null) setActiveDay(today);
 
     const updateNow = () => {
       const n = new Date();
@@ -195,11 +198,16 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
 
   // Resolver baseSlots: si tenemos DB usamos eso (filtrado por día), si no fallback estático
   const baseSlots: ScheduleSlot[] = useMemo(() => {
+    // Prelaunch: el sábado es la Gran Apertura (clases gratis, 8 ago). Forzamos
+    // los slots de evento (estáticos) para conservar isFree/eventDate, ignorando DB.
+    if (activeDay === 'sab' && isPrelaunch) {
+      return aug8EventSlots;
+    }
     if (usingDb) {
       return slotsByDow[dayKeyToDow[activeDay]] ?? [];
     }
     return activeDay === 'sab' ? saturdaySlots : weekdaySlots;
-  }, [usingDb, slotsByDow, activeDay]);
+  }, [usingDb, slotsByDow, activeDay, isPrelaunch]);
 
   // currentHour24 === null durante SSR + primer render del cliente.
   // En ese momento NO filtramos por hora actual (mostramos todos los slots)
@@ -219,7 +227,8 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
   }, [isToday, baseSlots, currentHour24]);
 
   const handleReserve = (slot: ScheduleSlot) => {
-    if (isPrelaunch) return;
+    // Prelaunch bloquea reservas de pago; los slots gratuitos (evento) sí se permiten.
+    if (isPrelaunch && !slot.isFree) return;
     onSelectSlot(slot, activeDay);
     const el = document.getElementById('reservar');
     el?.scrollIntoView({ behavior: 'smooth' });
@@ -247,8 +256,8 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
           <div className="sunday-banner prelaunch-banner" role="status">
             <CalendarDaysIcon size={20} />
             <div className="sunday-banner-text">
-              <strong>Reservas en línea abren el 10 de agosto</strong>
-              <span>El 8 de agosto es nuestra <em>Gran Apertura</em> con clase gratuita — <a href="#apertura">ver detalles</a></span>
+              <strong>¡Reserva gratis tu lugar del sábado 8 de agosto!</strong>
+              <span>Elige un horario del <em>sábado</em> — clases gratuitas por la Gran Apertura. Las reservas con costo abren el 10 de agosto.</span>
             </div>
           </div>
         ) : isSunday && (
@@ -294,11 +303,14 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
               {visibleSlots.map((slot, idx) => {
                 const isNext = isToday && nextSlot !== null && slot === nextSlot;
                 const cap = slot.capacity ?? BIKE_CONFIG.total;
-                const countKey = `${slot.className}|${dayKeyToName[activeDay]}|${slot.hour} ${slot.period}`;
+                const countDay = slot.isFree ? EVENT_DAY_LABEL : dayKeyToName[activeDay];
+                const countKey = `${slot.className}|${countDay}|${slot.hour} ${slot.period}`;
                 const taken = slotCounts[countKey] ?? 0;
                 const available = Math.max(0, cap - taken);
                 const liveStatus: 'available' | 'few' | 'full' = available === 0 ? 'full' : available <= 3 ? 'few' : 'available';
                 const liveSpotsText = available === 0 ? 'Llena' : `${available} disponibles`;
+                // Bloqueado solo si es prelaunch y la clase NO es gratuita (evento).
+                const locked = isPrelaunch && !slot.isFree;
                 return (
                   <article
                     key={`${activeDay}-${idx}`}
@@ -309,7 +321,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                       '--stagger-delay': `${idx * 80}ms`,
                       '--slot-img': `url(/class-${slot.classColor}.webp)`,
                     } as React.CSSProperties}
-                    onDoubleClick={() => !isPrelaunch && handleReserve(slot)}
+                    onDoubleClick={() => !locked && handleReserve(slot)}
                   >
                     {isNext && (
                       <span className="next-badge">
@@ -352,10 +364,14 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                       <button
                         className="slot-cta"
                         onClick={() => handleReserve(slot)}
-                        disabled={isPrelaunch}
-                        title={isPrelaunch ? 'Reservas disponibles a partir del 10 de agosto' : undefined}
+                        disabled={locked}
+                        title={locked ? 'Reservas disponibles a partir del 10 de agosto' : undefined}
                       >
-                        {isPrelaunch ? 'Disponible el 10 ago' : <>Seleccionar bici <ArrowRight /></>}
+                        {locked
+                          ? 'Disponible el 10 ago'
+                          : slot.isFree
+                            ? <>Reservar gratis <ArrowRight /></>
+                            : <>Seleccionar bici <ArrowRight /></>}
                       </button>
                     </div>
                   </article>
@@ -367,7 +383,9 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
 
         <div className="schedule-note">
           <span className="note-icon"><InfoIcon /></span>
-          <span>Los horarios de lunes a viernes son los mismos. Los sábados tenemos clases especiales con Elmer.</span>
+          <span>{isPrelaunch
+            ? 'Gran Apertura: sábado 8 de agosto, clases gratuitas de 8:00 AM a 1:00 PM. ¡Reserva tu bici sin costo!'
+            : 'Los horarios de lunes a viernes son los mismos. Los sábados tenemos clases especiales con Elmer.'}</span>
         </div>
       </div>
     </section>
