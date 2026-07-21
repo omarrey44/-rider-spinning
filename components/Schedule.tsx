@@ -304,18 +304,24 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
         )}
 
         <div className="day-tabs" role="tablist" aria-label="Selecciona un día">
-          {days.map((d) => (
-            <button
-              key={d.key}
-              className={`day-tab ${activeDay === d.key ? 'active' : ''}`}
-              role="tab"
-              aria-selected={activeDay === d.key}
-              onClick={() => setActiveDay(d.key)}
-            >
-              {d.label}
-              {d.key === todayKey && <span className="today-dot" aria-label="Hoy" />}
-            </button>
-          ))}
+          {days.map((d) => {
+            // Prelaunch: solo el sábado (Gran Apertura gratis) es seleccionable.
+            const tabLocked = isPrelaunch && d.key !== 'sab';
+            return (
+              <button
+                key={d.key}
+                className={`day-tab ${activeDay === d.key ? 'active' : ''} ${tabLocked ? 'day-tab-locked' : ''}`}
+                role="tab"
+                aria-selected={activeDay === d.key}
+                disabled={tabLocked}
+                title={tabLocked ? 'Disponible a partir del 10 de agosto' : undefined}
+                onClick={() => !tabLocked && setActiveDay(d.key)}
+              >
+                {d.label}
+                {d.key === todayKey && <span className="today-dot" aria-label="Hoy" />}
+              </button>
+            );
+          })}
           <span className="day-tab-indicator" />
         </div>
 

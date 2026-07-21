@@ -209,7 +209,6 @@ button:focus:not(:focus-visible) {
   background: linear-gradient(135deg, rgba(210, 50, 50, 0.85), rgba(190, 40, 40, 0.9));
   color: var(--white);
   box-shadow: 0 4px 16px rgba(210, 50, 50, 0.25);
-  backdrop-filter: blur(12px);
   border: 1px solid rgba(220, 80, 80, 0.3);
 }
 .btn-primary:hover {
@@ -229,7 +228,6 @@ button:focus:not(:focus-visible) {
   background: rgba(255, 255, 255, 0.08);
   color: var(--white);
   border: 1px solid rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(10px);
 }
 .btn-ghost:hover { background: rgba(255, 255, 255, 0.15); }
 .btn-ghost:focus {
@@ -527,7 +525,7 @@ button:focus:not(:focus-visible) {
   background-image: url('/Hero1.png');
   background-size: cover;
   background-position: center;
-  filter: brightness(0.85) saturate(1) blur(0.5px);
+  filter: brightness(0.85);
   opacity: 0.8;
   will-change: transform;
 }
@@ -1772,7 +1770,11 @@ section::before {
   text-transform: uppercase;
   transition: all 0.25s ease;
 }
-.day-tab:hover { color: var(--white); }
+.day-tab:hover:not(.day-tab-locked) { color: var(--white); }
+.day-tab-locked {
+  opacity: 0.32;
+  cursor: not-allowed;
+}
 .day-tab.active {
   background: var(--red-primary);
   color: var(--white);
@@ -8646,6 +8648,19 @@ section::before {
   }
 }
 
+
+/* ============================================================
+   RENDIMIENTO / ACCESIBILIDAD — respeta reduce-motion:
+   apaga animaciones infinitas y transiciones (menos repintado/GPU).
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
 /* ============================================================
    TAILWIND — scoped to admin panel only (preflight disabled)
