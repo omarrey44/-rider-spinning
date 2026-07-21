@@ -10,7 +10,7 @@ interface FaqItem {
 const FAQS: FaqItem[] = [
   {
     q: '¿Es mi primera vez. Necesito experiencia previa?',
-    a: 'Para nada. Las primeras filas tienen mejor visibilidad del instructor; las filas 2 y 3 son las más cómodas para empezar a tu ritmo. Llega 10 minutos antes y el instructor te ayuda con la postura y la resistencia.',
+    a: 'Para nada. La fila 1 está al frente con mejor visibilidad del instructor (ideal para principiantes); la fila 2 tiene más espacio para empezar a tu ritmo. Llega 10 minutos antes y el instructor te ayuda con la postura y la resistencia.',
   },
   {
     q: '¿Qué llevo a mi primera clase?',

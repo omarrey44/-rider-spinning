@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { DayKey, days, weekdaySlots, saturdaySlots, aug8EventSlots, EVENT_DAY_LABEL, ScheduleSlot, BIKE_CONFIG } from '@/data/schedule';
+import { DayKey, days, weekdaySlots, saturdaySlots, aug8EventSlots, EVENT_DATE, EVENT_DAY_LABEL, ScheduleSlot, BIKE_CONFIG } from '@/data/schedule';
 import { ArrowRight, ClockIcon, SignalIcon, MoonIcon, InfoIcon, CalendarDaysIcon } from './Icons';
 import { createClient } from '@/lib/supabase/client';
 
@@ -41,6 +41,39 @@ function slotTo24h(slot: ScheduleSlot): number {
   if (slot.period === 'PM' && h !== 12) return h + 12 + m / 60;
   if (slot.period === 'AM' && h === 12) return m / 60;
   return h + m / 60;
+}
+
+// Próxima ocurrencia (hoy incluido) del día de la semana como Date.
+function nextDateForDayKey(dayKey: DayKey): Date {
+  const target = dayKeyToDow[dayKey];
+  const d = new Date();
+  const diff = (target - d.getDay() + 7) % 7;
+  d.setDate(d.getDate() + diff);
+  return d;
+}
+
+// Offset lun..vie desde el lunes de apertura (sábado = evento gratis).
+const OPENING_WEEK_OFFSET: Record<DayKey, number> = { lun: 0, mar: 1, mie: 2, jue: 3, vie: 4, sab: 5 };
+
+// Fecha a mostrar para un día:
+// - En prelaunch anclamos a la semana de apertura (lun 10 ago…) y el sábado al evento (8 ago).
+// - En operación regular, la próxima ocurrencia del día.
+function dateForDayKey(dayKey: DayKey, prelaunch: boolean): Date {
+  if (prelaunch) {
+    if (dayKey === 'sab') return new Date(`${EVENT_DATE}T12:00:00`);
+    const base = new Date(`${OPENING_DATE_STR}T12:00:00`); // lunes 10 ago
+    base.setDate(base.getDate() + OPENING_WEEK_OFFSET[dayKey]);
+    return base;
+  }
+  return nextDateForDayKey(dayKey);
+}
+// "sábado 8 de agosto"
+function fmtFull(d: Date): string {
+  return d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+// "8 de agosto"
+function fmtDayMonth(d: Date): string {
+  return d.toLocaleDateString('es-MX', { day: 'numeric', month: 'long' });
 }
 
 // Mapea una fila de schedule_slots (con join a instructors) al tipo ScheduleSlot que usa la UI
@@ -286,6 +319,16 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
           <span className="day-tab-indicator" />
         </div>
 
+        {currentHour24 !== null && (
+          <p className="week-hint">
+            {isPrelaunch ? (
+              <>🎉 <strong>{fmtFull(new Date(`${EVENT_DATE}T12:00:00`))}</strong>: clase gratis de Gran Apertura · reservas regulares del <strong>{fmtDayMonth(dateForDayKey('lun', true))}</strong> al <strong>{fmtDayMonth(dateForDayKey('vie', true))}</strong></>
+            ) : (
+              <>Reservando la semana del <strong>{fmtDayMonth(nextDateForDayKey('lun'))}</strong> al <strong>{fmtDayMonth(nextDateForDayKey('sab'))}</strong></>
+            )}
+          </p>
+        )}
+
         <div
           className="schedule-grid day-panel active"
           role="tabpanel"
@@ -311,6 +354,10 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                 const liveSpotsText = available === 0 ? 'Llena' : `${available} disponibles`;
                 // Bloqueado solo si es prelaunch y la clase NO es gratuita (evento).
                 const locked = isPrelaunch && !slot.isFree;
+                // Fecha de la card: evento usa su fecha fija; el resto la próxima ocurrencia del día.
+                const slotDate = slot.eventDate
+                  ? fmtFull(new Date(slot.eventDate + 'T12:00:00'))
+                  : (currentHour24 !== null ? fmtFull(dateForDayKey(activeDay, isPrelaunch)) : '');
                 return (
                   <article
                     key={`${activeDay}-${idx}`}
@@ -336,6 +383,11 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                     </div>
                     <div className="slot-info">
                       <h4>{slot.className}</h4>
+                      {slotDate && (
+                        <span className="slot-date">
+                          <CalendarDaysIcon size={13} /> {slotDate}
+                        </span>
+                      )}
                       <span className={`class-type-tag class-type-tag--${slot.classColor}`}>
                         {slot.className.split(' ')[0]}
                       </span>
