@@ -346,6 +346,9 @@ export default function FindBooking() {
                       {label}
                     </span>
                   </div>
+                  {b.customer_name && (
+                    <p className="booking-card-name">A nombre de <strong>{b.customer_name}</strong></p>
+                  )}
                   {b.confirmation_number && (
                     <p className="booking-card-code">Confirmación: <strong>{b.confirmation_number}</strong></p>
                   )}

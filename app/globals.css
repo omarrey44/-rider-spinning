@@ -4022,6 +4022,12 @@ section::before {
   letter-spacing: 0.3px;
 }
 .booking-card-code strong { color: var(--white); letter-spacing: 1px; }
+.booking-card-name {
+  font-size: 13px;
+  color: var(--text-light);
+  margin: 6px 0 0;
+}
+.booking-card-name strong { color: var(--white); font-weight: 700; }
 .booking-cancel-btn {
   margin-top: 14px;
   width: 100%;
