@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { getStripe } from '@/lib/stripe';
 import { sendCancellationConfirmation } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
     // Fetch booking and verify ownership
     const { data: booking, error: fetchError } = await supabase
       .from('bookings')
-      .select('id, customer_name, customer_email, customer_phone, status, class_date, class_title, instructor_name, hour, day, confirmation_number, amount_paid')
+      .select('id, customer_name, customer_email, customer_phone, status, class_date, class_title, instructor_name, hour, day, confirmation_number, amount_paid, stripe_payment_intent_id')
       .eq('id', booking_id)
       .single();
 
@@ -44,7 +45,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Esta reserva no se puede cancelar' }, { status: 400 });
     }
 
-    // Enforce 1h cancellation window
+    // Ventana de cancelación + elegibilidad de reembolso.
+    // >4h antes → reembolso completo automático · 1–4h → cancela sin reembolso · <1h → no cancelable.
+    let hoursUntilClass = Infinity;
     if (booking.class_date && booking.hour) {
       const [hourStr, rest] = booking.hour.split(':');
       const minuteAndPeriod = rest?.split(' ') || [];
@@ -55,13 +58,19 @@ export async function POST(req: NextRequest) {
       if (period === 'AM' && h === 12) h = 0;
       const classTime = new Date(`${booking.class_date}T00:00:00`);
       classTime.setHours(h, m, 0, 0);
-      const oneHourBefore = new Date(classTime.getTime() - 60 * 60 * 1000);
-      if (new Date() > oneHourBefore) {
+      hoursUntilClass = (classTime.getTime() - Date.now()) / (60 * 60 * 1000);
+      if (hoursUntilClass < 1) {
         return NextResponse.json({
           error: 'No es posible cancelar con menos de 1 hora de anticipación.',
         }, { status: 400 });
       }
     }
+    // Reembolso completo solo si canceló con más de 4h y fue un pago real (clase suelta).
+    const eligibleForRefund =
+      hoursUntilClass > 4 &&
+      typeof booking.amount_paid === 'number' &&
+      booking.amount_paid > 0 &&
+      !!booking.stripe_payment_intent_id;
 
     // Cancel booking
     const { error: updateError } = await supabase
@@ -72,6 +81,21 @@ export async function POST(req: NextRequest) {
     if (updateError) {
       console.error('[bookings/cancel] update error:', updateError);
       return NextResponse.json({ error: 'Error al cancelar' }, { status: 500 });
+    }
+
+    // Reembolso automático en Stripe (>4h, pago real). No bloquea la cancelación si falla.
+    let refunded = false;
+    if (eligibleForRefund) {
+      try {
+        await getStripe().refunds.create({
+          payment_intent: booking.stripe_payment_intent_id as string,
+          reason: 'requested_by_customer',
+        });
+        refunded = true;
+        console.log(`[bookings/cancel] Stripe refund emitido para ${booking_id} ($${(booking.amount_paid ?? 0) / 100})`);
+      } catch (e) {
+        console.error('[bookings/cancel] Error al reembolsar en Stripe (cancelación sí aplicada):', e);
+      }
     }
 
     // Refund pack credit if booking was made with a membership (amount_paid = 0)
@@ -105,11 +129,13 @@ export async function POST(req: NextRequest) {
         day: booking.day,
         hour: booking.hour,
         confirmationNumber: booking.confirmation_number || booking_id.substring(0, 8).toUpperCase(),
+        refunded,
+        refundAmount: refunded ? (booking.amount_paid ?? 0) / 100 : undefined,
       });
     }
 
-    console.log(`[bookings/cancel] Cancelled booking ${booking_id} (${ownerEmail || 'via phone'})`);
-    return NextResponse.json({ success: true });
+    console.log(`[bookings/cancel] Cancelled booking ${booking_id} (${ownerEmail || 'via phone'})${refunded ? ' + refund' : ''}`);
+    return NextResponse.json({ success: true, refunded });
   } catch (err) {
     console.error('[bookings/cancel]', err);
     return NextResponse.json({ error: 'Error interno' }, { status: 500 });

@@ -327,6 +327,10 @@ interface CancellationEmailData {
   day: string;
   hour: string;
   confirmationNumber: string;
+  /** true si se emitió un reembolso automático en Stripe. */
+  refunded?: boolean;
+  /** Monto reembolsado en MXN (para el detalle del correo). */
+  refundAmount?: number;
 }
 
 export async function sendCancellationConfirmation(data: CancellationEmailData) {
@@ -350,6 +354,12 @@ export async function sendCancellationConfirmation(data: CancellationEmailData) 
         <div class="detail-row"><div class="detail-label">Instructor</div><div class="detail-value">${escapeHtml(data.instructorName)}</div></div>
         <div class="detail-row"><div class="detail-label">Día y hora</div><div class="detail-value">${escapeHtml(data.day)} · ${escapeHtml(data.hour)}</div></div>
         <div class="detail-row"><div class="detail-label">Confirmación</div><div class="detail-value">${escapeHtml(data.confirmationNumber)}</div></div>
+        ${data.refunded ? `
+        <div class="detail-row" style="border-left-color:#2a9d8f;background:#f0faf8;">
+          <div class="detail-label" style="color:#2a9d8f;">Reembolso</div>
+          <div class="detail-value">Se procesó el reembolso completo${data.refundAmount ? ` de $${data.refundAmount.toLocaleString('es-MX')} MXN` : ''} a tu método de pago original.</div>
+          <div style="font-size:13px;color:#666;margin-top:6px;">El monto puede tardar de 5 a 10 días hábiles en reflejarse en tu estado de cuenta, según tu banco.</div>
+        </div>` : ''}
         <p style="margin-top:24px;">Si tienes créditos de pack, ya fueron restituidos a tu cuenta. ¡Esperamos verte pronto!</p>
         <div style="text-align:center;margin:24px 0;">
           <a href="${BASE_URL}/#horarios" style="display:inline-block;background:#e10600;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">Reservar otra clase</a>

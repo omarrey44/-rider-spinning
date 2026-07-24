@@ -4055,6 +4055,16 @@ section::before {
   font-size: 12px;
   color: #ff8a85;
 }
+.booking-cancel-success {
+  margin-top: 12px;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #7fe3cf;
+  background: rgba(42, 157, 143, 0.12);
+  border: 1px solid rgba(42, 157, 143, 0.4);
+  border-radius: 10px;
+}
 
 /* Status pills */
 .status-pill {

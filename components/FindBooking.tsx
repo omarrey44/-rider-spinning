@@ -154,6 +154,7 @@ export default function FindBooking() {
   const [bookingMembership, setBookingMembership] = useState<MembershipData | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [cancelErrors, setCancelErrors] = useState<Record<string, string>>({});
+  const [cancelSuccess, setCancelSuccess] = useState<Record<string, string>>({});
   const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null);
 
   const handleCancel = async (bookingId: string) => {
@@ -176,6 +177,12 @@ export default function FindBooking() {
       if (!res.ok) {
         setCancelErrors((prev) => ({ ...prev, [bookingId]: data.error || 'Error al cancelar' }));
       } else {
+        setCancelSuccess((prev) => ({
+          ...prev,
+          [bookingId]: data.refunded
+            ? 'Reserva cancelada. Procesamos tu reembolso completo; puede tardar de 5 a 10 días hábiles en reflejarse en tu método de pago.'
+            : 'Reserva cancelada y tu lugar fue liberado. Según la política, esta cancelación no genera reembolso.',
+        }));
         handleBooked();
       }
     } catch {
@@ -385,6 +392,9 @@ export default function FindBooking() {
                   </div>
                   {cancelErrors[b.id] && (
                     <p className="booking-cancel-error" role="alert">{cancelErrors[b.id]}</p>
+                  )}
+                  {cancelSuccess[b.id] && (
+                    <p className="booking-cancel-success" role="status">{cancelSuccess[b.id]}</p>
                   )}
                   {(b.status === 'confirmed' || b.status === 'pending') && classifySearch(search)?.kind !== 'confirmation' && classifySearch(search) !== null && (
                     confirmCancelId === b.id ? (
