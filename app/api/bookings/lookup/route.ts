@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { email, confirmation } = await req.json();
+    const { email, confirmation, phone } = await req.json();
 
     const supabase = createAdminClient();
     let data;
@@ -72,9 +72,40 @@ export async function POST(req: NextRequest) {
       data = bookingRes.data;
       error = bookingRes.error;
       memberships = membershipRes.data || [];
+    } else if (phone) {
+      // Búsqueda por teléfono (alternativa si el correo se escribió mal).
+      // Coincide por los últimos 10 dígitos, sin importar prefijo/formato guardado.
+      const digits = String(phone).replace(/\D/g, '');
+      if (digits.length < 10) {
+        return NextResponse.json(
+          { error: 'Ingresa un teléfono válido (10 dígitos)' },
+          { status: 400 }
+        );
+      }
+      const last10 = digits.slice(-10);
+
+      const [bookingRes, membershipRes] = await Promise.all([
+        supabase
+          .from('bookings')
+          .select('id, customer_name, bike_number, bike_row, class_title, instructor_name, day, hour, class_date, status, confirmation_number, created_at')
+          .ilike('customer_phone', `%${last10}%`)
+          .gt('bike_number', 0)
+          .order('created_at', { ascending: false })
+          .limit(20),
+        supabase
+          .from('memberships')
+          .select('id, customer_name, customer_email, type, credits_total, credits_used, expires_at, status, confirmation_number, created_at')
+          .ilike('customer_phone', `%${last10}%`)
+          .order('created_at', { ascending: false })
+          .limit(5),
+      ]);
+
+      data = bookingRes.data;
+      error = bookingRes.error;
+      memberships = membershipRes.data || [];
     } else {
       return NextResponse.json(
-        { error: 'Ingresa un correo o número de confirmación' },
+        { error: 'Ingresa un correo, teléfono o número de confirmación' },
         { status: 400 }
       );
     }

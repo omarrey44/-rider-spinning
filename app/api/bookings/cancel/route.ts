@@ -4,9 +4,9 @@ import { sendCancellationConfirmation } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
   try {
-    const { booking_id, customer_email } = await req.json();
+    const { booking_id, customer_email, customer_phone } = await req.json();
 
-    if (!booking_id || !customer_email) {
+    if (!booking_id || (!customer_email && !customer_phone)) {
       return NextResponse.json({ error: 'Faltan datos requeridos' }, { status: 400 });
     }
 
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     // Fetch booking and verify ownership
     const { data: booking, error: fetchError } = await supabase
       .from('bookings')
-      .select('id, customer_name, customer_email, status, class_date, class_title, instructor_name, hour, day, confirmation_number, amount_paid')
+      .select('id, customer_name, customer_email, customer_phone, status, class_date, class_title, instructor_name, hour, day, confirmation_number, amount_paid')
       .eq('id', booking_id)
       .single();
 
@@ -23,9 +23,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Reserva no encontrada' }, { status: 404 });
     }
 
-    if (booking.customer_email.toLowerCase() !== customer_email.toLowerCase()) {
+    // Verificación de propiedad: por correo O por teléfono (últimos 10 dígitos).
+    const emailOk = !!customer_email &&
+      booking.customer_email?.toLowerCase() === customer_email.toLowerCase();
+    const phoneOk = !!customer_phone && !!booking.customer_phone &&
+      booking.customer_phone.replace(/\D/g, '').slice(-10) === String(customer_phone).replace(/\D/g, '').slice(-10) &&
+      String(customer_phone).replace(/\D/g, '').length >= 10;
+    if (!emailOk && !phoneOk) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
     }
+
+    // Correo real en archivo (para reembolso de créditos y correo de cancelación).
+    const ownerEmail = (booking.customer_email || '').toLowerCase();
 
     if (booking.status === 'cancelled') {
       return NextResponse.json({ error: 'La reserva ya está cancelada' }, { status: 400 });
@@ -66,11 +75,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Refund pack credit if booking was made with a membership (amount_paid = 0)
-    if (booking.amount_paid === 0) {
+    if (booking.amount_paid === 0 && ownerEmail) {
       const { data: pack } = await supabase
         .from('memberships')
         .select('id, credits_used')
-        .eq('customer_email', customer_email.toLowerCase())
+        .eq('customer_email', ownerEmail)
         .eq('type', 'pack')
         .eq('status', 'active')
         .gt('credits_used', 0)
@@ -87,17 +96,19 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    await sendCancellationConfirmation({
-      customerName: booking.customer_name,
-      customerEmail: customer_email.toLowerCase(),
-      classTitle: booking.class_title,
-      instructorName: booking.instructor_name,
-      day: booking.day,
-      hour: booking.hour,
-      confirmationNumber: booking.confirmation_number || booking_id.substring(0, 8).toUpperCase(),
-    });
+    if (ownerEmail) {
+      await sendCancellationConfirmation({
+        customerName: booking.customer_name,
+        customerEmail: ownerEmail,
+        classTitle: booking.class_title,
+        instructorName: booking.instructor_name,
+        day: booking.day,
+        hour: booking.hour,
+        confirmationNumber: booking.confirmation_number || booking_id.substring(0, 8).toUpperCase(),
+      });
+    }
 
-    console.log(`[bookings/cancel] Cancelled booking ${booking_id} for ${customer_email}`);
+    console.log(`[bookings/cancel] Cancelled booking ${booking_id} (${ownerEmail || 'via phone'})`);
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error('[bookings/cancel]', err);

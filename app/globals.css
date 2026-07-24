@@ -5099,6 +5099,22 @@ section::before {
   color: rgba(255, 255, 255, 0.5);
   font-weight: 600;
 }
+/* Sugerencia de corrección de correo ("¿Quisiste decir…?") */
+.email-suggest {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 6px 12px;
+  background: rgba(29, 212, 232, 0.10);
+  border: 1px solid rgba(29, 212, 232, 0.35);
+  border-radius: 8px;
+  color: var(--teal-primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.email-suggest:hover { background: rgba(29, 212, 232, 0.18); }
+.email-suggest strong { font-weight: 700; }
+
 .form-error {
   background: rgba(225, 6, 0, 0.25);
   border: 2px solid rgba(225, 6, 0, 0.6);

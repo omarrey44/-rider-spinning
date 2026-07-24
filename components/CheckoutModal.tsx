@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { suggestEmail } from '@/lib/email-suggest';
 
 const COUNTRIES = [
   { flag: '🇲🇽', name: 'México', code: '+52' },
@@ -305,6 +306,11 @@ export default function CheckoutModal({
                 </div>
               )}
             </div>
+            {suggestEmail(email) && (
+              <button type="button" className="email-suggest" onClick={() => setEmail(suggestEmail(email)!)}>
+                ¿Quisiste decir <strong>{suggestEmail(email)}</strong>?
+              </button>
+            )}
           </div>
 
           <div className="form-group">

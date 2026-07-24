@@ -26,6 +26,22 @@ const STATUS_LABELS: Record<string, string> = {
   refunded: 'Reembolsada',
 };
 
+// Clasifica el texto de búsqueda: correo, confirmación (8 hex), o teléfono (10+ dígitos).
+type SearchKind = { kind: 'email' | 'confirmation' | 'phone'; value: string } | null;
+function classifySearch(raw: string): SearchKind {
+  const s = raw.trim();
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)) return { kind: 'email', value: s.toLowerCase() };
+  if (/^[0-9A-F]{8}$/i.test(s)) return { kind: 'confirmation', value: s.toUpperCase() };
+  const digits = s.replace(/\D/g, '');
+  if (digits.length >= 10) return { kind: 'phone', value: digits };
+  return null;
+}
+function lookupBody(raw: string): Record<string, string> | null {
+  const c = classifySearch(raw);
+  if (!c) return null;
+  return { [c.kind]: c.value };
+}
+
 const formatFullDate = (classDate: string | null, day: string): string => {
   if (!classDate) return day;
   try {
@@ -141,9 +157,9 @@ export default function FindBooking() {
   const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null);
 
   const handleCancel = async (bookingId: string) => {
-    const searchTrimmed = search.trim();
-    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(searchTrimmed);
-    if (!isEmail) return;
+    const c = classifySearch(search);
+    // Solo se puede cancelar identificándose por correo o teléfono.
+    if (!c || c.kind === 'confirmation') return;
     setConfirmCancelId(null);
     setCancellingId(bookingId);
     setCancelErrors((prev) => { const n = { ...prev }; delete n[bookingId]; return n; });
@@ -151,7 +167,10 @@ export default function FindBooking() {
       const res = await fetch('/api/bookings/cancel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ booking_id: bookingId, customer_email: searchTrimmed.toLowerCase() }),
+        body: JSON.stringify({
+          booking_id: bookingId,
+          ...(c.kind === 'email' ? { customer_email: c.value } : { customer_phone: c.value }),
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -192,11 +211,9 @@ export default function FindBooking() {
     setLoading(true);
 
     try {
-      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(searchTrimmed);
-      const isConfirmation = /^[0-9A-F]{8}$/i.test(searchTrimmed);
-
-      if (!isEmail && !isConfirmation) {
-        setError('Ingresa un correo válido o número de confirmación (8 caracteres)');
+      const body = lookupBody(searchTrimmed);
+      if (!body) {
+        setError('Ingresa un correo, teléfono (10 dígitos) o número de confirmación (8 caracteres)');
         setLoading(false);
         return;
       }
@@ -204,11 +221,7 @@ export default function FindBooking() {
       const res = await fetch('/api/bookings/lookup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(
-          isEmail
-            ? { email: searchTrimmed.toLowerCase() }
-            : { confirmation: searchTrimmed.toUpperCase() }
-        ),
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
@@ -230,17 +243,12 @@ export default function FindBooking() {
 
   const handleBooked = () => {
     // Re-run lookup to refresh credits count
-    const searchTrimmed = search.trim();
-    if (!searchTrimmed) return;
-    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(searchTrimmed);
+    const body = lookupBody(search);
+    if (!body) return;
     fetch('/api/bookings/lookup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(
-        isEmail
-          ? { email: searchTrimmed.toLowerCase() }
-          : { confirmation: searchTrimmed.toUpperCase() }
-      ),
+      body: JSON.stringify(body),
     })
       .then((r) => r.json())
       .then((data) => {
@@ -258,7 +266,7 @@ export default function FindBooking() {
         <div className="section-head">
           <span className="eyebrow">Mis reservas</span>
           <h2>Buscar mi <span className="text-red">reserva</span></h2>
-          <p>Ingresa el correo que usaste al reservar y te mostramos tus clases y membresías.</p>
+          <p>Ingresa tu correo o teléfono (o el número de confirmación) y te mostramos tus clases y membresías.</p>
         </div>
 
         <form onSubmit={handleLookup} className="lookup-form">
@@ -268,9 +276,9 @@ export default function FindBooking() {
               type="text"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setError(null); }}
-              placeholder="tu@correo.com o número de confirmación"
+              placeholder="Correo, teléfono o número de confirmación"
               required
-              aria-label="Correo o número de confirmación"
+              aria-label="Correo, teléfono o número de confirmación"
               className="lookup-input"
             />
           </div>
@@ -292,16 +300,16 @@ export default function FindBooking() {
         {!hasSearched && !error && (
           <div className="lookup-prompt">
             <div className="lookup-prompt-icon" aria-hidden="true">🔍</div>
-            <p>Ingresa el correo o número de confirmación para ver tus reservas</p>
+            <p>Ingresa tu correo, teléfono o número de confirmación para ver tus reservas</p>
           </div>
         )}
 
         {hasSearched && !hasResults && !error && (
           <div className="lookup-empty">
             <div className="lookup-empty-icon" aria-hidden="true">🚴</div>
-            <h4>Sin reservas con ese correo</h4>
+            <h4>Sin reservas con esos datos</h4>
             <p>Aún no tienes clases reservadas ni membresías activas.</p>
-            <p className="lookup-empty-cta">Verifica que el email sea el mismo que usaste al pagar o <a href="/#reservar">reserva una clase ahora</a>.</p>
+            <p className="lookup-empty-cta">Verifica que el correo o teléfono sea el mismo que usaste al reservar, o <a href="/#reservar">reserva una clase ahora</a>.</p>
           </div>
         )}
 
@@ -375,7 +383,7 @@ export default function FindBooking() {
                   {cancelErrors[b.id] && (
                     <p className="booking-cancel-error" role="alert">{cancelErrors[b.id]}</p>
                   )}
-                  {(b.status === 'confirmed' || b.status === 'pending') && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(search.trim()) && (
+                  {(b.status === 'confirmed' || b.status === 'pending') && classifySearch(search)?.kind !== 'confirmation' && classifySearch(search) !== null && (
                     confirmCancelId === b.id ? (
                       <div className="booking-cancel-confirm">
                         <p>¿Confirmas la cancelación?</p>
