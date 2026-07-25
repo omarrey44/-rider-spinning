@@ -245,7 +245,9 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
   // currentHour24 === null durante SSR + primer render del cliente.
   // En ese momento NO filtramos por hora actual (mostramos todos los slots)
   // y no marcamos "isToday". Una vez hidratado, useEffect lo setea.
-  const isToday = currentHour24 !== null && activeDay === todayKey;
+  // En prelaunch NO filtramos por hora: los slots son fechas futuras (evento 8 ago
+  // o semana de apertura), aunque hoy coincida con ese día de la semana.
+  const isToday = currentHour24 !== null && activeDay === todayKey && !isPrelaunch;
 
   const visibleSlots = isToday && currentHour24 !== null
     ? baseSlots.filter((s) => slotTo24h(s) > currentHour24)
