@@ -316,7 +316,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
               onClick={() => setActiveDay(d.key)}
             >
               {d.label}
-              {d.key === todayKey && <span className="today-dot" aria-label="Hoy" />}
+              {d.key === (isPrelaunch ? 'sab' : todayKey) && <span className="today-dot" aria-label={isPrelaunch ? 'Próxima: Gran Apertura' : 'Hoy'} />}
             </button>
           ))}
           <span className="day-tab-indicator" />
