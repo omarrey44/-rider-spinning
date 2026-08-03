@@ -52,6 +52,44 @@ export const aug8EventSlots: ScheduleSlot[] = [
   { hour: '12:00', period: 'PM', className: 'Clase de Muestra', duration: '60 min', level: 'Todos los niveles', classColor: 'marathon', instructorInitial: 'I', instructorName: 'Isamar Frescas',  instructorClass: 'avatar-lucia',   status: 'available', spotsText: '11 disponibles', price: 'Gratis', capacity: 11, isFree: true, eventDate: EVENT_DATE },
 ];
 
+// Lunes de inicio de operación regular. Antes de esta fecha, los días entre
+// semana se anclan a la SEMANA DE APERTURA (10-14 ago) en vez de la próxima
+// ocurrencia; el sábado sigue siendo el evento gratuito (8 ago).
+export const OPENING_DATE = '2026-08-10';
+
+const DAY_DOW: Record<DayKey, number> = { lun: 1, mar: 2, mie: 3, jue: 4, vie: 5, sab: 6 };
+
+function chihuahuaTodayISO(): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Chihuahua', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date());
+}
+function toISO(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/** true si aún no inicia la operación regular (antes del 10 ago, hora Chihuahua). */
+export function isPreOpening(): boolean {
+  return chihuahuaTodayISO() < OPENING_DATE;
+}
+
+/** Fecha ISO (YYYY-MM-DD) de la clase para un día de la semana.
+ *  Pre-apertura: sábado → evento (8 ago); lun-vie → semana de apertura (10-14 ago).
+ *  Operación regular: próxima ocurrencia del día. */
+export function resolveClassDateISO(dayKey: DayKey): string {
+  if (chihuahuaTodayISO() < OPENING_DATE) {
+    if (dayKey === 'sab') return EVENT_DATE;
+    const offset = { lun: 0, mar: 1, mie: 2, jue: 3, vie: 4 }[dayKey] ?? 0;
+    const base = new Date(`${OPENING_DATE}T12:00:00`);
+    base.setDate(base.getDate() + offset);
+    return toISO(base);
+  }
+  const target = DAY_DOW[dayKey];
+  const d = new Date();
+  d.setDate(d.getDate() + ((target - d.getDay() + 7) % 7));
+  return toISO(d);
+}
+
 export const days: Array<{ key: DayKey; label: string }> = [
   { key: 'lun', label: 'Lun' }, { key: 'mar', label: 'Mar' },
   { key: 'mie', label: 'Mié' }, { key: 'jue', label: 'Jue' },

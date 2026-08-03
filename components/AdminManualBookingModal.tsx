@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { weekdaySlots, saturdaySlots, BIKE_CONFIG } from '@/data/schedule';
+import { weekdaySlots, saturdaySlots, BIKE_CONFIG, resolveClassDateISO, isPreOpening } from '@/data/schedule';
+import type { DayKey } from '@/data/schedule';
 
 const DAY_OPTIONS = [
   { key: 'lun', label: 'Lunes' },
@@ -22,6 +23,8 @@ const DAY_KEY_TO_DOW: Record<string, number> = {
 };
 
 function isDayPast(dayKey: string): boolean {
+  // Pre-apertura: todos los días apuntan a la semana de apertura (futura), ninguno es "pasado".
+  if (isPreOpening()) return false;
   const todayDow = new Date().getDay();
   return DAY_KEY_TO_DOW[dayKey] < todayDow;
 }
@@ -33,33 +36,24 @@ function slotHour24(hour: string, period: 'AM' | 'PM'): number {
 }
 
 function isSlotPast(hour: string, period: 'AM' | 'PM', dayKey: string): boolean {
+  // Pre-apertura: los horarios son de una semana futura, ninguno es "pasado".
+  if (isPreOpening()) return false;
   const todayDow = new Date().getDay();
   if (DAY_KEY_TO_DOW[dayKey] !== todayDow) return false;
   const now = new Date();
   return slotHour24(hour, period) <= now.getHours();
 }
 
-// Próxima ocurrencia del día elegido (hoy incluido) como objeto Date.
-function nextDateObj(dayKey: string): Date {
-  const targetDow = DAY_KEY_TO_DOW[dayKey];
-  const d = new Date();
-  const diff = (targetDow - d.getDay() + 7) % 7;
-  d.setDate(d.getDate() + diff);
-  return d;
-}
-
-// Fecha ISO (YYYY-MM-DD) de la próxima ocurrencia del día elegido.
+// Fecha ISO (YYYY-MM-DD) de la clase (evento/semana de apertura/próxima ocurrencia).
 function nextDateForDay(dayKey: string): string {
-  const d = nextDateObj(dayKey);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
+  return resolveClassDateISO(dayKey as DayKey);
 }
 
-// Etiqueta legible: "sábado 26 de julio".
+// Etiqueta legible: "sábado 8 de agosto".
 function formatDateLabel(dayKey: string): string {
-  return nextDateObj(dayKey).toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+  return new Date(`${resolveClassDateISO(dayKey as DayKey)}T12:00:00`).toLocaleDateString('es-MX', {
+    weekday: 'long', day: 'numeric', month: 'long',
+  });
 }
 
 interface Props {

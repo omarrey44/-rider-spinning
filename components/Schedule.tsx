@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { DayKey, days, weekdaySlots, saturdaySlots, aug8EventSlots, EVENT_DATE, EVENT_DAY_LABEL, ScheduleSlot, BIKE_CONFIG } from '@/data/schedule';
+import { DayKey, days, weekdaySlots, saturdaySlots, aug8EventSlots, EVENT_DATE, EVENT_DAY_LABEL, resolveClassDateISO, ScheduleSlot, BIKE_CONFIG } from '@/data/schedule';
 import { ArrowRight, ClockIcon, SignalIcon, MoonIcon, InfoIcon, CalendarDaysIcon } from './Icons';
 import { createClient } from '@/lib/supabase/client';
 
@@ -262,9 +262,10 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
   }, [isToday, baseSlots, currentHour24]);
 
   const handleReserve = (slot: ScheduleSlot) => {
-    // Prelaunch bloquea reservas de pago; los slots gratuitos (evento) sí se permiten.
-    if (isPrelaunch && !slot.isFree) return;
-    onSelectSlot(slot, activeDay);
+    // Ancla la fecha real de la clase (evento 8 ago / semana de apertura / próxima ocurrencia).
+    // Los slots gratuitos ya traen su eventDate; a los de pago se la asignamos aquí.
+    const enriched = slot.isFree ? slot : { ...slot, eventDate: resolveClassDateISO(activeDay) };
+    onSelectSlot(enriched, activeDay);
     const el = document.getElementById('reservar');
     el?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -292,7 +293,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
             <CalendarDaysIcon size={20} />
             <div className="sunday-banner-text">
               <strong>¡Reserva gratis tu lugar del sábado 8 de agosto!</strong>
-              <span>Elige un horario del <em>sábado</em> — clases gratuitas por la Gran Apertura. Las reservas con costo abren el 10 de agosto.</span>
+              <span>El <em>sábado</em> es la Gran Apertura con clases gratuitas. Ya puedes reservar también la semana de apertura (lun 10 – vie 14 de agosto).</span>
             </div>
           </div>
         ) : isSunday && (
@@ -306,24 +307,18 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
         )}
 
         <div className="day-tabs" role="tablist" aria-label="Selecciona un día">
-          {days.map((d) => {
-            // Prelaunch: solo el sábado (Gran Apertura gratis) es seleccionable.
-            const tabLocked = isPrelaunch && d.key !== 'sab';
-            return (
-              <button
-                key={d.key}
-                className={`day-tab ${activeDay === d.key ? 'active' : ''} ${tabLocked ? 'day-tab-locked' : ''}`}
-                role="tab"
-                aria-selected={activeDay === d.key}
-                disabled={tabLocked}
-                title={tabLocked ? 'Disponible a partir del 10 de agosto' : undefined}
-                onClick={() => !tabLocked && setActiveDay(d.key)}
-              >
-                {d.label}
-                {d.key === todayKey && <span className="today-dot" aria-label="Hoy" />}
-              </button>
-            );
-          })}
+          {days.map((d) => (
+            <button
+              key={d.key}
+              className={`day-tab ${activeDay === d.key ? 'active' : ''}`}
+              role="tab"
+              aria-selected={activeDay === d.key}
+              onClick={() => setActiveDay(d.key)}
+            >
+              {d.label}
+              {d.key === todayKey && <span className="today-dot" aria-label="Hoy" />}
+            </button>
+          ))}
           <span className="day-tab-indicator" />
         </div>
 
@@ -360,8 +355,6 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                 const available = Math.max(0, cap - taken);
                 const liveStatus: 'available' | 'few' | 'full' = available === 0 ? 'full' : available <= 3 ? 'few' : 'available';
                 const liveSpotsText = available === 0 ? 'Llena' : `${available} disponibles`;
-                // Bloqueado solo si es prelaunch y la clase NO es gratuita (evento).
-                const locked = isPrelaunch && !slot.isFree;
                 // Fecha de la card: evento usa su fecha fija; el resto la próxima ocurrencia del día.
                 const slotDate = slot.eventDate
                   ? fmtFull(new Date(slot.eventDate + 'T12:00:00'))
@@ -376,7 +369,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                       '--stagger-delay': `${idx * 80}ms`,
                       '--slot-img': `url(/class-${slot.classColor}.webp)`,
                     } as React.CSSProperties}
-                    onDoubleClick={() => !locked && handleReserve(slot)}
+                    onDoubleClick={() => handleReserve(slot)}
                   >
                     {isNext && (
                       <span className="next-badge">
@@ -424,14 +417,10 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                       <button
                         className="slot-cta"
                         onClick={() => handleReserve(slot)}
-                        disabled={locked}
-                        title={locked ? 'Reservas disponibles a partir del 10 de agosto' : undefined}
                       >
-                        {locked
-                          ? 'Disponible el 10 ago'
-                          : slot.isFree
-                            ? <>Reservar gratis <ArrowRight /></>
-                            : <>Seleccionar bici <ArrowRight /></>}
+                        {slot.isFree
+                          ? <>Reservar gratis <ArrowRight /></>
+                          : <>Seleccionar bici <ArrowRight /></>}
                       </button>
                     </div>
                   </article>
