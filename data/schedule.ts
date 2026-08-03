@@ -66,6 +66,8 @@ export const BIKE_CONFIG = {
   total: 11,
   taken: [] as number[],
   popular: [9, 4],
+  // Bicis fuera de servicio (mantenimiento): no se pueden reservar.
+  maintenance: [1] as number[],
 };
 
 // TODO: When Supabase realtime is integrated, add a server-side fetch here:

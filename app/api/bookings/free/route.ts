@@ -41,6 +41,9 @@ export async function POST(req: NextRequest) {
     if (!Number.isInteger(bikeNum) || bikeNum < 1 || bikeNum > BIKE_CONFIG.total) {
       return NextResponse.json({ error: 'Bici inválida' }, { status: 400 });
     }
+    if (BIKE_CONFIG.maintenance.includes(bikeNum)) {
+      return NextResponse.json({ error: 'Esa bici está en mantenimiento. Elige otra.' }, { status: 400 });
+    }
 
     // El servidor solo permite reservar clases del evento gratuito — nunca confiar en el cliente
     if (!ALLOWED.has(`${class_title}|${hour}`)) {

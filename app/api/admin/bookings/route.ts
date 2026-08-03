@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { createAdminClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
+import { BIKE_CONFIG } from '@/data/schedule';
 import { randomUUID } from 'crypto';
 
 async function getAuthUser() {
@@ -63,6 +64,9 @@ export async function POST(req: NextRequest) {
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer_email)) {
       return NextResponse.json({ error: 'Email inválido' }, { status: 400 });
+    }
+    if (BIKE_CONFIG.maintenance.includes(Number(bike_number))) {
+      return NextResponse.json({ error: 'Esa bici está en mantenimiento. Elige otra.' }, { status: 400 });
     }
     const amountCents = typeof amount_paid === 'number' && amount_paid >= 0 ? amount_paid : 20000;
 

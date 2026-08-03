@@ -291,21 +291,23 @@ export default function AdminManualBookingModal({ open, onClose, onSuccess }: Pr
                     <span className="admin-bike-row-label">F{ri + 1}</span>
                     <div className="admin-bike-row-bikes">
                       {row.map((bikeNum) => {
+                        const maintenance = BIKE_CONFIG.maintenance.includes(bikeNum);
                         const taken = takenBikes.includes(bikeNum);
                         const selected = selectedBike === bikeNum;
+                        const disabled = taken || maintenance;
                         return (
                           <button
                             key={bikeNum}
-                            onClick={() => !taken && setSelectedBike(bikeNum)}
-                            disabled={taken}
+                            onClick={() => !disabled && setSelectedBike(bikeNum)}
+                            disabled={disabled}
                             className={[
                               'admin-bike-btn',
-                              taken ? 'taken' : 'free',
+                              maintenance ? 'maintenance' : taken ? 'taken' : 'free',
                               selected ? 'selected' : '',
                             ]
                               .filter(Boolean)
                               .join(' ')}
-                            title={taken ? 'Ocupada' : `Bici #${String(bikeNum).padStart(2, '0')}`}
+                            title={maintenance ? 'En mantenimiento' : taken ? 'Ocupada' : `Bici #${String(bikeNum).padStart(2, '0')}`}
                           >
                             {String(bikeNum).padStart(2, '0')}
                           </button>
@@ -317,6 +319,7 @@ export default function AdminManualBookingModal({ open, onClose, onSuccess }: Pr
                 <div className="admin-bike-legend">
                   <span><span className="admin-bike-dot free" />Libre</span>
                   <span><span className="admin-bike-dot taken" />Ocupada</span>
+                  <span><span className="admin-bike-dot maintenance" />Mantenimiento</span>
                   <span><span className="admin-bike-dot selected" />Seleccionada</span>
                 </div>
               </div>

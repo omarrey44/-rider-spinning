@@ -2295,6 +2295,10 @@ section::before {
   text-shadow: 0 0 6px rgba(29, 212, 232, 0.8);
 }
 .dot-popular::before { content: '★'; }
+.dot-maintenance {
+  background: #f5b342;
+  box-shadow: 0 0 8px rgba(245, 179, 66, 0.5);
+}
 
 .bike-summary {
   background: rgba(255, 255, 255, 0.04);
@@ -3547,6 +3551,37 @@ section::before {
 .b3d--taken .b3d-glow {
   background: radial-gradient(ellipse, rgba(230,57,70,0.35) 0%, transparent 70%);
   animation: none;
+}
+
+/* Maintenance — bici fuera de servicio: gris/ámbar, no seleccionable, ícono de llave */
+.b3d--maintenance { cursor: not-allowed; }
+.b3d--maintenance .b3d-img {
+  filter: brightness(0.5) saturate(0.25) opacity(0.7);
+}
+.b3d--maintenance .b3d-num {
+  color: rgba(255, 200, 120, 0.95);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+}
+.b3d--maintenance .b3d-platform {
+  background: linear-gradient(180deg, rgba(245, 179, 66, 0.14) 0%, rgba(255,255,255,0.02) 100%);
+  border-color: rgba(245, 179, 66, 0.55);
+  box-shadow:
+    0 10px 20px rgba(0,0,0,0.55),
+    0 0 10px rgba(245, 179, 66, 0.25),
+    inset 0 0 10px rgba(245, 179, 66, 0.12);
+}
+.b3d--maintenance .b3d-glow {
+  background: radial-gradient(ellipse, rgba(245, 179, 66, 0.3) 0%, transparent 70%);
+  animation: none;
+}
+.b3d-wrench {
+  position: absolute;
+  top: -2px;
+  right: 4px;
+  z-index: 3;
+  font-size: 13px;
+  line-height: 1;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));
 }
 
 /* Pending — verificando disponibilidad (loading/error): dim, sin animación, sin marcar rojo */
@@ -8377,6 +8412,12 @@ section::before {
   color: #ccc;
   cursor: not-allowed;
 }
+.admin-bike-btn.maintenance {
+  border-color: #f5b342;
+  background: #fff7e8;
+  color: #b7791f;
+  cursor: not-allowed;
+}
 .admin-bike-legend {
   display: flex;
   gap: 20px;
@@ -8399,6 +8440,7 @@ section::before {
 }
 .admin-bike-dot.free     { background: #d0d0d0; border: 2px solid #d0d0d0; }
 .admin-bike-dot.taken    { background: #f5f5f5; border: 2px solid #e0e0e0; }
+.admin-bike-dot.maintenance { background: #f5b342; border: 2px solid #f5b342; }
 .admin-bike-dot.selected { background: var(--teal-primary); }
 
 @media (max-width: 640px) {

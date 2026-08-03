@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/lib/stripe';
 import { createAdminClient } from '@/lib/supabase/server';
 import { sendBookingConfirmation, sendPackConfirmation, sendSubscriptionConfirmation } from '@/lib/email';
+import { BIKE_CONFIG } from '@/data/schedule';
 import { randomUUID } from 'crypto';
 
 export async function POST(req: NextRequest) {
@@ -50,6 +51,13 @@ export async function POST(req: NextRequest) {
     if (isClassBooking && (!bike_number || !day || !hour)) {
       return NextResponse.json(
         { error: 'Faltan datos requeridos: bicicleta, día y hora' },
+        { status: 400 }
+      );
+    }
+
+    if (isClassBooking && BIKE_CONFIG.maintenance.includes(Number(bike_number))) {
+      return NextResponse.json(
+        { error: 'Esa bici está en mantenimiento. Elige otra.' },
         { status: 400 }
       );
     }

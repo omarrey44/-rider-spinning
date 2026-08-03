@@ -118,7 +118,9 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
     return () => { cancelled = true; };
   }, [selectedSlot]);
 
-  const availableCount = totalBikes - takenBikes.length;
+  // Descontar bicis ocupadas + en mantenimiento (sin doble conteo).
+  const unavailableCount = new Set([...takenBikes, ...BIKE_CONFIG.maintenance]).size;
+  const availableCount = totalBikes - unavailableCount;
 
   // Solo resetear bici si está ocupada en nueva clase. Si sigue disponible, mantener selección.
   useEffect(() => {
@@ -138,7 +140,7 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
       scrollToHorarios();
       return;
     }
-    if (isLoadingBikes || bikesError || takenBikes.includes(num)) return;
+    if (isLoadingBikes || bikesError || takenBikes.includes(num) || BIKE_CONFIG.maintenance.includes(num)) return;
     setSelectedBike(num);
   };
 
@@ -342,6 +344,7 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
             <li><span className="dot dot-selected"></span> Tu selección</li>
             <li><span className="dot dot-taken"></span> Ocupada</li>
             <li><span className="dot dot-popular"></span> Popular</li>
+            <li><span className="dot dot-maintenance"></span> Mantenimiento</li>
           </ul>
 
           {/* Counter de disponibilidad */}
@@ -411,6 +414,7 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
                     const num = start + i;
                     const row = rowIdx + 1;
                     const count = end - start + 1;
+                    const maintenance = BIKE_CONFIG.maintenance.includes(num);
                     const taken = takenBikes.includes(num);
                     const pending = isLoadingBikes || bikesError;
                     const popular = BIKE_CONFIG.popular.includes(num);
@@ -422,20 +426,21 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
                       'b3d',
                       `b3d--row${row}`,
                       flip && 'b3d--flip',
-                      taken && 'b3d--taken',
-                      pending && !taken && 'b3d--pending',
-                      popular && !taken && !selected && 'b3d--popular',
+                      maintenance && 'b3d--maintenance',
+                      taken && !maintenance && 'b3d--taken',
+                      pending && !taken && !maintenance && 'b3d--pending',
+                      popular && !taken && !maintenance && !selected && 'b3d--popular',
                       selected && 'b3d--selected',
                     ].filter(Boolean).join(' ');
-                    const isDisabled = taken || pending;
+                    const isDisabled = taken || pending || maintenance;
 
                     return (
                       <motion.button
                         key={num}
                         className={cls}
                         disabled={isDisabled}
-                        title={taken ? `Bicicleta ${num} - Ocupada` : pending ? `Bicicleta ${num} - Verificando disponibilidad` : tooltip || `Bicicleta ${num}`}
-                        aria-label={taken ? `Bicicleta ${num}, ocupada` : pending ? `Bicicleta ${num}, verificando disponibilidad` : `Bicicleta ${num}`}
+                        title={maintenance ? `Bicicleta ${num} - En mantenimiento` : taken ? `Bicicleta ${num} - Ocupada` : pending ? `Bicicleta ${num} - Verificando disponibilidad` : tooltip || `Bicicleta ${num}`}
+                        aria-label={maintenance ? `Bicicleta ${num}, en mantenimiento, no disponible` : taken ? `Bicicleta ${num}, ocupada` : pending ? `Bicicleta ${num}, verificando disponibilidad` : `Bicicleta ${num}`}
                         aria-pressed={selected}
                         onClick={() => handleBikeClick(num)}
                         initial={{ opacity: 0, y: 16 }}
@@ -459,8 +464,9 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
                           <span className="b3d-num">{String(num).padStart(2, '0')}</span>
                         </div>
                         <div className="b3d-glow" aria-hidden="true" />
-                        {taken && <LockIcon className="b3d-lock" />}
-                        {popular && !taken && <span className="b3d-star" aria-hidden="true">★</span>}
+                        {maintenance && <span className="b3d-wrench" aria-hidden="true">🔧</span>}
+                        {taken && !maintenance && <LockIcon className="b3d-lock" />}
+                        {popular && !taken && !maintenance && <span className="b3d-star" aria-hidden="true">★</span>}
                       </motion.button>
                     );
                   })}
