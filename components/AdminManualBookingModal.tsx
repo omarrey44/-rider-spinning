@@ -3,6 +3,10 @@
 import { useState, useEffect } from 'react';
 import { weekdaySlots, saturdaySlots, BIKE_CONFIG, resolveClassDateISO, isPreOpening } from '@/data/schedule';
 import type { DayKey } from '@/data/schedule';
+import { createClient } from '@/lib/supabase/client';
+
+// Slot mínimo que usa el modal (día, hora, clase, instructor).
+type ModalSlot = { hour: string; period: 'AM' | 'PM'; className: string; instructorName: string };
 
 const DAY_OPTIONS = [
   { key: 'lun', label: 'Lunes' },
@@ -79,8 +83,45 @@ export default function AdminManualBookingModal({ open, onClose, onSuccess }: Pr
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  // Horarios en vivo desde Supabase (instructores/clases reales), agrupados por día (1-6).
+  const [slotsByDow, setSlotsByDow] = useState<Record<number, ModalSlot[]>>({});
 
-  const allSlots = dayKey === 'sab' ? saturdaySlots : dayKey ? weekdaySlots : [];
+  // Carga los horarios reales al abrir el modal.
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase
+          .from('schedule_slots')
+          .select('day_of_week, start_hour, start_minute, class_title, instructor:instructors!inner(full_name)')
+          .eq('active', true)
+          .order('day_of_week', { ascending: true })
+          .order('start_hour', { ascending: true });
+        if (cancelled || !data) return;
+        const grouped: Record<number, ModalSlot[]> = {};
+        for (const r of data as unknown as Array<{ day_of_week: number; start_hour: number; start_minute: number; class_title: string; instructor: { full_name: string } | { full_name: string }[] | null }>) {
+          const h = r.start_hour;
+          const period: 'AM' | 'PM' = h < 12 ? 'AM' : 'PM';
+          const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+          const hour = `${String(h12).padStart(2, '0')}:${String(r.start_minute).padStart(2, '0')}`;
+          const inst = Array.isArray(r.instructor) ? r.instructor[0] : r.instructor;
+          (grouped[r.day_of_week] ??= []).push({
+            hour, period, className: r.class_title, instructorName: inst?.full_name ?? 'Por confirmar',
+          });
+        }
+        setSlotsByDow(grouped);
+      } catch { /* fallback estático abajo */ }
+    })();
+    return () => { cancelled = true; };
+  }, [open]);
+
+  // Fallback estático si la BD no cargó.
+  const staticSlots: ModalSlot[] = (dayKey === 'sab' ? saturdaySlots : dayKey ? weekdaySlots : [])
+    .map((s) => ({ hour: s.hour, period: s.period, className: s.className, instructorName: s.instructorName }));
+  const dbSlots = dayKey ? (slotsByDow[DAY_KEY_TO_DOW[dayKey]] ?? []) : [];
+  const allSlots: ModalSlot[] = dbSlots.length ? dbSlots : staticSlots;
   const slots = allSlots.filter((s) => !isSlotPast(s.hour, s.period, dayKey));
   const selectedSlot = selectedSlotIdx !== null ? slots[selectedSlotIdx] : null;
 
