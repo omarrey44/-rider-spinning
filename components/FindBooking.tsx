@@ -276,6 +276,14 @@ export default function FindBooking() {
           <p>Ingresa tu correo o teléfono (o el número de confirmación) y te mostramos tus clases y membresías.</p>
         </div>
 
+        <div className="lookup-membership-hint" role="note">
+          <span className="lookup-membership-icon" aria-hidden="true">🎟️</span>
+          <p>
+            <strong>¿Tienes un Pack o una Mensualidad?</strong> Aquí es donde reservas tus clases.
+            Ingresa el <strong>correo o teléfono</strong> con el que compraste y elige tu horario y bici con tu membresía.
+          </p>
+        </div>
+
         <form onSubmit={handleLookup} className="lookup-form">
           <div className="lookup-input-wrap">
             <span className="lookup-input-icon" aria-hidden="true"><MailIcon /></span>
@@ -322,9 +330,12 @@ export default function FindBooking() {
 
         {memberships.length > 0 && (
           <div className="lookup-results">
-            <p className="lookup-count">
-              {memberships.length === 1 ? '1 membresía' : `${memberships.length} membresías`} encontrada{memberships.length !== 1 ? 's' : ''}
-            </p>
+            <div className="lookup-group-head">
+              <h3 className="lookup-group-title">🎟️ Tus membresías · reserva tus clases aquí</h3>
+              <p className="lookup-count">
+                {memberships.length === 1 ? '1 membresía activa' : `${memberships.length} membresías activas`}
+              </p>
+            </div>
             {memberships.map((m) => (
               <MembershipCard
                 key={m.id}
@@ -336,10 +347,13 @@ export default function FindBooking() {
         )}
 
         {bookings.length > 0 && (
-          <div className="lookup-results" style={{ marginTop: memberships.length > 0 ? 32 : 0 }}>
-            <p className="lookup-count">
-              {bookings.length} {bookings.length === 1 ? 'reserva encontrada' : 'reservas encontradas'}
-            </p>
+          <div className="lookup-results" style={{ marginTop: memberships.length > 0 ? 40 : 0 }}>
+            <div className="lookup-group-head">
+              <h3 className="lookup-group-title">🚴 Tus clases reservadas</h3>
+              <p className="lookup-count">
+                {bookings.length} {bookings.length === 1 ? 'reserva' : 'reservas'}
+              </p>
+            </div>
 
             {bookings.map((b) => {
               const statusKey = b.status?.toLowerCase() || 'unknown';

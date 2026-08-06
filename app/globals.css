@@ -3875,6 +3875,31 @@ section::before {
 .find-booking .section-head p { color: rgba(255, 255, 255, 0.55); }
 
 /* Form de búsqueda */
+/* Callout: usar Pack/Mensualidad para reservar aquí */
+.lookup-membership-hint {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 680px;
+  margin: 0 auto 20px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(29, 212, 232, 0.12), rgba(29, 212, 232, 0.05));
+  border: 1px solid rgba(29, 212, 232, 0.35);
+  border-radius: 14px;
+}
+.lookup-membership-icon {
+  font-size: 26px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.lookup-membership-hint p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-light);
+}
+.lookup-membership-hint strong { color: var(--teal-primary); font-weight: 700; }
+
 .lookup-form {
   display: flex;
   gap: 12px;
@@ -4015,6 +4040,23 @@ section::before {
   color: rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
   letter-spacing: 1px;
+  margin: 0;
+}
+.lookup-group-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.lookup-group-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--white);
   margin: 0;
 }
 
