@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { weekdaySlots, saturdaySlots, BIKE_CONFIG, resolveClassDateISO, isPreOpening } from '@/data/schedule';
+import { weekdaySlots, saturdaySlots, BIKE_CONFIG, resolveAdminClassDateISO, isPreOpening } from '@/data/schedule';
 import type { DayKey } from '@/data/schedule';
 import { createClient } from '@/lib/supabase/client';
 
@@ -48,14 +48,14 @@ function isSlotPast(hour: string, period: 'AM' | 'PM', dayKey: string): boolean 
   return slotHour24(hour, period) <= now.getHours();
 }
 
-// Fecha ISO (YYYY-MM-DD) de la clase (evento/semana de apertura/próxima ocurrencia).
+// Fecha ISO (YYYY-MM-DD) de la clase — operación regular (sáb = 15 ago, no el evento).
 function nextDateForDay(dayKey: string): string {
-  return resolveClassDateISO(dayKey as DayKey);
+  return resolveAdminClassDateISO(dayKey as DayKey);
 }
 
-// Etiqueta legible: "sábado 8 de agosto".
+// Etiqueta legible: "sábado 15 de agosto".
 function formatDateLabel(dayKey: string): string {
-  return new Date(`${resolveClassDateISO(dayKey as DayKey)}T12:00:00`).toLocaleDateString('es-MX', {
+  return new Date(`${resolveAdminClassDateISO(dayKey as DayKey)}T12:00:00`).toLocaleDateString('es-MX', {
     weekday: 'long', day: 'numeric', month: 'long',
   });
 }

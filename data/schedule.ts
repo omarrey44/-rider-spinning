@@ -73,6 +73,22 @@ export function isPreOpening(): boolean {
   return chihuahuaTodayISO() < OPENING_DATE;
 }
 
+/** Fecha ISO para el panel ADMIN (operación regular, sin el evento gratuito).
+ *  Pre-apertura: semana de apertura completa lun 10 – sáb 15 ago.
+ *  Operación regular: próxima ocurrencia del día. Sirve semana tras semana. */
+export function resolveAdminClassDateISO(dayKey: DayKey): string {
+  if (chihuahuaTodayISO() < OPENING_DATE) {
+    const offset = { lun: 0, mar: 1, mie: 2, jue: 3, vie: 4, sab: 5 }[dayKey] ?? 0;
+    const base = new Date(`${OPENING_DATE}T12:00:00`);
+    base.setDate(base.getDate() + offset);
+    return toISO(base);
+  }
+  const target = DAY_DOW[dayKey];
+  const d = new Date();
+  d.setDate(d.getDate() + ((target - d.getDay() + 7) % 7));
+  return toISO(d);
+}
+
 /** Fecha ISO (YYYY-MM-DD) de la clase para un día de la semana.
  *  Pre-apertura: sábado → evento (8 ago); lun-vie → semana de apertura (10-14 ago).
  *  Operación regular: próxima ocurrencia del día. */

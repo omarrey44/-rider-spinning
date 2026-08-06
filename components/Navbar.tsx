@@ -7,11 +7,11 @@ type NavSection = { id: string; label: string; external?: string };
 
 const SECTIONS: NavSection[] = [
   { id: '#horarios', label: 'Horarios' },
+  { id: '#mis-reservas', label: 'Mis reservas' },
   { id: '#instructores', label: 'Instructores' },
   { id: '#precios', label: 'Precios' },
   { id: '#colaboradores', label: 'Colaboradores' },
   { id: '#feedback', label: 'Sugerencias' },
-  { id: '#mis-reservas', label: 'Mis reservas' },
   { id: '#contacto', label: 'Contacto', external: CONTACT_WHATSAPP },
 ];
 
