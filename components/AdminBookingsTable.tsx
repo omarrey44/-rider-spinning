@@ -42,6 +42,7 @@ const STATUS_CFG = {
   pending:   { label: 'Pendiente',  Icon: Clock,         cls: 'text-amber-700  bg-amber-50  border-amber-200'  },
   cancelled: { label: 'Cancelada',  Icon: XCircle,       cls: 'text-red-700   bg-red-50   border-red-200'   },
   refunded:  { label: 'Reembolsada',Icon: RotateCcw,     cls: 'text-purple-700 bg-purple-50 border-purple-200' },
+  expired:   { label: 'Expirada',   Icon: Clock,         cls: 'text-gray-500  bg-gray-50  border-gray-200'  },
 } as const;
 
 function initials(name: string) {

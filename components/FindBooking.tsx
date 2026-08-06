@@ -24,6 +24,7 @@ const STATUS_LABELS: Record<string, string> = {
   pending: 'Pendiente',
   cancelled: 'Cancelada',
   refunded: 'Reembolsada',
+  expired: 'Expirada',
 };
 
 // Clasifica el texto de búsqueda: correo, confirmación (8 hex), o teléfono (10+ dígitos).
@@ -237,7 +238,7 @@ export default function FindBooking() {
         throw new Error(data.error || 'Error al buscar');
       }
 
-      setBookings(data.bookings || []);
+      setBookings((data.bookings || []).filter((b: Booking) => b.status !== 'expired'));
       setMemberships(data.memberships || []);
       setHasSearched(true);
     } catch (err: unknown) {
@@ -259,7 +260,7 @@ export default function FindBooking() {
     })
       .then((r) => r.json())
       .then((data) => {
-        setBookings(data.bookings || []);
+        setBookings((data.bookings || []).filter((b: Booking) => b.status !== 'expired'));
         setMemberships(data.memberships || []);
       })
       .catch(() => {});

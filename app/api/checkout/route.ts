@@ -88,9 +88,9 @@ export async function POST(req: NextRequest) {
 
     const supabase = createAdminClient();
 
-    // Cleanup expired pending bookings (older than 30 min) for this email
+    // Cleanup expired pending bookings (older than 10 min) for this email
     if (isClassBooking && customer_email) {
-      const cutoff = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+      const cutoff = new Date(Date.now() - 10 * 60 * 1000).toISOString();
       await supabase
         .from('bookings')
         .delete()

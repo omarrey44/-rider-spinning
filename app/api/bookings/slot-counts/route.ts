@@ -10,7 +10,14 @@ export async function GET(req: NextRequest) {
   try {
     const supabase = createAdminClient();
 
-    const pendingCutoff = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+    const pendingCutoff = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+
+    // Expira reservas 'pending' abandonadas (>10 min) para liberar el lugar y el índice.
+    await supabase
+      .from('bookings')
+      .update({ status: 'expired' })
+      .eq('status', 'pending')
+      .lt('created_at', pendingCutoff);
 
     const { data, error } = await supabase
       .from('bookings')

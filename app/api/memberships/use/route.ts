@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 6. Check bike not already taken
-    const pendingCutoff = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+    const pendingCutoff = new Date(Date.now() - 10 * 60 * 1000).toISOString();
     const { data: bikeCheck } = await supabase
       .from('bookings')
       .select('id')
