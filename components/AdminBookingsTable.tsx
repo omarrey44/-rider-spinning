@@ -8,13 +8,14 @@ import {
   getSortedRowModel,
   flexRender,
   type ColumnDef,
+  type SortingState,
 } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
 import {
   Search, RefreshCw, Plus, MoreVertical, CheckCircle2, Clock,
   XCircle, RotateCcw, Calendar, Users, TrendingUp, CalendarCheck,
   AlertCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight,
-  Bike,
+  ChevronUp, ChevronDown, ChevronsUpDown, Bike,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import AdminManualBookingModal from './AdminManualBookingModal';
@@ -73,6 +74,9 @@ export default function AdminBookingsTable() {
   const [error, setError]           = useState<string | null>(null);
   const [search, setSearch]         = useState('');
   const [statusFilter, setStatus]   = useState('all');
+  const [instructorFilter, setInstructorFilter] = useState('all');
+  const [dayFilter, setDayFilter]   = useState('all');
+  const [sorting, setSorting]       = useState<SortingState>([{ id: 'class_date', desc: true }]);
   const [modalOpen, setModalOpen]   = useState(false);
   const [menuId, setMenuId]         = useState<string | null>(null);
 
@@ -102,9 +106,23 @@ export default function AdminBookingsTable() {
     today:     bookings.filter((b) => b.status === 'confirmed' && new Date(b.created_at).toDateString() === today).length,
   }), [bookings, today]);
 
+  // Listas únicas para los dropdowns de filtro
+  const instructorOptions = useMemo(
+    () => Array.from(new Set(bookings.map((b) => b.instructor_name).filter(Boolean))).sort(),
+    [bookings],
+  );
+  const dayOrder = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  const dayOptions = useMemo(
+    () => Array.from(new Set(bookings.map((b) => b.day).filter(Boolean)))
+      .sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b)),
+    [bookings],
+  );
+
   const filtered = useMemo(() => {
     let list = bookings;
     if (statusFilter !== 'all') list = list.filter((b) => b.status === statusFilter);
+    if (instructorFilter !== 'all') list = list.filter((b) => b.instructor_name === instructorFilter);
+    if (dayFilter !== 'all') list = list.filter((b) => b.day === dayFilter);
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(
@@ -115,7 +133,7 @@ export default function AdminBookingsTable() {
       );
     }
     return list;
-  }, [bookings, statusFilter, search]);
+  }, [bookings, statusFilter, instructorFilter, dayFilter, search]);
 
   const columns: ColumnDef<Booking>[] = useMemo(() => [
     {
@@ -253,6 +271,8 @@ export default function AdminBookingsTable() {
   const table = useReactTable({
     data: filtered,
     columns,
+    state: { sorting },
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -319,6 +339,24 @@ export default function AdminBookingsTable() {
             <option value="confirmed">Confirmadas</option>
             <option value="pending">Pendientes</option>
             <option value="cancelled">Canceladas</option>
+            <option value="expired">Expiradas</option>
+            <option value="refunded">Reembolsadas</option>
+          </select>
+          <select
+            value={instructorFilter}
+            onChange={(e) => setInstructorFilter(e.target.value)}
+            className="text-sm border border-gray-200 rounded-lg px-3 py-2.5 bg-gray-50/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 text-gray-600 transition-all max-w-[180px]"
+          >
+            <option value="all">Todos los instructores</option>
+            {instructorOptions.map((i) => <option key={i} value={i}>{i}</option>)}
+          </select>
+          <select
+            value={dayFilter}
+            onChange={(e) => setDayFilter(e.target.value)}
+            className="text-sm border border-gray-200 rounded-lg px-3 py-2.5 bg-gray-50/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 text-gray-600 transition-all"
+          >
+            <option value="all">Todos los días</option>
+            {dayOptions.map((d) => <option key={d} value={d}>{d}</option>)}
           </select>
           <button
             onClick={fetchBookings}
@@ -359,11 +397,27 @@ export default function AdminBookingsTable() {
                 <thead>
                   {table.getHeaderGroups().map((hg) => (
                     <tr key={hg.id} className="border-b border-gray-100 bg-gray-50/60">
-                      {hg.headers.map((header) => (
-                        <th key={header.id} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider whitespace-nowrap">
-                          {flexRender(header.column.columnDef.header, header.getContext())}
-                        </th>
-                      ))}
+                      {hg.headers.map((header) => {
+                        const canSort = header.column.getCanSort();
+                        const dir = header.column.getIsSorted();
+                        return (
+                          <th key={header.id} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider whitespace-nowrap">
+                            {canSort ? (
+                              <button
+                                onClick={header.column.getToggleSortingHandler()}
+                                className="inline-flex items-center gap-1 hover:text-gray-800 transition-colors select-none"
+                              >
+                                {flexRender(header.column.columnDef.header, header.getContext())}
+                                {dir === 'asc' ? <ChevronUp size={12} className="text-blue-600" />
+                                  : dir === 'desc' ? <ChevronDown size={12} className="text-blue-600" />
+                                  : <ChevronsUpDown size={12} className="text-gray-300" />}
+                              </button>
+                            ) : (
+                              flexRender(header.column.columnDef.header, header.getContext())
+                            )}
+                          </th>
+                        );
+                      })}
                     </tr>
                   ))}
                 </thead>
