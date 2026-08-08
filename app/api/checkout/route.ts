@@ -278,13 +278,12 @@ export async function POST(req: NextRequest) {
     let session;
     if (subscription_type) {
       // ── SUSCRIPCIÓN RECURRENTE ──────────────────────────────────────
-      // Cobro automático mensual + inscripción única en el primer recibo.
+      // Cobro automático mensual (sin inscripción este mes).
       // La cuota semestral se agrega en el webhook (cada 6º recibo).
       const monthlyPrice = process.env.STRIPE_PRICE_MONTHLY;
-      const inscriptionPrice = process.env.STRIPE_PRICE_INSCRIPTION;
-      if (!monthlyPrice || !inscriptionPrice) {
+      if (!monthlyPrice) {
         return NextResponse.json(
-          { error: 'Suscripción no configurada: faltan STRIPE_PRICE_MONTHLY / STRIPE_PRICE_INSCRIPTION' },
+          { error: 'Suscripción no configurada: falta STRIPE_PRICE_MONTHLY' },
           { status: 500 }
         );
       }
@@ -294,7 +293,6 @@ export async function POST(req: NextRequest) {
         customer_email,
         line_items: [
           { price: monthlyPrice, quantity: 1 },       // recurrente $650/mes
-          { price: inscriptionPrice, quantity: 1 },   // inscripción única $250 (primer recibo)
         ],
         subscription_data: { metadata: sharedMetadata },
         metadata: sharedMetadata,

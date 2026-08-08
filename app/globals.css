@@ -4730,6 +4730,14 @@ section::before {
 .price-card.featured .period,
 .price-card.featured .plan-desc { color: var(--text-light); }
 .price-card.featured .price-row { border-color: rgba(255, 255, 255, 0.12); }
+/* Aviso de promoción (ej. sin inscripción este mes) */
+.price-features li.price-promo {
+  color: #1a8f7a;
+  font-weight: 700;
+}
+.price-features li.price-promo::before { display: none; }
+.price-card.featured .price-features li.price-promo { color: #7fe3cf; }
+
 .price-card.featured .price-features li { color: rgba(255, 255, 255, 0.88); }
 .price-card.featured .price-features li::before {
   background: var(--teal-primary);
