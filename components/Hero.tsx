@@ -47,21 +47,6 @@ function getNextClass(): { slot: ScheduleSlot; whenLabel: string; dayName: strin
   return null;
 }
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0 },
-};
-
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.12,
-      delayChildren: 0.1,
-    },
-  },
-};
-
 // Featured bike (popular center, fila 2). Highlighted only when not taken.
 const FEATURED_BIKE = BIKE_CONFIG.popular[0] ?? 6;
 
@@ -124,7 +109,7 @@ export default function Hero() {
   const rawPrice = (nextClass?.slot.price ?? '$200 MXN').replace(/\s*MXN\s*$/i, '').trim();
 
   return (
-    <motion.header className="hero" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
+    <motion.header className="hero" initial={false}>
       <motion.div className="hero-bg" style={{ y: yParallax }}>
         <div className="hero-overlay"></div>
         <div className="hero-fog-1" />
@@ -136,26 +121,26 @@ export default function Hero() {
       </motion.div>
 
       <div className="container hero-content">
-        <motion.div className="hero-text" variants={containerVariants} initial="hidden" animate="visible">
-          <motion.span className="hero-eyebrow" variants={fadeUp} transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>
-            // SPINNING STUDIO · CHIHUAHUA
+        <motion.div className="hero-text" initial={false}>
+          <motion.span className="hero-eyebrow">
+            Spinning Studio · Chihuahua
           </motion.span>
 
-          <motion.h1 className="hero-title hero-title--quote" variants={fadeUp} transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>
+          <motion.h1 className="hero-title hero-title--quote">
             <span className="title-line title-line-1">No importa lo</span>
             <span className="title-line title-line-1">despacio que</span>
             <span className="title-line title-line-2 text-red">vayas</span>
           </motion.h1>
 
-          <motion.p className="hero-tagline" variants={fadeUp} transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>
+          <motion.p className="hero-tagline">
             siempre que no te detengas.
           </motion.p>
 
-          <motion.p className="hero-sub" variants={fadeUp} transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>
+          <motion.p className="hero-sub">
             Porque entendemos lo importante de ayudarte a lograr tus metas.
           </motion.p>
 
-          <motion.div className="hero-ctas" variants={fadeUp} transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>
+          <motion.div className="hero-ctas">
             <motion.a
               href="#horarios"
               className="btn btn-primary btn-lg btn-shimmer"
@@ -168,8 +153,6 @@ export default function Hero() {
 
           <motion.div
             className="hero-proof"
-            variants={fadeUp}
-            transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
           >
             <div className="hero-proof-icon" aria-hidden="true">
               <PowerIcon size={24} />
@@ -182,7 +165,7 @@ export default function Hero() {
           </motion.div>
         </motion.div>
 
-        <motion.div className="hero-visual" variants={fadeUp} initial="hidden" animate="visible" transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>
+        <motion.div className="hero-visual" initial={false}>
           <motion.div
             className="hero-card"
             whileHover={{ scale: 1.02 }}

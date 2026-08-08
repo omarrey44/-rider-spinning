@@ -4,7 +4,6 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import TestModeDetector from '@/components/TestModeDetector';
-import Launch from '@/components/Launch';
 import GrandOpening from '@/components/GrandOpening';
 import HowItWorks from '@/components/HowItWorks';
 import Schedule from '@/components/Schedule';
@@ -25,27 +24,38 @@ import { DayKey, ScheduleSlot, EVENT_DAY_LABEL } from '@/data/schedule';
 
 function RevealSection({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef<HTMLDivElement | null>(null);
-  const [revealed, setRevealed] = useState(false);
+  const [revealState, setRevealState] = useState<'idle' | 'pending' | 'revealed'>('idle');
 
   useEffect(() => {
     if (!ref.current) return;
+
+    const element = ref.current;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isNearViewport = element.getBoundingClientRect().top <= window.innerHeight * 1.1;
+
+    if (reducedMotion || isNearViewport) {
+      setRevealState('revealed');
+      return;
+    }
+
+    setRevealState('pending');
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setRevealed(true);
+          setRevealState('revealed');
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.08, rootMargin: '0px 0px -8% 0px' }
     );
-    observer.observe(ref.current);
+    observer.observe(element);
     return () => observer.disconnect();
   }, []);
 
   return (
     <div
       ref={ref}
-      className={`reveal ${revealed ? 'revealed' : ''}`}
+      className={`reveal reveal--${revealState}`}
       style={{ transitionDelay: `${delay}ms` }}
     >
       {children}
@@ -179,11 +189,9 @@ export default function Home() {
 
       <Hero />
 
-        <main id="main">
+      <main id="main">
         <RevealSection><GrandOpening /></RevealSection>
-        <RevealSection><Launch /></RevealSection>
-        <RevealSection delay={100}><HowItWorks /></RevealSection>
-        <RevealSection delay={150}><Schedule onSelectSlot={handleSelectSlot} /></RevealSection>
+        <RevealSection delay={100}><Schedule onSelectSlot={handleSelectSlot} /></RevealSection>
         <RevealSection delay={100}><BikeSelector
           selectedSlot={selectedSlot?.slot ? {
             className: selectedSlot.slot.className,
@@ -200,11 +208,12 @@ export default function Home() {
           } : null}
           onCheckout={handleCheckout}
         /></RevealSection>
-        <RevealSection delay={100}><FindBooking /></RevealSection>
+        <RevealSection delay={100}><HowItWorks /></RevealSection>
         <RevealSection delay={100}><Instructors /></RevealSection>
         <RevealSection delay={150}><Pricing onPackClick={() => setPackCheckoutOpen(true)} onSubscribeClick={() => setSubscriptionCheckoutOpen(true)} /></RevealSection>
-        <RevealSection delay={100}><Colaboradores /></RevealSection>
         <RevealSection delay={100}><FAQ /></RevealSection>
+        <RevealSection delay={100}><Colaboradores /></RevealSection>
+        <RevealSection delay={100}><FindBooking /></RevealSection>
         <RevealSection delay={100}><Feedback /></RevealSection>
       </main>
 

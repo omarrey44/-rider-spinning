@@ -7,11 +7,10 @@ type NavSection = { id: string; label: string; external?: string };
 
 const SECTIONS: NavSection[] = [
   { id: '#horarios', label: 'Horarios' },
-  { id: '#mis-reservas', label: 'Mis reservas' },
+  { id: '#clases', label: 'Cómo funciona' },
   { id: '#instructores', label: 'Instructores' },
   { id: '#precios', label: 'Precios' },
-  { id: '#colaboradores', label: 'Colaboradores' },
-  { id: '#feedback', label: 'Sugerencias' },
+  { id: '#mis-reservas', label: 'Mis reservas' },
   { id: '#contacto', label: 'Contacto', external: CONTACT_WHATSAPP },
 ];
 
@@ -97,7 +96,11 @@ export default function Navbar() {
             ))}
           </ul>
 
-          <a href="#reservar" className="btn btn-primary">Reservar ahora</a>
+          <a href="#horarios" className="btn btn-primary">Reservar clase</a>
+
+          <a href="#horarios" className="nav-mobile-cta" onClick={() => setMobileOpen(false)}>
+            Reservar
+          </a>
 
           <button
             className={`nav-toggle ${mobileOpen ? 'open' : ''}`}
@@ -122,7 +125,7 @@ export default function Navbar() {
               {label}
             </a>
           ))}
-          <a href="#reservar" className="btn btn-primary mobile-reserve-btn" onClick={() => setMobileOpen(false)}>Reservar ahora</a>
+          <a href="#horarios" className="btn btn-primary mobile-reserve-btn" onClick={() => setMobileOpen(false)}>Reservar clase</a>
         </div>
       </nav>
     </>
