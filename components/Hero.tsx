@@ -175,9 +175,9 @@ export default function Hero() {
               <PowerIcon size={24} />
             </div>
             <div className="proof-text">
-              <span className="km-eyebrow">Gran Apertura · Sábado 8 de Agosto</span>
+              <span className="km-eyebrow">🎉 ¡Ya abrimos! · Hoy, Gran Apertura</span>
               <span className="km-headline">Sé parte del <strong>primer ride</strong></span>
-              <span className="km-label">Clase gratuita de 9:00 AM a 1:00 PM — reserva tu lugar</span>
+              <span className="km-label">Clases gratis hoy de 8:00 AM a 1:00 PM — reserva tu bici</span>
             </div>
           </motion.div>
         </motion.div>

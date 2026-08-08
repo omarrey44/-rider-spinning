@@ -72,10 +72,10 @@ export default function GrandOpening() {
             <span className="opening-title-2">Apertura</span>
           </h2>
 
-          <p className="opening-script">¡Ya casi abrimos!</p>
+          <p className="opening-script">¡Ya abrimos!</p>
 
           <p className="opening-invite">
-            Solo el <strong>sábado 8 de agosto</strong> la clase es <strong>gratuita</strong> por hora. A partir del <strong>10 de agosto</strong> abren las reservas en línea con costo normal.
+            <strong>¡Hoy es el día!</strong> Sábado 8 de agosto la clase es <strong>gratuita</strong> por hora. Las reservas en línea con costo ya están disponibles del <strong>10 de agosto</strong> en adelante.
           </p>
 
           <div className="opening-gift">
