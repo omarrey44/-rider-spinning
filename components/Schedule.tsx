@@ -133,6 +133,10 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
   const [animKey, setAnimKey] = useState(0);
   const [clockTime, setClockTime] = useState('--:--');
   const [currentHour24, setCurrentHour24] = useState<number | null>(null);
+  // Minutos desde medianoche (hora Chihuahua) y fecha ISO de hoy (Chihuahua).
+  // null hasta hidratar → SSR seguro (no filtramos por hora en el primer render).
+  const [nowMinChih, setNowMinChih] = useState<number | null>(null);
+  const [todayChihISO, setTodayChihISO] = useState<string | null>(null);
   // false por defecto (determinista para SSR) — se corrige en el efecto de hidratación
   const [isPrelaunch, setIsPrelaunch] = useState(false);
 
@@ -217,8 +221,18 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
 
     const updateNow = () => {
       const n = new Date();
-      setClockTime(`${n.getHours().toString().padStart(2, '0')}:${n.getMinutes().toString().padStart(2, '0')}`);
-      setCurrentHour24(n.getHours() + n.getMinutes() / 60);
+      // Hora Chihuahua (no la del navegador del visitante).
+      const parts = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'America/Chihuahua', hour: '2-digit', minute: '2-digit', hour12: false,
+      }).formatToParts(n);
+      const hh = parseInt(parts.find((p) => p.type === 'hour')!.value, 10);
+      const mm = parseInt(parts.find((p) => p.type === 'minute')!.value, 10);
+      setClockTime(`${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`);
+      setCurrentHour24(hh + mm / 60);
+      setNowMinChih(hh * 60 + mm);
+      setTodayChihISO(new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Chihuahua', year: 'numeric', month: '2-digit', day: '2-digit',
+      }).format(n));
     };
     updateNow();
     const t = setInterval(updateNow, 15000);
@@ -242,24 +256,29 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
     return activeDay === 'sab' ? saturdaySlots : weekdaySlots;
   }, [usingDb, slotsByDow, activeDay, isPrelaunch]);
 
-  // currentHour24 === null durante SSR + primer render del cliente.
-  // En ese momento NO filtramos por hora actual (mostramos todos los slots)
-  // y no marcamos "isToday". Una vez hidratado, useEffect lo setea.
-  // En prelaunch NO filtramos por hora: los slots son fechas futuras (evento 8 ago
-  // o semana de apertura), aunque hoy coincida con ese día de la semana.
-  const isToday = currentHour24 !== null && activeDay === todayKey && !isPrelaunch;
+  // Fecha ISO real del slot (evento = su fecha fija; el resto según el día activo).
+  const slotDateISO = (slot: ScheduleSlot): string => slot.eventDate ?? resolveClassDateISO(activeDay);
+  // Un slot cuya fecha es HOY (Chihuahua) se oculta 5 min después de iniciar.
+  const TOLERANCE_MIN = 5;
+  const isSlotPast = (slot: ScheduleSlot): boolean => {
+    if (nowMinChih === null || todayChihISO === null) return false; // pre-hidratación: mostrar todo
+    if (slotDateISO(slot) !== todayChihISO) return false;           // no es hoy → nunca "pasado"
+    return nowMinChih > slotTo24h(slot) * 60 + TOLERANCE_MIN;
+  };
 
-  const visibleSlots = isToday && currentHour24 !== null
-    ? baseSlots.filter((s) => slotTo24h(s) > currentHour24)
-    : baseSlots;
+  // El día activo corresponde a hoy (todos sus slots comparten fecha).
+  const activeDayIsToday = nowMinChih !== null && baseSlots.length > 0 && slotDateISO(baseSlots[0]) === todayChihISO;
+
+  const visibleSlots = baseSlots.filter((s) => !isSlotPast(s));
 
   const nextSlot = useMemo(() => {
-    if (!isToday || currentHour24 === null) return null;
-    const upcoming = baseSlots
-      .filter((s) => slotTo24h(s) > currentHour24)
+    if (!activeDayIsToday || nowMinChih === null) return null;
+    const upcoming = visibleSlots
+      .filter((s) => slotTo24h(s) * 60 > nowMinChih)
       .sort((a, b) => slotTo24h(a) - slotTo24h(b));
     return upcoming.length > 0 ? upcoming[0] : null;
-  }, [isToday, baseSlots, currentHour24]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeDayIsToday, visibleSlots, nowMinChih]);
 
   const handleReserve = (slot: ScheduleSlot) => {
     // Ancla la fecha real de la clase (evento 8 ago / semana de apertura / próxima ocurrencia).
@@ -338,7 +357,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
           tabIndex={0}
           key={animKey}
         >
-          {visibleSlots.length === 0 && isToday ? (
+          {visibleSlots.length === 0 && activeDayIsToday ? (
             <div className="no-more-slots">
               <span className="no-more-icon"><MoonIcon /></span>
               <h4>No hay más clases hoy</h4>
@@ -347,7 +366,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
           ) : (
             <>
               {visibleSlots.map((slot, idx) => {
-                const isNext = isToday && nextSlot !== null && slot === nextSlot;
+                const isNext = activeDayIsToday && nextSlot !== null && slot === nextSlot;
                 // Capacidad efectiva = total (o capacity) menos las bicis en mantenimiento.
                 const cap = Math.max(0, (slot.capacity ?? BIKE_CONFIG.total) - BIKE_CONFIG.maintenance.length);
                 const countDay = slot.isFree ? EVENT_DAY_LABEL : dayKeyToName[activeDay];
