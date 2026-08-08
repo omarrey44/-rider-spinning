@@ -4441,6 +4441,36 @@ section::before {
   filter: brightness(1.15);
   box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.1), 0 0 30px rgba(29, 212, 232, 0.3);
 }
+
+/* Variante solo-texto (sin foto): monograma circular centrado */
+.instructor-card--text {
+  text-align: center;
+  padding: 36px 24px 28px;
+}
+.instructor-monogram {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  margin: 0 auto 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 30px;
+  color: var(--white);
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.instructor-card--text:hover .instructor-monogram {
+  transform: scale(1.06);
+  box-shadow: 0 10px 28px rgba(29, 212, 232, 0.35);
+}
+.instructor-card--text h3 { padding: 0 0 4px; }
+.instructor-card--text span { padding: 0; }
+.instructor-card--text .bio-wrapper { padding: 0; }
+.instructor-card--text p { padding: 12px 0 0; }
 .instructor-card h3 {
   font-family: var(--font-display);
   font-size: 22px;

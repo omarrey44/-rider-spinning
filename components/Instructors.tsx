@@ -51,6 +51,9 @@ export default function Instructors() {
     setExpandedBios(newExpanded);
   };
 
+  const initials = (name: string): string =>
+    name.split(' ').filter(Boolean).slice(0, 2).map((n) => n[0]).join('').toUpperCase();
+
   const truncateBio = (bio: string, id: string): string => {
     const maxLength = 100;
     if (bio.length > maxLength && !expandedBios.has(id)) {
@@ -95,8 +98,10 @@ export default function Instructors() {
           {instructors.map((ins) => {
             const style = STYLE_MAP[ins.avatar_class] ?? STYLE_MAP['avatar-rosario'];
             return (
-              <article key={ins.id} className="instructor-card">
-                <div className="instructor-photo" style={{ background: style.gradient }}></div>
+              <article key={ins.id} className="instructor-card instructor-card--text">
+                <div className="instructor-monogram" style={{ background: style.gradient }} aria-hidden="true">
+                  {initials(ins.full_name)}
+                </div>
                 <h3>{ins.full_name}</h3>
                 <span>{style.shiftLabel}</span>
                 {ins.bio && (
