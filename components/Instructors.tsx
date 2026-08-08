@@ -18,22 +18,22 @@ interface InstructorRow {
 const STYLE_MAP: Record<AvatarClass, { gradient: string; shiftLabel: string }> = {
   'avatar-rosario': {
     gradient: 'linear-gradient(135deg,#1A1A1A,#E10600)',
-    shiftLabel: 'Turno mañana · Lunes a Viernes',
+    shiftLabel: 'Martes y Jueves · Turno mañana',
   },
   'avatar-lucia': {
     gradient: 'linear-gradient(135deg,#E10600,#FFB800)',
-    shiftLabel: 'Turno tarde · Lunes a Viernes',
+    shiftLabel: 'Tardes Lun–Vie · Sábados por la mañana',
   },
   'avatar-elmer': {
     gradient: 'linear-gradient(135deg,#0A0A0A,#1dd4e8)',
-    shiftLabel: 'Sábados · Sesiones especiales',
+    shiftLabel: 'Lun, Mié y Vie · Turno mañana',
   },
 };
 
 // Fallback si Supabase no responde (env vars faltantes en local, red caída, etc.)
 const FALLBACK: InstructorRow[] = [
   { id: '1', full_name: 'Rosario González Muñoz', bio: '"El mejor regalo que te puedes dar es empezar el día moviéndote."', avatar_class: 'avatar-rosario', display_order: 1 },
-  { id: '2', full_name: 'Lucía Frescas González', bio: '"Después del trabajo, tu cuerpo merece soltar el día."',            avatar_class: 'avatar-lucia',   display_order: 2 },
+  { id: '2', full_name: 'Isamar Frescas', bio: '"Después del trabajo, tu cuerpo merece soltar el día."',            avatar_class: 'avatar-lucia',   display_order: 2 },
   { id: '3', full_name: 'Elmer Alsides',          bio: '"El fin de semana es para ti. Sube a la bici y disfruta."',         avatar_class: 'avatar-elmer',   display_order: 3 },
 ];
 
