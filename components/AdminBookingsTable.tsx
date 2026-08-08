@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import AdminManualBookingModal from './AdminManualBookingModal';
+import AdminMembershipModal from './AdminMembershipModal';
 
 interface Booking {
   id: string;
@@ -78,6 +79,7 @@ export default function AdminBookingsTable() {
   const [dayFilter, setDayFilter]   = useState('all');
   const [sorting, setSorting]       = useState<SortingState>([{ id: 'class_date', desc: true }]);
   const [modalOpen, setModalOpen]   = useState(false);
+  const [membModalOpen, setMembModalOpen] = useState(false);
   const [menuId, setMenuId]         = useState<string | null>(null);
 
   const fetchBookings = useCallback(async () => {
@@ -289,6 +291,7 @@ export default function AdminBookingsTable() {
   return (
     <>
       <AdminManualBookingModal open={modalOpen} onClose={() => setModalOpen(false)} onSuccess={fetchBookings} />
+      <AdminMembershipModal open={membModalOpen} onClose={() => setMembModalOpen(false)} onSuccess={fetchBookings} />
       {menuId && <div className="fixed inset-0 z-40" onClick={() => setMenuId(null)} />}
 
       {/* Stats Cards */}
@@ -365,6 +368,13 @@ export default function AdminBookingsTable() {
           >
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
             Actualizar
+          </button>
+          <button
+            onClick={() => setMembModalOpen(true)}
+            className="flex items-center gap-2 text-sm px-4 py-2.5 border border-emerald-300 text-emerald-700 hover:bg-emerald-50 rounded-lg font-medium transition-colors bg-white"
+          >
+            <Plus size={15} />
+            Membresía / Pack
           </button>
           <button
             onClick={() => setModalOpen(true)}
