@@ -112,7 +112,10 @@ function MembershipCard({
         )}
 
         {!isPack && (
-          <p className="membership-limit-text">1 clase por día · clases ilimitadas</p>
+          <>
+            <p className="membership-limit-text">1 clase por día · clases ilimitadas</p>
+            <p className="membership-renew-text">🔄 Se renueva automáticamente cada mes · cancela cuando quieras</p>
+          </>
         )}
 
         <div className="membership-meta">

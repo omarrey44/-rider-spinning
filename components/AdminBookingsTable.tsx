@@ -77,7 +77,7 @@ export default function AdminBookingsTable() {
   const [statusFilter, setStatus]   = useState('all');
   const [instructorFilter, setInstructorFilter] = useState('all');
   const [dayFilter, setDayFilter]   = useState('all');
-  const [sorting, setSorting]       = useState<SortingState>([{ id: 'class_date', desc: true }]);
+  const [sorting, setSorting]       = useState<SortingState>([]);
   const [modalOpen, setModalOpen]   = useState(false);
   const [membModalOpen, setMembModalOpen] = useState(false);
   const [menuId, setMenuId]         = useState<string | null>(null);
@@ -113,18 +113,15 @@ export default function AdminBookingsTable() {
     () => Array.from(new Set(bookings.map((b) => b.instructor_name).filter(Boolean))).sort(),
     [bookings],
   );
-  const dayOrder = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-  const dayOptions = useMemo(
-    () => Array.from(new Set(bookings.map((b) => b.day).filter(Boolean)))
-      .sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b)),
-    [bookings],
-  );
+  // Días canónicos de operación. Las reservas del evento ("Sábado 8 Ago")
+  // caen bajo "Sábado" gracias al match por prefijo del filtro.
+  const dayOptions = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
   const filtered = useMemo(() => {
     let list = bookings;
     if (statusFilter !== 'all') list = list.filter((b) => b.status === statusFilter);
     if (instructorFilter !== 'all') list = list.filter((b) => b.instructor_name === instructorFilter);
-    if (dayFilter !== 'all') list = list.filter((b) => b.day === dayFilter);
+    if (dayFilter !== 'all') list = list.filter((b) => b.day === dayFilter || b.day?.startsWith(dayFilter));
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(
@@ -134,7 +131,8 @@ export default function AdminBookingsTable() {
           (b.confirmation_number ?? '').toLowerCase().includes(q),
       );
     }
-    return list;
+    // Orden por defecto: más reciente primero (fecha de registro).
+    return [...list].sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at));
   }, [bookings, statusFilter, instructorFilter, dayFilter, search]);
 
   const columns: ColumnDef<Booking>[] = useMemo(() => [

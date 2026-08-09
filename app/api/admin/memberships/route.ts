@@ -15,6 +15,29 @@ async function getAuthUser() {
   return user;
 }
 
+// Lista todas las membresías/packs (Stripe + efectivo) para el panel admin.
+export async function GET() {
+  const user = await getAuthUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  try {
+    const supabase = createAdminClient();
+    const { data: memberships, error } = await supabase
+      .from('memberships')
+      .select('id, customer_name, customer_email, customer_phone, type, credits_total, credits_used, expires_at, status, confirmation_number, amount_paid, stripe_session_id, created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('[admin/memberships GET]', error);
+      return NextResponse.json({ error: 'Error al cargar membresías' }, { status: 500 });
+    }
+    return NextResponse.json({ memberships: memberships || [] });
+  } catch (err) {
+    console.error('[admin/memberships GET]', err);
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  }
+}
+
 // Registra una membresía/pack pagado EN EFECTIVO desde el panel admin.
 export async function POST(req: NextRequest) {
   const user = await getAuthUser();

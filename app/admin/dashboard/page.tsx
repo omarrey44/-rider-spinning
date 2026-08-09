@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import AdminBookingsTable from '@/components/AdminBookingsTable';
+import AdminMembershipsTable from '@/components/AdminMembershipsTable';
 import { LogOut, LayoutDashboard } from 'lucide-react';
 
 interface User { id: string; email: string }
@@ -77,6 +78,7 @@ export default function AdminDashboard() {
       {/* Content */}
       <main className="max-w-screen-xl mx-auto px-6 py-6">
         <AdminBookingsTable />
+        <AdminMembershipsTable />
       </main>
     </div>
   );
