@@ -2,7 +2,34 @@
 
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { weekdaySlots, saturdaySlots, ScheduleSlot } from '@/data/schedule';
+import { createClient } from '@/lib/supabase/client';
 import BikeSelector from './BikeSelector';
+
+// Mapea una fila de schedule_slots (Supabase) al ScheduleSlot de la UI.
+function dbRowToScheduleSlot(row: {
+  start_hour: number; start_minute: number; duration_min: number; class_title: string;
+  class_color: string; level: string;
+  instructor: { full_name: string; initial: string; avatar_class: string } | { full_name: string; initial: string; avatar_class: string }[] | null;
+}): ScheduleSlot {
+  const h = row.start_hour;
+  const period: 'AM' | 'PM' = h < 12 ? 'AM' : 'PM';
+  const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  const inst = Array.isArray(row.instructor) ? row.instructor[0] : row.instructor;
+  return {
+    hour: `${String(h12).padStart(2, '0')}:${String(row.start_minute).padStart(2, '0')}`,
+    period,
+    className: row.class_title,
+    duration: `${row.duration_min} min`,
+    level: row.level,
+    classColor: row.class_color,
+    instructorInitial: inst?.initial ?? '?',
+    instructorName: inst?.full_name ?? 'Por confirmar',
+    instructorClass: (inst?.avatar_class as ScheduleSlot['instructorClass']) ?? 'avatar-rosario',
+    status: 'available',
+    spotsText: '',
+    price: '',
+  };
+}
 
 export interface MembershipData {
   id: string;
@@ -76,9 +103,37 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
 
   const dates = useMemo(() => getNext7Days(), []);
 
+  // Horarios en vivo desde Supabase (instructores/clases reales), por día (1-6).
+  const [slotsByDow, setSlotsByDow] = useState<Record<number, ScheduleSlot[]>>({});
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase
+          .from('schedule_slots')
+          .select('day_of_week, start_hour, start_minute, duration_min, class_title, class_color, level, instructor:instructors!inner(full_name, initial, avatar_class)')
+          .eq('active', true)
+          .order('day_of_week', { ascending: true })
+          .order('start_hour', { ascending: true });
+        if (cancelled || !data) return;
+        const grouped: Record<number, ScheduleSlot[]> = {};
+        for (const row of data as unknown as Array<{ day_of_week: number } & Parameters<typeof dbRowToScheduleSlot>[0]>) {
+          (grouped[row.day_of_week] ??= []).push(dbRowToScheduleSlot(row));
+        }
+        setSlotsByDow(grouped);
+      } catch { /* fallback estático */ }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   const slotsForDate = useMemo(() => {
     if (!selectedDate) return [];
-    const allSlots = selectedDate.getDay() === 6 ? saturdaySlots : weekdaySlots;
+    const dow = selectedDate.getDay();
+    const dbSlots = slotsByDow[dow];
+    const allSlots = dbSlots && dbSlots.length
+      ? dbSlots
+      : (dow === 6 ? saturdaySlots : weekdaySlots);
     const isToday = toDateKey(selectedDate) === toDateKey(new Date());
     if (!isToday) return allSlots;
     const now = new Date();
@@ -92,7 +147,7 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
       slotTime.setHours(h, m, 0, 0);
       return slotTime > now;
     });
-  }, [selectedDate]);
+  }, [selectedDate, slotsByDow]);
 
   const bsSlot = useMemo(() => {
     if (!selectedDate || !selectedSlot) return null;
