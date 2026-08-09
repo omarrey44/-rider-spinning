@@ -7,7 +7,6 @@ import TestModeDetector from '@/components/TestModeDetector';
 import HowItWorks from '@/components/HowItWorks';
 import Schedule from '@/components/Schedule';
 import BikeSelector from '@/components/BikeSelector';
-import MemberQuickBook from '@/components/MemberQuickBook';
 import Instructors from '@/components/Instructors';
 import Pricing from '@/components/Pricing';
 import Colaboradores from '@/components/Colaboradores';
@@ -191,7 +190,6 @@ export default function Home() {
 
       <main id="main">
         <RevealSection delay={100}><Schedule onSelectSlot={handleSelectSlot} /></RevealSection>
-        <RevealSection delay={100}><MemberQuickBook /></RevealSection>
         <RevealSection delay={100}><BikeSelector
           selectedSlot={selectedSlot?.slot ? {
             className: selectedSlot.slot.className,
@@ -208,12 +206,12 @@ export default function Home() {
           } : null}
           onCheckout={handleCheckout}
         /></RevealSection>
+        <RevealSection delay={100}><FindBooking /></RevealSection>
         <RevealSection delay={100}><HowItWorks /></RevealSection>
         <RevealSection delay={100}><Instructors /></RevealSection>
         <RevealSection delay={150}><Pricing onPackClick={() => setPackCheckoutOpen(true)} onSubscribeClick={() => setSubscriptionCheckoutOpen(true)} /></RevealSection>
         <RevealSection delay={100}><FAQ /></RevealSection>
         <RevealSection delay={100}><Colaboradores /></RevealSection>
-        <RevealSection delay={100}><FindBooking /></RevealSection>
         <RevealSection delay={100}><Feedback /></RevealSection>
       </main>
 
