@@ -274,7 +274,7 @@ export default function FindBooking() {
         <div className="section-head">
           <span className="eyebrow">Mis reservas</span>
           <h2>Buscar mi <span className="text-red">reserva</span></h2>
-          <p>Ingresa tu correo o teléfono (o el número de confirmación) y te mostramos tus clases y membresías.</p>
+          <p>Ingresa tu correo o teléfono (o el número de confirmación) para ver tus clases y membresías. Aquí también puedes <strong>cancelar una reserva</strong>.</p>
         </div>
 
         <div className="lookup-membership-hint" role="note">

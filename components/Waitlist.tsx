@@ -42,7 +42,7 @@ export default function Waitlist() {
     <section className="waitlist" id="waitlist">
       <div className="container waitlist-container">
         <div className="waitlist-card">
-          <span className="waitlist-eyebrow">● Pre-launch</span>
+          <span className="waitlist-eyebrow">Pre-launch</span>
           <h2 className="waitlist-title">
             Sé de los <span className="text-red">primeros</span> en pedalear
           </h2>

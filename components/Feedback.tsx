@@ -43,7 +43,7 @@ export default function Feedback() {
     <section className="waitlist" id="feedback">
       <div className="container waitlist-container">
         <div className="waitlist-card">
-          <span className="waitlist-eyebrow">● Atención al cliente</span>
+          <span className="waitlist-eyebrow">Atención al cliente</span>
           <h2 className="waitlist-title">
             Quejas y <span className="text-red">sugerencias</span>
           </h2>

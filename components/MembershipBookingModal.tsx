@@ -102,7 +102,7 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
       instructorName: selectedSlot.instructorName,
       hour: selectedSlot.hour,
       period: selectedSlot.period,
-      price: membership.type === 'pack' ? 'Pack 3 Horas' : 'Membresía Ilimitada',
+      price: membership.type === 'pack' ? '1 crédito' : 'Incluido',
       duration: selectedSlot.duration,
       instructorClass: selectedSlot.instructorClass,
       dayName: DAY_NAMES[dayKey] || dayKey,
@@ -174,7 +174,7 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
       aria-modal="true"
       aria-label="Reservar clase con membresía"
     >
-      <div className={`modal ${step === 'bike' ? 'modal--wide' : ''}`}>
+      <div className={`modal membership-booking-modal ${step === 'bike' ? 'modal--wide' : ''}`}>
         {step !== 'done' && (
           <button className="modal-close" onClick={onClose} aria-label="Cerrar">✕</button>
         )}
@@ -185,7 +185,7 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
             <div className="modal-header">
               <span className="modal-eyebrow">
                 {membership.type === 'pack'
-                  ? `Pack 3 Horas · ${creditsLeft} hora${creditsLeft === 1 ? '' : 's'} restante${creditsLeft === 1 ? '' : 's'}`
+                  ? `Pack 3 Clases · ${creditsLeft} crédito${creditsLeft === 1 ? '' : 's'} restante${creditsLeft === 1 ? '' : 's'}`
                   : 'Membresía Ilimitada · 1 clase por día'}
               </span>
               <h3>¿Qué día quieres ir?</h3>
@@ -249,9 +249,21 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
         {/* Step: bike (reuse BikeSelector) */}
         {step === 'bike' && bsSlot && (
           <>
-            <button className="mem-back-btn" onClick={() => setStep('slot')}>← Cambiar horario</button>
-            <BikeSelector selectedSlot={bsSlot} onCheckout={handleBikeSelected} hideHeader compact />
-            {error && <div ref={errorRef} className="mem-bike-error" role="alert">{error}</div>}
+            <div className="modal-header mem-bike-header">
+              <span className="modal-eyebrow">{bsSlot.className} · {bsSlot.fullDateTime}</span>
+              <h3>Selecciona tu bici</h3>
+              <p className="mem-bike-guidance">
+                Toca una bicicleta disponible. Las ocupadas muestran un candado y tu selección se marcará en cyan.
+              </p>
+              <span className="mem-included-note">
+                {membership.type === 'pack' ? 'Se usará 1 crédito de tu pack' : 'Incluido en tu mensualidad'} · no pagarás de nuevo
+              </span>
+            </div>
+            <div className="mem-bike-body">
+              <button className="mem-back-btn" onClick={() => setStep('slot')}>← Cambiar horario</button>
+              {error && <div ref={errorRef} className="mem-bike-error" role="alert">{error}</div>}
+              <BikeSelector selectedSlot={bsSlot} onCheckout={handleBikeSelected} hideHeader compact />
+            </div>
           </>
         )}
 
