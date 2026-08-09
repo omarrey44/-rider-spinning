@@ -81,6 +81,7 @@ export default function Pricing({ onPackClick, onSubscribeClick }: PricingProps)
             </div>
             <ul className="price-features">
               <li>Clases ilimitadas</li>
+              <li>🔄 Se renueva cada mes · cancela cuando quieras</li>
               <li>Reserva con 14 días</li>
               <li>Botella + toalla cortesía</li>
               <li>Acceso a eventos exclusivos</li>
