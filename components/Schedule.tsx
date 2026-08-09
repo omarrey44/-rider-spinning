@@ -315,15 +315,18 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
               <span>Aparta tu lugar y dale con todo — <em>cada pedalada te acerca a tu meta.</em></span>
             </div>
           </div>
-        ) : isSunday && (
-          <div className="sunday-banner" role="status">
-            <MoonIcon />
-            <div className="sunday-banner-text">
-              <strong>Hoy domingo cerramos</strong>
-              <span>Próxima clase: <em>lunes 06:00 AM con Rosario</em></span>
+        ) : isSunday && (() => {
+          const mon = (slotsByDow[1] ?? weekdaySlots)[0];
+          return (
+            <div className="sunday-banner" role="status">
+              <MoonIcon />
+              <div className="sunday-banner-text">
+                <strong>Hoy domingo cerramos</strong>
+                <span>Próxima clase: <em>lunes {mon.hour} {mon.period} con {mon.instructorName.split(' ')[0]}</em></span>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         <div className="day-tabs" role="tablist" aria-label="Selecciona un día">
           {days.map((d) => (
