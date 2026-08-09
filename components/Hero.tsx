@@ -13,6 +13,7 @@ import {
   PowerIcon,
 } from './Icons';
 import { weekdaySlots, saturdaySlots, ScheduleSlot, BIKE_CONFIG } from '@/data/schedule';
+import { createClient } from '@/lib/supabase/client';
 
 function slotTo24h(s: ScheduleSlot): number {
   const [h, m] = s.hour.split(':').map(Number);
@@ -23,13 +24,60 @@ function slotTo24h(s: ScheduleSlot): number {
 
 const DAY_NAMES = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'] as const;
 
-function getNextClass(): { slot: ScheduleSlot; whenLabel: string; dayName: string } | null {
+// Mapea una fila de schedule_slots (con join a instructors) al tipo que usa la UI.
+type DbSlotRow = {
+  start_hour: number;
+  start_minute: number;
+  duration_min: number;
+  class_title: string;
+  class_color: string;
+  level: string;
+  price_cents: number;
+  capacity: number;
+  day_of_week: number;
+  instructor: { full_name: string; initial: string; avatar_class: ScheduleSlot['instructorClass'] } | null;
+};
+
+function dbRowToSlot(row: DbSlotRow): ScheduleSlot {
+  const h = row.start_hour;
+  const m = row.start_minute;
+  const period: 'AM' | 'PM' = h < 12 ? 'AM' : 'PM';
+  const hour12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  const hour = `${String(hour12).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  return {
+    hour,
+    period,
+    className: row.class_title,
+    duration: `${row.duration_min} min`,
+    level: row.level,
+    classColor: row.class_color,
+    instructorInitial: row.instructor?.initial ?? '?',
+    instructorName: row.instructor?.full_name ?? 'Por confirmar',
+    instructorClass: row.instructor?.avatar_class ?? 'avatar-rosario',
+    status: 'available',
+    spotsText: `${row.capacity} disponibles`,
+    price: `$${Math.round(row.price_cents / 100)} MXN`,
+    capacity: row.capacity,
+  };
+}
+
+// Devuelve los slots de un día de la semana (dow 0-6). Usa la BD si cargó;
+// si no, cae a los arrays estáticos (dom = cerrado → []).
+function slotsForDow(dow: number, byDow: Record<number, ScheduleSlot[]> | null): ScheduleSlot[] {
+  if (byDow && byDow[dow]?.length) return byDow[dow];
+  if (byDow && Object.keys(byDow).length > 0) return byDow[dow] ?? [];
+  if (dow === 0) return [];
+  if (dow === 6) return saturdaySlots;
+  return weekdaySlots;
+}
+
+function getNextClass(
+  byDow: Record<number, ScheduleSlot[]> | null
+): { slot: ScheduleSlot; whenLabel: string; dayName: string } | null {
   const now = new Date();
   const dow = now.getDay();
-  const isSaturday = dow === 6;
-  const isSunday = dow === 0;
 
-  const todaySlots = isSaturday ? saturdaySlots : isSunday ? [] : weekdaySlots;
+  const todaySlots = slotsForDow(dow, byDow);
   const currentH = now.getHours() + now.getMinutes() / 60;
   const remainingToday = todaySlots
     .filter((s) => slotTo24h(s) > currentH)
@@ -39,10 +87,15 @@ function getNextClass(): { slot: ScheduleSlot; whenLabel: string; dayName: strin
     return { slot: remainingToday[0], whenLabel: 'Hoy', dayName: DAY_NAMES[dow] };
   }
 
-  const nextDow = (dow + 1) % 7;
-  const nextSlots = nextDow === 6 ? saturdaySlots : nextDow === 0 ? [] : weekdaySlots;
-  if (nextSlots.length > 0) {
-    return { slot: nextSlots[0], whenLabel: 'Mañana', dayName: DAY_NAMES[nextDow] };
+  // Busca el próximo día con clases (hasta 7 días adelante).
+  for (let i = 1; i <= 7; i++) {
+    const nextDow = (dow + i) % 7;
+    const nextSlots = slotsForDow(nextDow, byDow)
+      .slice()
+      .sort((a, b) => slotTo24h(a) - slotTo24h(b));
+    if (nextSlots.length > 0) {
+      return { slot: nextSlots[0], whenLabel: i === 1 ? 'Mañana' : DAY_NAMES[nextDow], dayName: DAY_NAMES[nextDow] };
+    }
   }
   return null;
 }
@@ -53,14 +106,45 @@ const FEATURED_BIKE = BIKE_CONFIG.popular[0] ?? 6;
 export default function Hero() {
   const [nextClass, setNextClass] = useState<ReturnType<typeof getNextClass>>(null);
   const [takenBikes, setTakenBikes] = useState<number[]>([]);
+  const [slotsByDow, setSlotsByDow] = useState<Record<number, ScheduleSlot[]> | null>(null);
   const { scrollY } = useScroll();
   const yParallax = useTransform(scrollY, [0, 400], [0, 80]);
 
+  // Carga los horarios reales de Supabase para calcular la próxima clase
+  // con el instructor correcto (los arrays estáticos son solo fallback).
   useEffect(() => {
-    setNextClass(getNextClass());
-    const t = setInterval(() => setNextClass(getNextClass()), 60_000);
-    return () => clearInterval(t);
+    let cancelled = false;
+    (async () => {
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from('schedule_slots')
+          .select(`
+            day_of_week, start_hour, start_minute, duration_min,
+            class_title, class_color, level, price_cents, capacity,
+            instructor:instructors!inner ( full_name, initial, avatar_class )
+          `)
+          .eq('active', true)
+          .order('day_of_week', { ascending: true })
+          .order('start_hour', { ascending: true });
+        if (cancelled || error || !data || data.length === 0) return;
+        const grouped: Record<number, ScheduleSlot[]> = {};
+        for (const row of data as unknown as DbSlotRow[]) {
+          (grouped[row.day_of_week] ??= []).push(dbRowToSlot(row));
+        }
+        setSlotsByDow(grouped);
+      } catch {
+        /* fallback estático */
+      }
+    })();
+    return () => { cancelled = true; };
   }, []);
+
+  useEffect(() => {
+    setNextClass(getNextClass(slotsByDow));
+    const t = setInterval(() => setNextClass(getNextClass(slotsByDow)), 60_000);
+    return () => clearInterval(t);
+  }, [slotsByDow]);
 
   useEffect(() => {
     if (!nextClass) {
