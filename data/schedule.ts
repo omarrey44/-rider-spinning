@@ -55,7 +55,7 @@ export const aug8EventSlots: ScheduleSlot[] = [
 // Lunes de inicio de operación regular. Antes de esta fecha, los días entre
 // semana se anclan a la SEMANA DE APERTURA (10-14 ago) en vez de la próxima
 // ocurrencia; el sábado sigue siendo el evento gratuito (8 ago).
-export const OPENING_DATE = '2026-08-10';
+export const OPENING_DATE = '2026-08-09';
 
 const DAY_DOW: Record<DayKey, number> = { lun: 1, mar: 2, mie: 3, jue: 4, vie: 5, sab: 6 };
 

@@ -5,10 +5,10 @@ import { DayKey, days, weekdaySlots, saturdaySlots, aug8EventSlots, EVENT_DATE, 
 import { ArrowRight, ClockIcon, SignalIcon, MoonIcon, InfoIcon, CalendarDaysIcon } from './Icons';
 import { createClient } from '@/lib/supabase/client';
 
-// Las reservas en línea abren hasta que el estudio inicia operación regular.
-// El 8 de agosto es la Gran Apertura (clase gratuita); operación regular inicia el 10.
-// Comparación anclada a la fecha calendario de Chihuahua (no al huso horario del visitante).
-const OPENING_DATE_STR = '2026-08-10';
+// El evento gratuito (8 ago) ya pasó; operación regular activa.
+// Dejamos la fecha en el pasado para que NUNCA vuelva al modo evento/prelaunch:
+// el horario muestra la semana real (próxima clase = lunes, sábado = siguiente sábado).
+const OPENING_DATE_STR = '2026-08-09';
 function getTodayChihuahuaStr(): string {
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: 'America/Chihuahua',
