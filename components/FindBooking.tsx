@@ -92,6 +92,9 @@ function MembershipCard({
             {effectiveStatus === 'active' ? 'Activa' : effectiveStatus === 'expired' ? 'Expirada' : 'Cancelada'}
           </span>
         </div>
+        {membership.customer_name && (
+          <p className="membership-card-name">A nombre de <strong>{membership.customer_name}</strong></p>
+        )}
       </div>
 
       <div className="membership-card-body">
