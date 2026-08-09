@@ -122,8 +122,8 @@ export default function Hero() {
 
       <div className="container hero-content">
         <motion.div className="hero-text" initial={false}>
-          <motion.span className="hero-eyebrow">
-            Spinning Studio · Chihuahua
+          <motion.span className="hero-open-badge">
+            <span className="hero-open-dot" aria-hidden="true" /> ¡Ya abrimos! · Spinning Studio Chihuahua
           </motion.span>
 
           <motion.h1 className="hero-title hero-title--quote">
@@ -158,9 +158,9 @@ export default function Hero() {
               <PowerIcon size={24} />
             </div>
             <div className="proof-text">
-              <span className="km-eyebrow">🎉 ¡Ya abrimos! · Hoy, Gran Apertura</span>
-              <span className="km-headline">Sé parte del <strong>primer ride</strong></span>
-              <span className="km-label">Clases gratis hoy de 8:00 AM a 1:00 PM — reserva tu bici</span>
+              <span className="km-eyebrow">Estudio abierto</span>
+              <span className="km-headline">Reserva tu <strong>clase de hoy</strong></span>
+              <span className="km-label">Lun a Sáb · elige horario y bici en línea en segundos</span>
             </div>
           </motion.div>
         </motion.div>

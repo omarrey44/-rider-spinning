@@ -311,8 +311,8 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
           <div className="sunday-banner prelaunch-banner" role="status">
             <CalendarDaysIcon size={20} />
             <div className="sunday-banner-text">
-              <strong>🎉 ¡Ya abrimos! Hoy es la Gran Apertura — clases gratis</strong>
-              <span>Reserva tu bici del <em>sábado</em> sin costo. Ya puedes reservar también la semana de apertura (lun 10 – vie 14 de agosto).</span>
+              <strong>🚴 Reserva tu bicicleta</strong>
+              <span>Aparta tu lugar y dale con todo — <em>cada pedalada te acerca a tu meta.</em></span>
             </div>
           </div>
         ) : isSunday && (

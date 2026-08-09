@@ -4,10 +4,10 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import TestModeDetector from '@/components/TestModeDetector';
-import GrandOpening from '@/components/GrandOpening';
 import HowItWorks from '@/components/HowItWorks';
 import Schedule from '@/components/Schedule';
 import BikeSelector from '@/components/BikeSelector';
+import MemberQuickBook from '@/components/MemberQuickBook';
 import Instructors from '@/components/Instructors';
 import Pricing from '@/components/Pricing';
 import Colaboradores from '@/components/Colaboradores';
@@ -190,8 +190,8 @@ export default function Home() {
       <Hero />
 
       <main id="main">
-        <RevealSection><GrandOpening /></RevealSection>
         <RevealSection delay={100}><Schedule onSelectSlot={handleSelectSlot} /></RevealSection>
+        <RevealSection delay={100}><MemberQuickBook /></RevealSection>
         <RevealSection delay={100}><BikeSelector
           selectedSlot={selectedSlot?.slot ? {
             className: selectedSlot.slot.className,
