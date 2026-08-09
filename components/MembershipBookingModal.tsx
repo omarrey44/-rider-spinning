@@ -101,6 +101,13 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
     }
   }, [error]);
 
+  // Bloquea el scroll de la página mientras el modal está abierto (foco total en el modal).
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+
   const dates = useMemo(() => getNext7Days(), []);
 
   // Horarios en vivo desde Supabase (instructores/clases reales), por día (1-6).
