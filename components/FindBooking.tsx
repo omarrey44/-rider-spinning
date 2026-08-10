@@ -94,6 +94,31 @@ function MembershipCard({
   const isExpired = new Date(membership.expires_at) < new Date();
   const effectiveStatus = isExpired ? 'expired' : membership.status;
 
+  const [portalLoading, setPortalLoading] = useState(false);
+  const [portalError, setPortalError] = useState<string | null>(null);
+
+  // Abre el Stripe Billing Portal para administrar/cancelar la suscripción.
+  const openPortal = async () => {
+    setPortalError(null);
+    setPortalLoading(true);
+    try {
+      const res = await fetch('/api/subscriptions/portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer_email: membership.customer_email,
+          confirmation_number: membership.confirmation_number,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error || 'No se pudo abrir el portal');
+      window.location.href = data.url;
+    } catch (err) {
+      setPortalError(err instanceof Error ? err.message : 'Error inesperado');
+      setPortalLoading(false);
+    }
+  };
+
   return (
     <article className={`membership-card membership-card--${effectiveStatus}`}>
       <div className="membership-card-head">
@@ -153,6 +178,19 @@ function MembershipCard({
         >
           Reservar clase con {isPack ? 'este pack' : 'membresía'}
         </button>
+      )}
+
+      {!isPack && isActive && !isExpired && (
+        <>
+          <button
+            className="membership-manage-btn"
+            onClick={openPortal}
+            disabled={portalLoading}
+          >
+            {portalLoading ? 'Abriendo…' : 'Administrar o cancelar suscripción'}
+          </button>
+          {portalError && <p className="membership-manage-error" role="alert">{portalError}</p>}
+        </>
       )}
 
       {(!isActive || isExpired) && (
