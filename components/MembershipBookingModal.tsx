@@ -1,9 +1,113 @@
 'use client';
 
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
-import { weekdaySlots, saturdaySlots, ScheduleSlot } from '@/data/schedule';
+import { weekdaySlots, saturdaySlots, ScheduleSlot, BIKE_CONFIG } from '@/data/schedule';
 import { createClient } from '@/lib/supabase/client';
-import BikeSelector from './BikeSelector';
+
+// Rangos [inicio,fin] por fila, derivados de BIKE_CONFIG.rowConfig (p. ej. [6,5]
+// → fila 1 = bicis 1-6, fila 2 = 7-11). Mismo esquema que BikeSelector.
+const MEM_ROW_RANGES = (() => {
+  let cursor = 1;
+  return BIKE_CONFIG.rowConfig.map((count) => {
+    const start = cursor;
+    const end = cursor + count - 1;
+    cursor = end + 1;
+    return { start, end };
+  });
+})();
+const ROW_DESC = ['Principiantes · frente al instructor', 'Más espacio · atrás'];
+
+// Grid simple y táctil de bicis para el modal (sin la escena 3D pesada).
+function MemBikeGrid({
+  classTitle, day, hour, onSelect,
+}: {
+  classTitle: string; day: string; hour: string;
+  onSelect: (bikeNumber: number, bikeRow: number) => void;
+}) {
+  const [taken, setTaken] = useState<number[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true); setErr(false);
+      try {
+        const p = new URLSearchParams({ class_title: classTitle, day, hour });
+        const r = await fetch(`/api/bookings/available-bikes?${p}`);
+        const d = await r.json();
+        if (!cancelled) {
+          if (!r.ok) setErr(true);
+          else setTaken(Array.isArray(d.takenBikes) ? d.takenBikes : []);
+        }
+      } catch {
+        if (!cancelled) setErr(true);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [classTitle, day, hour]);
+
+  const maintenance = BIKE_CONFIG.maintenance;
+  const availableCount = BIKE_CONFIG.total - maintenance.length
+    - taken.filter((n) => !maintenance.includes(n)).length;
+
+  if (loading) return <p className="mem-grid-status">Cargando disponibilidad…</p>;
+  if (err) return <p className="mem-grid-status mem-grid-status--err">No se pudo verificar disponibilidad. Cierra y vuelve a intentar.</p>;
+
+  return (
+    <div className="mem-grid">
+      <div className="mem-grid-instructor" aria-hidden="true">🎧 INSTRUCTOR</div>
+      {MEM_ROW_RANGES.map((range, i) => {
+        const nums = Array.from({ length: range.end - range.start + 1 }, (_, k) => range.start + k);
+        return (
+          <div key={i} className="mem-grid-rowblock">
+            <span className="mem-grid-rowlabel">Fila {i + 1} · <em>{ROW_DESC[i] ?? ''}</em></span>
+            <div className="mem-grid-bikes">
+              {nums.map((num) => {
+                const isMaint = maintenance.includes(num);
+                const isTaken = taken.includes(num);
+                const isPopular = BIKE_CONFIG.popular.includes(num);
+                const disabled = isMaint || isTaken;
+                const cls = [
+                  'mem-bike',
+                  isMaint ? 'mem-bike--maint' : '',
+                  isTaken ? 'mem-bike--taken' : '',
+                  !disabled && isPopular ? 'mem-bike--popular' : '',
+                  !disabled ? 'mem-bike--free' : '',
+                ].filter(Boolean).join(' ');
+                return (
+                  <button
+                    key={num}
+                    type="button"
+                    className={cls}
+                    disabled={disabled}
+                    onClick={() => onSelect(num, i + 1)}
+                    title={isMaint ? 'En mantenimiento' : isTaken ? 'Ocupada' : `Bici #${String(num).padStart(2, '0')}`}
+                    aria-label={isMaint ? `Bici ${num} en mantenimiento` : isTaken ? `Bici ${num} ocupada` : `Reservar bici ${num}`}
+                  >
+                    {disabled ? '🔒' : String(num).padStart(2, '0')}
+                    {!disabled && isPopular && <span className="mem-bike-star">★</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+      <div className="mem-grid-legend">
+        <span><i className="mem-dot mem-dot--free" /> Disponible</span>
+        <span><i className="mem-dot mem-dot--popular" /> Popular</span>
+        <span><i className="mem-dot mem-dot--taken" /> Ocupada</span>
+        <span><i className="mem-dot mem-dot--maint" /> Mantenimiento</span>
+      </div>
+      <p className={`mem-grid-count ${availableCount <= 3 ? 'low' : ''}`}>
+        <strong>{availableCount}</strong> de {BIKE_CONFIG.total} disponibles
+      </p>
+    </div>
+  );
+}
 
 // Mapea una fila de schedule_slots (Supabase) al ScheduleSlot de la UI.
 function dbRowToScheduleSlot(row: {
@@ -236,7 +340,7 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
       aria-modal="true"
       aria-label="Reservar clase con membresía"
     >
-      <div className={`modal membership-booking-modal ${step === 'bike' ? 'modal--wide' : ''}`}>
+      <div className="modal membership-booking-modal">
         {step !== 'done' && (
           <button className="modal-close" onClick={onClose} aria-label="Cerrar">✕</button>
         )}
@@ -324,7 +428,12 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
             <div className="mem-bike-body">
               <button className="mem-back-btn" onClick={() => setStep('slot')}>← Cambiar horario</button>
               {error && <div ref={errorRef} className="mem-bike-error" role="alert">{error}</div>}
-              <BikeSelector selectedSlot={bsSlot} onCheckout={handleBikeSelected} hideHeader compact />
+              <MemBikeGrid
+                classTitle={bsSlot.className}
+                day={bsSlot.dayName}
+                hour={`${bsSlot.hour} ${bsSlot.period}`}
+                onSelect={handleBikeSelected}
+              />
             </div>
           </>
         )}

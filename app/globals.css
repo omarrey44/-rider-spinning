@@ -9604,6 +9604,96 @@ section::before {
   border-color: rgba(230, 57, 70, 0.5);
 }
 
+/* ── Grid simple de bicis para el modal de membresía ──────────────── */
+.mem-grid { display: flex; flex-direction: column; gap: 14px; }
+.mem-grid-status { text-align: center; color: rgba(255,255,255,0.65); font-size: 14px; padding: 24px 0; }
+.mem-grid-status--err { color: #ffb3ae; }
+.mem-grid-instructor {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--teal-primary);
+  background: rgba(29, 212, 232, 0.08);
+  border: 1px solid rgba(29, 212, 232, 0.22);
+  border-radius: 10px;
+  padding: 8px;
+}
+.mem-grid-rowblock { display: flex; flex-direction: column; gap: 8px; }
+.mem-grid-rowlabel { font-size: 12px; color: rgba(255,255,255,0.6); }
+.mem-grid-rowlabel em { color: rgba(255,255,255,0.4); font-style: normal; }
+.mem-grid-bikes {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+.mem-bike {
+  position: relative;
+  aspect-ratio: 1;
+  min-height: 44px;
+  border-radius: 12px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid transparent;
+  transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease;
+  cursor: pointer;
+}
+.mem-bike--free {
+  background: rgba(29, 212, 232, 0.12);
+  border-color: rgba(29, 212, 232, 0.4);
+  color: #d6fbff;
+}
+.mem-bike--free:hover {
+  transform: translateY(-2px);
+  background: rgba(29, 212, 232, 0.22);
+  box-shadow: 0 6px 18px rgba(29, 212, 232, 0.25);
+}
+.mem-bike--popular {
+  background: rgba(244, 162, 97, 0.16);
+  border-color: rgba(244, 162, 97, 0.55);
+  color: #ffe2c4;
+}
+.mem-bike--popular:hover { background: rgba(244, 162, 97, 0.28); box-shadow: 0 6px 18px rgba(244, 162, 97, 0.28); }
+.mem-bike-star { position: absolute; top: 3px; right: 5px; font-size: 9px; color: #f4a261; }
+.mem-bike--taken {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.28);
+  cursor: not-allowed;
+}
+.mem-bike--maint {
+  background: rgba(230, 57, 70, 0.1);
+  border-color: rgba(230, 57, 70, 0.28);
+  color: rgba(255, 150, 150, 0.5);
+  cursor: not-allowed;
+}
+.mem-grid-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 2px;
+}
+.mem-grid-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.mem-dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.mem-dot--free { background: rgba(29, 212, 232, 0.6); }
+.mem-dot--popular { background: rgba(244, 162, 97, 0.7); }
+.mem-dot--taken { background: rgba(255, 255, 255, 0.18); }
+.mem-dot--maint { background: rgba(230, 57, 70, 0.5); }
+.mem-grid-count { text-align: center; font-size: 13px; color: rgba(255,255,255,0.65); margin: 2px 0 0; }
+.mem-grid-count strong { color: var(--teal-primary); }
+.mem-grid-count.low strong { color: #f4a261; }
+
+@media (max-width: 640px) {
+  .mem-grid-bikes { gap: 7px; }
+  .mem-bike { min-height: 46px; font-size: 16px; border-radius: 11px; }
+}
+
 .membership-booking-modal .bike-selector--compact .container {
   width: 100%;
   max-width: none;
