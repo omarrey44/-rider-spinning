@@ -278,7 +278,6 @@ export async function POST(req: NextRequest) {
     let session;
     if (subscription_type) {
       // ── SUSCRIPCIÓN RECURRENTE ──────────────────────────────────────
-      // Cobro automático mensual (sin inscripción este mes).
       const monthlyPrice = process.env.STRIPE_PRICE_MONTHLY;
       if (!monthlyPrice) {
         return NextResponse.json(
@@ -286,13 +285,31 @@ export async function POST(req: NextRequest) {
           { status: 500 }
         );
       }
+
+      // Inscripción (pago único): se cobra a partir de la fecha en
+      // INSCRIPTION_START_DATE ('YYYY-MM-DD', hora Chihuahua). Si la variable
+      // no está definida, NO se cobra (así lo controlas tú desde Vercel).
+      // STRIPE_PRICE_INSCRIPTION debe ser un precio de PAGO ÚNICO; se suma al
+      // primer recibo de la suscripción.
+      const inscriptionPrice = process.env.STRIPE_PRICE_INSCRIPTION;
+      const inscriptionStart = process.env.INSCRIPTION_START_DATE;
+      const todayChih = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Chihuahua', year: 'numeric', month: '2-digit', day: '2-digit',
+      }).format(new Date());
+      const chargeInscription = !!inscriptionPrice && !!inscriptionStart && todayChih >= inscriptionStart;
+
+      const subLineItems: { price: string; quantity: number }[] = [
+        { price: monthlyPrice, quantity: 1 },          // recurrente $650/mes
+      ];
+      if (chargeInscription) {
+        subLineItems.push({ price: inscriptionPrice as string, quantity: 1 }); // inscripción única $350
+      }
+
       session = await getStripe().checkout.sessions.create({
         mode: 'subscription',
         payment_method_types: ['card'],
         customer_email,
-        line_items: [
-          { price: monthlyPrice, quantity: 1 },       // recurrente $650/mes
-        ],
+        line_items: subLineItems,
         subscription_data: { metadata: sharedMetadata },
         metadata: sharedMetadata,
         success_url: `${baseUrl}/reserva-exitosa?session_id={CHECKOUT_SESSION_ID}&${successParams}`,
