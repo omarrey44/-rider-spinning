@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import Image from 'next/image';
 
 interface Partner {
@@ -107,7 +110,13 @@ const partners: Partner[] = [
   },
 ];
 
+const INITIAL_COUNT = 4;
+
 export default function Colaboradores() {
+  const [expanded, setExpanded] = useState(false);
+  const visible = expanded ? partners : partners.slice(0, INITIAL_COUNT);
+  const hidden = partners.length - INITIAL_COUNT;
+
   return (
     <section className="colaboradores" id="colaboradores">
       <div className="container">
@@ -127,8 +136,8 @@ export default function Colaboradores() {
           </svg>
         </p>
 
-        <div className="colab-grid">
-          {partners.map((p) => (
+        <div className={`colab-grid ${expanded ? '' : 'colab-grid--collapsed'}`}>
+          {visible.map((p) => (
             <article key={p.name} className={`colab-card ${p.colClass}`}>
               <div className="colab-img-wrap">
                 <Image
@@ -181,6 +190,20 @@ export default function Colaboradores() {
             </article>
           ))}
         </div>
+
+        {hidden > 0 && (
+          <div className="colab-viewall-wrap">
+            <button
+              className="colab-viewall"
+              onClick={() => setExpanded((v) => !v)}
+              aria-expanded={expanded}
+            >
+              {expanded
+                ? 'Ver menos'
+                : <>Ver todos los beneficios RideOn <span className="colab-viewall-count">({partners.length})</span> →</>}
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

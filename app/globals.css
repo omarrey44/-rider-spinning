@@ -2026,6 +2026,7 @@ section::before {
   line-height: 1;
   color: var(--white);
   letter-spacing: -2px;
+  font-variant-numeric: tabular-nums;
   text-shadow: 0 2px 16px rgba(0,0,0,0.7);
 }
 .time-period {
@@ -2213,6 +2214,7 @@ section::before {
   color: var(--white);
   letter-spacing: -1px;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 /* CTA pill — color por clase */
@@ -8813,6 +8815,32 @@ section::before {
 
 /* Hint de deslizar — solo visible en móvil (scroll horizontal) */
 .colab-swipe-hint { display: none; }
+
+/* Botón "Ver todos los beneficios" */
+.colab-viewall-wrap { display: flex; justify-content: center; margin-top: 32px; }
+.colab-viewall {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--teal-primary);
+  background: rgba(29, 212, 232, 0.08);
+  border: 1px solid rgba(29, 212, 232, 0.4);
+  border-radius: 999px;
+  padding: 13px 28px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+.colab-viewall:hover {
+  background: rgba(29, 212, 232, 0.16);
+  border-color: rgba(29, 212, 232, 0.7);
+  transform: translateY(-2px);
+}
+.colab-viewall-count { opacity: 0.7; font-weight: 600; }
 
 .colab-card {
   background: #111;
