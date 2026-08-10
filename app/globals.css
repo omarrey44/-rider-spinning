@@ -4342,6 +4342,11 @@ section::before {
   border-color: rgba(29, 212, 232, 0.35);
   color: var(--teal-primary);
 }
+.status-pill--finished {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.6);
+}
 
 /* Grid de detalles */
 .booking-card-grid {

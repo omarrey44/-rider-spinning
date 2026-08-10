@@ -46,17 +46,43 @@ function lookupBody(raw: string): Record<string, string> | null {
   return { [c.kind]: c.value };
 }
 
-// Fecha de hoy (YYYY-MM-DD) en hora Chihuahua, para saber si una clase ya pasó.
-function chihuahuaTodayISO(): string {
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/Chihuahua', year: 'numeric', month: '2-digit', day: '2-digit',
-  }).format(new Date());
+// Fecha (YYYY-MM-DD) y minutos desde medianoche AHORA, en hora Chihuahua.
+function chihuahuaNow(): { dateISO: string; minutes: number } {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Chihuahua',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hour12: false,
+  }).formatToParts(new Date());
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? '00';
+  const dateISO = `${get('year')}-${get('month')}-${get('day')}`;
+  let hh = parseInt(get('hour'), 10);
+  if (hh === 24) hh = 0; // algunos motores devuelven 24 a medianoche
+  const minutes = hh * 60 + parseInt(get('minute'), 10);
+  return { dateISO, minutes };
 }
 
-// true si la clase es de un día anterior a hoy (ya no se puede cancelar).
-function isPastBooking(classDate: string | null): boolean {
+// Convierte "09:00 AM" a minutos desde medianoche (o null si no parsea).
+function hourToMinutes(hour: string): number | null {
+  const m = hour.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!m) return null;
+  let h = parseInt(m[1], 10);
+  const min = parseInt(m[2], 10);
+  const per = m[3].toUpperCase();
+  if (per === 'PM' && h !== 12) h += 12;
+  if (per === 'AM' && h === 12) h = 0;
+  return h * 60 + min;
+}
+
+// true si la clase ya pasó (por fecha Y hora, hora Chihuahua).
+// Ej: reservó 09:00 AM y ya son 11:00 AM del mismo día → finalizada.
+function isFinishedBooking(classDate: string | null, hour: string): boolean {
   if (!classDate) return false;
-  return classDate < chihuahuaTodayISO();
+  const { dateISO, minutes } = chihuahuaNow();
+  if (classDate < dateISO) return true;
+  if (classDate > dateISO) return false;
+  const classMin = hourToMinutes(hour);
+  if (classMin === null) return false;
+  return minutes >= classMin;
 }
 
 const formatFullDate = (classDate: string | null, day: string): string => {
@@ -481,14 +507,17 @@ export default function FindBooking() {
             </div>
 
             {bookings.map((b) => {
-              const statusKey = b.status?.toLowerCase() || 'unknown';
-              const label = STATUS_LABELS[statusKey] || statusKey;
+              const rawKey = b.status?.toLowerCase() || 'unknown';
+              // Una reserva confirmada cuya fecha y hora ya pasaron → "Finalizada".
+              const isFinished = rawKey === 'confirmed' && isFinishedBooking(b.class_date, b.hour);
+              const statusKey = isFinished ? 'finished' : rawKey;
+              const label = isFinished ? 'Finalizada' : (STATUS_LABELS[rawKey] || rawKey);
               return (
                 <article key={b.id} className="booking-card" data-status={statusKey}>
                   <div className="booking-card-head">
                     <h3>{b.class_title}</h3>
                     <span className={`status-pill status-pill--${statusKey}`}>
-                      {statusKey === 'confirmed' && <CheckIcon size={12} />}
+                      {(statusKey === 'confirmed' || isFinished) && <CheckIcon size={12} />}
                       {label}
                     </span>
                   </div>
@@ -535,7 +564,7 @@ export default function FindBooking() {
                   {cancelSuccess[b.id] && (
                     <p className="booking-cancel-success" role="status">{cancelSuccess[b.id]}</p>
                   )}
-                  {(b.status === 'confirmed' || b.status === 'pending') && !isPastBooking(b.class_date) && classifySearch(search)?.kind !== 'confirmation' && classifySearch(search) !== null && (
+                  {(b.status === 'confirmed' || b.status === 'pending') && !isFinishedBooking(b.class_date, b.hour) && classifySearch(search)?.kind !== 'confirmation' && classifySearch(search) !== null && (
                     confirmCancelId === b.id ? (
                       <div className="booking-cancel-confirm">
                         <p>¿Confirmas la cancelación?</p>
