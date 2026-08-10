@@ -22,11 +22,11 @@ const FAQS: FaqItem[] = [
   },
   {
     q: '¿Puedo cancelar mi reserva?',
-    a: 'Sí. Para clases sueltas: cancela hasta 4 horas antes para reembolso completo. Entre 2 y 4h obtienes crédito para otra clase. Menos de 1h o no-show no aplica reembolso. Consulta la política completa en la sección de cancelaciones.',
+    a: 'Sí. Para clases sueltas: cancela con más de 4 horas de anticipación para recibir un reembolso completo. Entre 1 y 4 horas puedes cancelar y liberar tu lugar, pero sin reembolso. Con menos de 1 hora de anticipación o en caso de no-show no es posible cancelar.',
   },
   {
-    q: '¿Cómo funciona la lista de espera?',
-    a: 'Si la clase está llena, te anotas en lista de espera al intentar reservar. Si alguien cancela, te avisamos por SMS y correo. Tienes 15 minutos para confirmar tu lugar.',
+    q: '¿Qué hago si una clase está llena?',
+    a: 'Por el momento no contamos con lista de espera. Revisa otro día u horario; cuando alguien cancela, el lugar vuelve a aparecer disponible automáticamente en el calendario.',
   },
   {
     q: '¿Hay estacionamiento?',

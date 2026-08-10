@@ -149,7 +149,7 @@ export default function PackCheckoutModal({
           customer_name: name.trim(),
           customer_email: email.trim(),
           customer_phone: fullPhone,
-          class_title: 'Pack 3 Horas',
+          class_title: 'Pack 3 Clases',
           pack_size: 3,
           pack_price: 300,
           amount_cents: 30000,
@@ -168,7 +168,7 @@ export default function PackCheckoutModal({
       reset();
 
       if (data.test_mode) {
-        window.open(`/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=${encodeURIComponent('Pack 3 Horas')}&amount=${30000 / 100}`, '_blank');
+        window.open(`/reserva-exitosa?test=true&customer_name=${encodeURIComponent(name.trim())}&customer_email=${encodeURIComponent(email.trim())}&customer_phone=${encodeURIComponent(fullPhone)}&class_title=${encodeURIComponent('Pack 3 Clases')}&amount=${30000 / 100}`, '_blank');
       } else {
         window.open(data.checkout_url, '_blank');
       }
@@ -213,8 +213,8 @@ export default function PackCheckoutModal({
 
         <div className="modal-booking-banner">
           <div className="booking-banner-row">
-            <span className="booking-banner-class">Pack 3 Horas</span>
-            <span className="booking-banner-bike">3 horas · 7 días</span>
+            <span className="booking-banner-class">Pack 3 Clases</span>
+            <span className="booking-banner-bike">3 clases · 7 días</span>
           </div>
           <div className="booking-banner-row">
             <span className="booking-banner-datetime">Cancela hasta 2h antes</span>

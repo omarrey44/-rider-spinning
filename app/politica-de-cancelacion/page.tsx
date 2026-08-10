@@ -49,12 +49,11 @@ export default function CancelacionPage() {
         </section>
 
         <section>
-          <h2>Lista de espera</h2>
+          <h2>Clases llenas</h2>
           <p>
-            Si una clase está llena, puedes anotarte en lista de espera. Si
-            alguien cancela y se libera tu lugar, te notificamos por correo
-            y SMS hasta 2 horas antes de la clase. Tienes 15 minutos para
-            confirmar; si no, se asigna al siguiente en la lista.
+            Por el momento no contamos con lista de espera. Si una clase está
+            llena, revisa otro día u horario. Cuando alguien cancela, el lugar
+            vuelve a aparecer disponible automáticamente en el calendario.
           </p>
         </section>
 

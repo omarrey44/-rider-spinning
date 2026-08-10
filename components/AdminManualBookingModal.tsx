@@ -409,7 +409,7 @@ export default function AdminManualBookingModal({ open, onClose, onSuccess }: Pr
                 >
                   <option value="cash">Efectivo</option>
                   <option value="membership">Membresía</option>
-                  <option value="pack">Pack 3 Horas</option>
+                  <option value="pack">Pack 3 Clases</option>
                 </select>
               </div>
             </div>
