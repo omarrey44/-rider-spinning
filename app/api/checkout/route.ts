@@ -279,7 +279,6 @@ export async function POST(req: NextRequest) {
     if (subscription_type) {
       // ── SUSCRIPCIÓN RECURRENTE ──────────────────────────────────────
       // Cobro automático mensual (sin inscripción este mes).
-      // La cuota semestral se agrega en el webhook (cada 6º recibo).
       const monthlyPrice = process.env.STRIPE_PRICE_MONTHLY;
       if (!monthlyPrice) {
         return NextResponse.json(

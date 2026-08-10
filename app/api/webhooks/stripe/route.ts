@@ -144,19 +144,18 @@ export async function POST(req: NextRequest) {
 
   // ── Renovación mensual de suscripción ──────────────────────────────
   // invoice.paid con billing_reason 'subscription_cycle' = cobro recurrente.
-  // Extiende la membresía 30 días y, cada 6º recibo, agrega la cuota semestral.
+  // Extiende la membresía activa +30 días. (La cuota de mantenimiento se
+  // cobrará por otro mecanismo semanal, no aquí — ver project memory.)
   else if (event.type === 'invoice.paid') {
     const invoice = event.data.object as import('stripe').Stripe.Invoice & { subscription?: string };
     const reason = invoice.billing_reason;
-    if (reason === 'subscription_cycle' || reason === 'subscription_create') {
+    if (reason === 'subscription_cycle') {
       const supabase = createAdminClient();
       const emailLc = (invoice.customer_email || '').toLowerCase();
-      const subId = typeof invoice.subscription === 'string' ? invoice.subscription : undefined;
-      const customerId = typeof invoice.customer === 'string' ? invoice.customer : undefined;
 
       // Renovación (no el primer recibo, ese lo maneja checkout.session.completed):
       // extiende la membresía activa de suscripción de ese correo +30 días.
-      if (reason === 'subscription_cycle' && emailLc) {
+      if (emailLc) {
         const { data: mem } = await supabase
           .from('memberships')
           .select('id')
@@ -176,31 +175,6 @@ export async function POST(req: NextRequest) {
           console.log(`[webhook] Suscripción renovada +30d para ${emailLc}`);
         } else {
           console.warn(`[webhook] Renovación sin membresía encontrada para ${emailLc}`);
-        }
-      }
-
-      // Cuota semestral: si el PRÓXIMO recibo es múltiplo de 6, agrega $250 pendiente
-      // (se adjunta automáticamente al siguiente recibo). Idempotente por descripción.
-      if (subId && customerId) {
-        try {
-          const stripeApi = getStripe();
-          const paid = await stripeApi.invoices.list({ subscription: subId, status: 'paid', limit: 100 });
-          const DESC = 'Cuota semestral de mantenimiento';
-          if ((paid.data.length + 1) % 6 === 0) {
-            const pending = await stripeApi.invoiceItems.list({ customer: customerId, pending: true, limit: 100 });
-            const already = pending.data.some((it) => it.description === DESC);
-            if (!already) {
-              await stripeApi.invoiceItems.create({
-                customer: customerId,
-                amount: 25000,
-                currency: 'mxn',
-                description: DESC,
-              });
-              console.log(`[webhook] Cuota semestral $250 agregada para ${customerId}`);
-            }
-          }
-        } catch (e) {
-          console.error('[webhook] Error cuota semestral:', e);
         }
       }
     }
