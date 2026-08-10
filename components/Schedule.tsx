@@ -445,6 +445,11 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                           ? <>Reservar gratis <ArrowRight /></>
                           : <>Seleccionar bici <ArrowRight /></>}
                       </button>
+                      {!slot.isFree && (
+                        <a href="#mis-reservas" className="slot-member-link">
+                          🎟️ Reservar con membresía o pack
+                        </a>
+                      )}
                     </div>
                   </article>
                 );

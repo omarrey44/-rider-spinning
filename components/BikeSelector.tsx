@@ -210,15 +210,6 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
           </div>
           <p>Vista del salón en tiempo real. Las primeras filas tienen mejor visibilidad del instructor; las laterales reciben más aire.</p>
 
-          <a href="#mis-reservas" className="schedule-member-cta bike-member-cta">
-            <span className="schedule-member-cta-icon" aria-hidden="true">🎟️</span>
-            <span className="schedule-member-cta-text">
-              <strong>¿Ya tienes Membresía o Pack?</strong>
-              Reserva tu bici y horario aquí
-            </span>
-            <span className="schedule-member-cta-arrow" aria-hidden="true">→</span>
-          </a>
-
           <div className="bike-summary">
             {!selectedSlot ? (
               <p className="summary-empty summary-empty-noclass">

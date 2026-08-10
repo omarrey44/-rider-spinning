@@ -2249,6 +2249,21 @@ section::before {
   transition: transform 0.2s ease;
 }
 .slot-cta:hover svg { transform: translateX(3px); }
+
+/* Enlace secundario: reservar con membresía/pack (manda a Mis reservas) */
+.slot-member-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+.slot-member-link:hover { color: var(--teal-primary); text-decoration: underline; }
 .slot-cta:disabled {
   background: rgba(255, 255, 255, 0.08);
   color: var(--text-muted);
