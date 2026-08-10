@@ -197,6 +197,7 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
   const [error, setError] = useState<string | null>(null);
   const [confirmationNumber, setConfirmationNumber] = useState<string | null>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   const errorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -205,12 +206,32 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
     }
   }, [error]);
 
-  // Bloquea el scroll de la página mientras el modal está abierto (foco total en el modal).
+  // Bloqueo robusto del scroll de fondo (fija la posición) para que el overlay
+  // quede pegado al viewport aunque se abra desde una sección scrolleada.
   useEffect(() => {
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
+    const scrollY = window.scrollY;
+    const body = document.body;
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.left = '0';
+    body.style.right = '0';
+    body.style.width = '100%';
+    body.style.overflow = 'hidden';
+    return () => {
+      body.style.position = '';
+      body.style.top = '';
+      body.style.left = '';
+      body.style.right = '';
+      body.style.width = '';
+      body.style.overflow = '';
+      window.scrollTo(0, scrollY);
+    };
   }, []);
+
+  // Al cambiar de paso, sube el modal al inicio (evita que quede scrolleado abajo).
+  useEffect(() => {
+    modalRef.current?.scrollTo({ top: 0 });
+  }, [step]);
 
   const dates = useMemo(() => getNext7Days(), []);
 
@@ -340,7 +361,7 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
       aria-modal="true"
       aria-label="Reservar clase con membresía"
     >
-      <div className="modal membership-booking-modal">
+      <div className="modal membership-booking-modal" ref={modalRef}>
         {step !== 'done' && (
           <button className="modal-close" onClick={onClose} aria-label="Cerrar">✕</button>
         )}
