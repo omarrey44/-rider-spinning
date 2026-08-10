@@ -43,6 +43,19 @@ function lookupBody(raw: string): Record<string, string> | null {
   return { [c.kind]: c.value };
 }
 
+// Fecha de hoy (YYYY-MM-DD) en hora Chihuahua, para saber si una clase ya pasó.
+function chihuahuaTodayISO(): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Chihuahua', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date());
+}
+
+// true si la clase es de un día anterior a hoy (ya no se puede cancelar).
+function isPastBooking(classDate: string | null): boolean {
+  if (!classDate) return false;
+  return classDate < chihuahuaTodayISO();
+}
+
 const formatFullDate = (classDate: string | null, day: string): string => {
   if (!classDate) return day;
   try {
@@ -417,7 +430,7 @@ export default function FindBooking() {
                   {cancelSuccess[b.id] && (
                     <p className="booking-cancel-success" role="status">{cancelSuccess[b.id]}</p>
                   )}
-                  {(b.status === 'confirmed' || b.status === 'pending') && classifySearch(search)?.kind !== 'confirmation' && classifySearch(search) !== null && (
+                  {(b.status === 'confirmed' || b.status === 'pending') && !isPastBooking(b.class_date) && classifySearch(search)?.kind !== 'confirmation' && classifySearch(search) !== null && (
                     confirmCancelId === b.id ? (
                       <div className="booking-cancel-confirm">
                         <p>¿Confirmas la cancelación?</p>
