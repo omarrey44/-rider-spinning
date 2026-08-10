@@ -41,11 +41,43 @@ interface Booking {
 
 const STATUS_CFG = {
   confirmed: { label: 'Confirmada', Icon: CheckCircle2, cls: 'text-emerald-700 bg-emerald-50 border-emerald-200' },
+  finished:  { label: 'Finalizada', Icon: CheckCircle2, cls: 'text-gray-500  bg-gray-100 border-gray-200'  },
   pending:   { label: 'Pendiente',  Icon: Clock,         cls: 'text-amber-700  bg-amber-50  border-amber-200'  },
   cancelled: { label: 'Cancelada',  Icon: XCircle,       cls: 'text-red-700   bg-red-50   border-red-200'   },
   refunded:  { label: 'Reembolsada',Icon: RotateCcw,     cls: 'text-purple-700 bg-purple-50 border-purple-200' },
   expired:   { label: 'Expirada',   Icon: Clock,         cls: 'text-gray-500  bg-gray-50  border-gray-200'  },
 } as const;
+
+// Fecha (YYYY-MM-DD) y minutos desde medianoche AHORA, hora Chihuahua.
+function chihuahuaNow(): { dateISO: string; minutes: number } {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Chihuahua',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hour12: false,
+  }).formatToParts(new Date());
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? '00';
+  let hh = parseInt(get('hour'), 10);
+  if (hh === 24) hh = 0;
+  return { dateISO: `${get('year')}-${get('month')}-${get('day')}`, minutes: hh * 60 + parseInt(get('minute'), 10) };
+}
+function hourToMinutes(hour: string): number | null {
+  const m = hour?.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!m) return null;
+  let h = parseInt(m[1], 10);
+  const per = m[3].toUpperCase();
+  if (per === 'PM' && h !== 12) h += 12;
+  if (per === 'AM' && h === 12) h = 0;
+  return h * 60 + parseInt(m[2], 10);
+}
+// true si la clase confirmada ya pasó (fecha Y hora, Chihuahua).
+function isFinished(status: string, classDate: string | null, hour: string): boolean {
+  if (status !== 'confirmed' || !classDate) return false;
+  const { dateISO, minutes } = chihuahuaNow();
+  if (classDate < dateISO) return true;
+  if (classDate > dateISO) return false;
+  const cm = hourToMinutes(hour);
+  return cm !== null && minutes >= cm;
+}
 
 function initials(name: string) {
   return name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
@@ -119,7 +151,13 @@ export default function AdminBookingsTable() {
 
   const filtered = useMemo(() => {
     let list = bookings;
-    if (statusFilter !== 'all') list = list.filter((b) => b.status === statusFilter);
+    if (statusFilter === 'finished') {
+      list = list.filter((b) => isFinished(b.status, b.class_date, b.hour));
+    } else if (statusFilter === 'confirmed') {
+      list = list.filter((b) => b.status === 'confirmed' && !isFinished(b.status, b.class_date, b.hour));
+    } else if (statusFilter !== 'all') {
+      list = list.filter((b) => b.status === statusFilter);
+    }
     if (instructorFilter !== 'all') list = list.filter((b) => b.instructor_name === instructorFilter);
     if (dayFilter !== 'all') list = list.filter((b) => b.day === dayFilter || b.day?.startsWith(dayFilter));
     if (search.trim()) {
@@ -167,8 +205,9 @@ export default function AdminBookingsTable() {
       id: 'status',
       header: 'ESTADO',
       accessorKey: 'status',
-      cell: ({ getValue }) => {
-        const s = (getValue() as string) || 'pending';
+      cell: ({ row }) => {
+        const b = row.original;
+        const s = isFinished(b.status, b.class_date, b.hour) ? 'finished' : (b.status || 'pending');
         const cfg = STATUS_CFG[s as keyof typeof STATUS_CFG] ?? { label: s, Icon: AlertCircle, cls: 'text-gray-600 bg-gray-50 border-gray-200' };
         const Icon = cfg.Icon;
         return (
@@ -338,6 +377,7 @@ export default function AdminBookingsTable() {
           >
             <option value="all">Todos los estados</option>
             <option value="confirmed">Confirmadas</option>
+            <option value="finished">Finalizadas</option>
             <option value="pending">Pendientes</option>
             <option value="cancelled">Canceladas</option>
             <option value="expired">Expiradas</option>
@@ -488,7 +528,8 @@ export default function AdminBookingsTable() {
               ) : (
                 table.getRowModel().rows.map((row) => {
                   const b = row.original;
-                  const cfg = STATUS_CFG[b.status as keyof typeof STATUS_CFG]
+                  const sKey = isFinished(b.status, b.class_date, b.hour) ? 'finished' : b.status;
+                  const cfg = STATUS_CFG[sKey as keyof typeof STATUS_CFG]
                     ?? { label: b.status, Icon: AlertCircle, cls: 'text-gray-600 bg-gray-50 border-gray-200' };
                   const StatusIcon = cfg.Icon;
                   return (
