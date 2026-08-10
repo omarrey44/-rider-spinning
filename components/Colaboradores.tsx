@@ -113,8 +113,10 @@ const partners: Partner[] = [
 const INITIAL_COUNT = 4;
 
 export default function Colaboradores() {
+  // Escritorio: colapsa a las primeras INITIAL_COUNT (ocultando el resto por CSS)
+  // con toggle "Ver todos". Móvil: se muestran todas (scroll horizontal), el
+  // botón se oculta por CSS.
   const [expanded, setExpanded] = useState(false);
-  const visible = expanded ? partners : partners.slice(0, INITIAL_COUNT);
   const hidden = partners.length - INITIAL_COUNT;
 
   return (
@@ -137,7 +139,7 @@ export default function Colaboradores() {
         </p>
 
         <div className={`colab-grid ${expanded ? '' : 'colab-grid--collapsed'}`}>
-          {visible.map((p) => (
+          {partners.map((p) => (
             <article key={p.name} className={`colab-card ${p.colClass}`}>
               <div className="colab-img-wrap">
                 <Image

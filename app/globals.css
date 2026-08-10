@@ -8815,6 +8815,9 @@ section::before {
 /* Hint de deslizar — solo visible en móvil (scroll horizontal) */
 .colab-swipe-hint { display: none; }
 
+/* Escritorio colapsado: oculta de la 5ª card en adelante */
+.colab-grid--collapsed .colab-card:nth-child(n+5) { display: none; }
+
 /* Botón "Ver todos los beneficios" */
 .colab-viewall-wrap { display: flex; justify-content: center; margin-top: 32px; }
 .colab-viewall {
@@ -9022,6 +9025,10 @@ section::before {
     max-width: 100%;
   }
   .colab-grid::-webkit-scrollbar { display: none; }
+
+  /* Móvil: mostrar TODAS (scroll horizontal) y ocultar el toggle */
+  .colab-grid--collapsed .colab-card:nth-child(n+5) { display: flex; }
+  .colab-viewall-wrap { display: none; }
 
   /* Hint "Desliza para ver más" con flecha animada */
   .colab-swipe-hint {
