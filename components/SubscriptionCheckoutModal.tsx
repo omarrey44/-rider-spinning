@@ -219,7 +219,7 @@ export default function SubscriptionCheckoutModal({
             <span className="booking-banner-datetime">Botella + toalla · Cancela cuando quieras</span>
             <span className="booking-banner-price">$650 MXN/mes</span>
           </div>
-          <p className="banner-sub-note">🎉 Sin inscripción este mes (desde septiembre $250) · 🔧 Cuota mantenimiento $250/semestre (por semanas el 1er mes)</p>
+          <p className="banner-sub-note">🎉 Sin inscripción este mes (desde septiembre $350) · 🔧 Cuota mantenimiento $250/semestre (por semanas el 1er mes)</p>
         </div>
 
         <form className="modal-form" onSubmit={handleSubmit}>

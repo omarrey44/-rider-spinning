@@ -273,7 +273,7 @@ export async function sendSubscriptionConfirmation(data: SubscriptionEmailData) 
         <div class="detail-row"><div class="detail-label">Beneficios</div><div class="detail-value">Clases ilimitadas · Botella + toalla cortesía</div></div>
         <div class="detail-row"><div class="detail-label">Primer mes</div><div class="detail-value amount">$${data.amount.toLocaleString('es-MX')} MXN</div></div>
         <div class="detail-row"><div class="detail-label">Renovación</div><div class="detail-value">Automática cada mes · Cancela cuando quieras</div></div>
-        <div class="detail-row" style="border-left-color:#2a9d8f;"><div class="detail-label">Inscripción</div><div class="detail-value" style="font-size:14px;color:#2a9d8f;">Sin costo este mes · $250 MXN a partir de septiembre</div></div>
+        <div class="detail-row" style="border-left-color:#2a9d8f;"><div class="detail-label">Inscripción</div><div class="detail-value" style="font-size:14px;color:#2a9d8f;">Sin costo este mes · $350 MXN a partir de septiembre</div></div>
         ${data.goal ? `<div class="detail-row"><div class="detail-label">Tu objetivo</div><div class="detail-value">${escapeHtml(data.goal)}</div></div>` : ''}
         <p style="margin-top:24px;"><strong>¿Qué sigue?</strong><br>Reserva tus clases desde el sitio con tu membresía activa. Clases ilimitadas, sin restricciones.</p>
         <div style="text-align:center;margin:30px 0;">

@@ -85,7 +85,7 @@ export default function Pricing({ onPackClick, onSubscribeClick }: PricingProps)
               <li>Reserva con 14 días</li>
               <li>Botella + toalla cortesía</li>
               <li>Acceso a eventos exclusivos</li>
-              <li className="price-promo">🎉 Sin inscripción este mes (desde septiembre $250)</li>
+              <li className="price-promo">🎉 Sin inscripción este mes (desde septiembre $350)</li>
               <li>🔧 Cuota de mantenimiento $250/semestre (se cobra por semanas el 1er mes)</li>
             </ul>
             <button onClick={onSubscribeClick || (() => {})} className="btn btn-outline btn-block">Suscribirme</button>
