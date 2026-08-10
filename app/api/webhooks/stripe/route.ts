@@ -115,6 +115,9 @@ export async function POST(req: NextRequest) {
 
       if (memError) {
         console.error('[webhook] Membership insert error:', memError);
+        // Devolver 500 para que Stripe reintente el webhook (evita membresías
+        // pagadas que nunca se registran por un fallo transitorio de BD).
+        return NextResponse.json({ error: 'Failed to create membership' }, { status: 500 });
       }
 
       console.log(`[webhook] ${isSub ? 'Subscription' : 'Pack'} confirmed: ${confirmationNumber} - ${metadata.customer_name}`);
