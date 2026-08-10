@@ -2254,16 +2254,28 @@ section::before {
 .slot-member-link {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  margin-top: 8px;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.65);
+  gap: 7px;
+  margin-top: 10px;
+  padding: 11px 22px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #0b1016;
+  background: linear-gradient(135deg, #4fe8f5 0%, var(--teal-primary) 100%);
+  border: none;
+  border-radius: var(--radius-pill);
   text-decoration: none;
-  transition: color 0.2s ease;
   white-space: nowrap;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--teal-primary) 35%, transparent);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
-.slot-member-link:hover { color: var(--teal-primary); text-decoration: underline; }
+.slot-member-link:hover {
+  transform: translateY(-2px) scale(1.03);
+  filter: brightness(1.06);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--teal-primary) 55%, transparent);
+}
 .slot-cta:disabled {
   background: rgba(255, 255, 255, 0.08);
   color: var(--text-muted);
