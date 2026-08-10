@@ -9692,6 +9692,15 @@ section::before {
 @media (max-width: 640px) {
   .mem-grid-bikes { gap: 7px; }
   .mem-bike { min-height: 46px; font-size: 16px; border-radius: 11px; }
+
+  /* Horarios compactos que quepan en pantalla móvil */
+  .membership-booking-modal .mem-slot-list { gap: 8px; }
+  .membership-booking-modal .mem-slot-btn { padding: 11px 12px; gap: 10px; border-radius: 12px; }
+  .membership-booking-modal .mem-slot-time { font-size: 16px; min-width: 56px; }
+  .membership-booking-modal .mem-slot-period { font-size: 11px; }
+  .membership-booking-modal .mem-slot-info strong { font-size: 14px; }
+  .membership-booking-modal .mem-slot-info span { font-size: 12px; }
+  .membership-booking-modal .mem-slot-dur { font-size: 11px; }
 }
 
 .membership-booking-modal .bike-selector--compact .container {

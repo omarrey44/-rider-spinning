@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { weekdaySlots, saturdaySlots, ScheduleSlot, BIKE_CONFIG } from '@/data/schedule';
 import { createClient } from '@/lib/supabase/client';
 
@@ -352,7 +353,9 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
       ? membership.credits_total - membership.credits_used
       : null;
 
-  return (
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <div
       className="modal-overlay"
       ref={overlayRef}
@@ -529,6 +532,7 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
