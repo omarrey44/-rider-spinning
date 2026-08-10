@@ -273,7 +273,7 @@ export default function Hero() {
                   <span className="badge badge-live">● ESTA SEMANA</span>
                   <h3>Reserva tu primer ride</h3>
                   <p className="hero-card-instructor">
-                    <UserIcon size={14} /> Lun a Sáb · 6 instructores
+                    <UserIcon size={14} /> Lun a Sáb · 3 instructores
                   </p>
                   <div className="hero-card-meta">
                     <span className="hero-meta-item"><ClockIcon size={14} /> 45 min</span>

@@ -28,9 +28,9 @@ export default function CancelacionPage() {
 
           <h3>Clase suelta</h3>
           <ul>
-            <li><strong>Más de 4 horas antes:</strong> reembolso del 100%</li>
-            <li><strong>Entre 2 y 4 horas antes:</strong> crédito para otra clase (sin reembolso en efectivo)</li>
-            <li><strong>Menos de 1 hora antes / no-show:</strong> sin reembolso ni crédito</li>
+            <li><strong>Más de 4 horas antes:</strong> reembolso del 100% a tu método de pago</li>
+            <li><strong>Entre 1 y 4 horas antes:</strong> puedes cancelar y liberar tu lugar, pero sin reembolso</li>
+            <li><strong>Menos de 1 hora antes / no-show:</strong> no es posible cancelar; sin reembolso</li>
           </ul>
 
           <h3>Pack de 3 clases</h3>
