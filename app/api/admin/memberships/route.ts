@@ -24,7 +24,7 @@ export async function GET() {
     const supabase = createAdminClient();
     const { data: memberships, error } = await supabase
       .from('memberships')
-      .select('id, customer_name, customer_email, customer_phone, type, credits_total, credits_used, expires_at, status, confirmation_number, amount_paid, stripe_session_id, created_at')
+      .select('id, customer_name, customer_email, customer_phone, type, credits_total, credits_used, expires_at, status, confirmation_number, amount_paid, stripe_session_id, created_at, maintenance_semester_start, maintenance_paid_cents')
       .order('created_at', { ascending: false });
 
     if (error) {

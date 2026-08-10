@@ -4438,6 +4438,22 @@ section::before {
 .membership-manage-btn:hover:not(:disabled) { border-color: rgba(255, 255, 255, 0.45); color: #fff; }
 .membership-manage-btn:disabled { opacity: 0.6; cursor: default; }
 .membership-manage-error { font-size: 12px; color: #f4a261; margin: 8px 0 0; text-align: center; }
+
+.membership-maint {
+  margin: 0 0 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(244, 162, 97, 0.14), rgba(244, 162, 97, 0.05));
+  border: 1px solid rgba(244, 162, 97, 0.4);
+}
+.membership-maint--blocked {
+  background: linear-gradient(135deg, rgba(225, 6, 0, 0.16), rgba(225, 6, 0, 0.06));
+  border-color: rgba(225, 6, 0, 0.5);
+}
+.membership-maint-title { font-size: 14px; font-weight: 700; color: #fff; margin: 0 0 4px; }
+.membership-maint-text { font-size: 13px; color: rgba(255, 255, 255, 0.75); margin: 0 0 10px; }
+.membership-maint-text strong { color: #fff; }
+.membership-maint-btn { margin: 0; }
 .membership-expired-msg { font-size: 13px; color: rgba(255,255,255,0.4); margin: 0; text-align: center; }
 
 /* ── MembershipBookingModal ─────────────────────────────────────── */

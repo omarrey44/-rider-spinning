@@ -376,3 +376,54 @@ export async function sendCancellationConfirmation(data: CancellationEmailData) 
     console.error('[email] Error cancelación:', err);
   }
 }
+
+// ── Recordatorio de cuota de mantenimiento ───────────────────────────────────
+
+interface MaintenanceReminderData {
+  customerName: string;
+  customerEmail: string;
+  owedPesos: number;
+  blocked: boolean;
+}
+
+export async function sendMaintenanceReminder(data: MaintenanceReminderData) {
+  const accent = data.blocked ? '#e10600' : '#f4a261';
+  const html = `
+    <!DOCTYPE html><html><head><style>
+      body{font-family:Arial,sans-serif;color:#333;}
+      .container{max-width:600px;margin:0 auto;padding:20px;}
+      .header{background:${accent};color:white;padding:28px;text-align:center;border-radius:8px 8px 0 0;}
+      .content{background:#f9f9f9;padding:30px;border-radius:0 0 8px 8px;}
+      .amount{font-size:28px;font-weight:800;color:${accent};text-align:center;margin:8px 0 20px;}
+      .footer{text-align:center;font-size:12px;color:#888;border-top:1px solid #ddd;padding-top:20px;margin-top:20px;}
+    </style></head><body>
+    <div class="container">
+      <div class="header"><h1>${data.blocked ? '🚫 Reservas en pausa' : '🔧 Cuota de mantenimiento'}</h1></div>
+      <div class="content">
+        <p>Hola <strong>${escapeHtml(data.customerName)}</strong>,</p>
+        <p>${data.blocked
+          ? 'Tu cuota de mantenimiento sigue pendiente, por lo que tus reservas están en pausa. Ponte al día para volver a reservar.'
+          : 'Este es tu recordatorio de la cuota de mantenimiento de tu membresía.'}</p>
+        <div class="amount">$${data.owedPesos.toLocaleString('es-MX')} MXN</div>
+        <div style="text-align:center;margin:24px 0;">
+          <a href="${BASE_URL}/#mis-reservas" style="display:inline-block;background:${accent};color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">Pagar mi cuota</a>
+        </div>
+        <p style="font-size:13px;color:#666;">Entra a <strong>Mis reservas</strong> con tu correo y número de confirmación para pagar en línea. También puedes pagar en efectivo en el estudio.</p>
+        <div class="footer">
+          <p>Rideon Spinning Studio · Plaza San Agustín local 23, Chihuahua, México</p>
+        </div>
+      </div>
+    </div></body></html>
+  `;
+  try {
+    await getResend().emails.send({
+      from: FROM,
+      to: data.customerEmail,
+      subject: data.blocked ? 'Tu cuota de mantenimiento está pendiente 🚫' : 'Recordatorio: cuota de mantenimiento 🔧',
+      html,
+    });
+    console.log(`[email] Recordatorio cuota enviado a ${data.customerEmail}`);
+  } catch (err) {
+    console.error('[email] Error recordatorio cuota:', err);
+  }
+}

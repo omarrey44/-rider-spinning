@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import { Search, RefreshCw, Ticket, Infinity as InfinityIcon, Banknote, CreditCard } from 'lucide-react';
+import { Search, RefreshCw, Ticket, Infinity as InfinityIcon, Banknote, CreditCard, Wrench } from 'lucide-react';
 import { clsx } from 'clsx';
+import { computeMaintenance, pesosFromCents } from '@/lib/maintenance';
 
 interface Membership {
   id: string;
@@ -18,6 +19,8 @@ interface Membership {
   amount_paid: number | null;
   stripe_session_id: string | null;
   created_at: string;
+  maintenance_semester_start: string | null;
+  maintenance_paid_cents: number | null;
 }
 
 function initials(name: string) {
@@ -43,6 +46,7 @@ export default function AdminMembershipsTable() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [maintBusyId, setMaintBusyId] = useState<string | null>(null);
 
   const fetchMemberships = useCallback(async () => {
     setLoading(true);
@@ -60,6 +64,26 @@ export default function AdminMembershipsTable() {
   }, []);
 
   useEffect(() => { fetchMemberships(); }, [fetchMemberships]);
+
+  // Registra el pago EN EFECTIVO de la cuota → quita el bloqueo.
+  const markMaintenancePaid = useCallback(async (id: string) => {
+    if (!confirm('¿Registrar la cuota de mantenimiento como pagada en efectivo? Esto quita el bloqueo de reservas.')) return;
+    setMaintBusyId(id);
+    try {
+      const res = await fetch('/api/admin/memberships/maintenance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ membership_id: id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error');
+      await fetchMemberships();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Error al registrar');
+    } finally {
+      setMaintBusyId(null);
+    }
+  }, [fetchMemberships]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -128,6 +152,10 @@ export default function AdminMembershipsTable() {
             const isPack = m.type === 'pack';
             const isCash = m.stripe_session_id?.startsWith('admin:cash:');
             const creditsLeft = isPack && m.credits_total !== null ? m.credits_total - m.credits_used : null;
+            // Estado de la cuota de mantenimiento (solo suscripciones activas).
+            const maint = !isPack && st === 'active'
+              ? computeMaintenance(m.type, m.created_at, m.maintenance_semester_start, m.maintenance_paid_cents ?? 0)
+              : null;
             return (
               <div key={m.id} className="px-5 py-3 flex items-center gap-4 flex-wrap">
                 <div className="w-9 h-9 rounded-full bg-violet-500 text-white text-xs font-semibold flex items-center justify-center shrink-0">
@@ -176,6 +204,37 @@ export default function AdminMembershipsTable() {
                 )}>
                   {st === 'active' ? 'Activa' : st === 'expired' ? 'Expirada' : 'Cancelada'}
                 </span>
+
+                {/* Cuota de mantenimiento (suscripciones) */}
+                {maint && (
+                  <div className="flex items-center gap-2 w-full sm:w-auto sm:ml-auto">
+                    {maint.fullyPaid ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <Wrench size={12} /> Cuota pagada
+                      </span>
+                    ) : maint.owedCents > 0 ? (
+                      <>
+                        <span className={clsx(
+                          'inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold border',
+                          maint.blocked ? 'bg-red-50 text-red-700 border-red-200' : 'bg-amber-50 text-amber-700 border-amber-200',
+                        )}>
+                          <Wrench size={12} /> {maint.blocked ? 'Bloqueado' : 'Cuota'} {pesosFromCents(maint.owedCents)}
+                        </span>
+                        <button
+                          onClick={() => markMaintenancePaid(m.id)}
+                          disabled={maintBusyId === m.id}
+                          className="text-xs px-2 py-1 rounded-md border border-emerald-300 text-emerald-700 hover:bg-emerald-50 font-medium disabled:opacity-50"
+                        >
+                          {maintBusyId === m.id ? '…' : 'Pagó en efectivo'}
+                        </button>
+                      </>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-gray-50 text-gray-400 border border-gray-200">
+                        <Wrench size={12} /> Cuota al día
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}

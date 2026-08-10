@@ -39,6 +39,46 @@ export async function POST(req: NextRequest) {
     const email = session.customer_details?.email || metadata.customer_email || '';
     const amount = (session.amount_total || 0) / 100;
     const confirmationNumber = metadata.confirmation_number || metadata.booking_id?.substring(0, 8).toUpperCase() || '';
+
+    // ── Pago de cuota de mantenimiento ────────────────────────────────
+    // Suma el monto pagado a maintenance_paid_cents (idempotente por session).
+    if (metadata.kind === 'maintenance') {
+      const membershipId = metadata.membership_id;
+      const paidNow = session.amount_total || 0;
+      if (!membershipId) {
+        console.error('[webhook] maintenance sin membership_id');
+        return NextResponse.json({ received: true });
+      }
+      const { data: mem } = await supabase
+        .from('memberships')
+        .select('id, maintenance_paid_cents, maintenance_last_session_id')
+        .eq('id', membershipId)
+        .maybeSingle();
+      if (!mem) {
+        console.error('[webhook] maintenance: membresía no encontrada', membershipId);
+        return NextResponse.json({ received: true });
+      }
+      if (mem.maintenance_last_session_id === session.id) {
+        console.log('[webhook] maintenance ya aplicada, skip', session.id);
+        return NextResponse.json({ received: true });
+      }
+      const newPaid = Math.min(25000, (mem.maintenance_paid_cents || 0) + paidNow);
+      const { error: updErr } = await supabase
+        .from('memberships')
+        .update({
+          maintenance_paid_cents: newPaid,
+          maintenance_last_session_id: session.id,
+          ...(metadata.semester_start ? { maintenance_semester_start: metadata.semester_start } : {}),
+        })
+        .eq('id', membershipId);
+      if (updErr) {
+        console.error('[webhook] maintenance update error:', updErr);
+        return NextResponse.json({ error: 'Failed to record maintenance payment' }, { status: 500 });
+      }
+      console.log(`[webhook] Cuota mantenimiento +${paidNow}c → ${newPaid}c para membresía ${membershipId}`);
+      return NextResponse.json({ received: true });
+    }
+
     const isClassBooking = !metadata.pack_size && !metadata.subscription_type;
 
     if (isClassBooking) {

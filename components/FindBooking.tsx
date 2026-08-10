@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { MailIcon, BikeIcon, UserIcon, CalendarIcon, AlarmClockIcon, CheckIcon } from './Icons';
 import MembershipBookingModal, { MembershipData } from './MembershipBookingModal';
+import type { MaintenanceState } from '@/lib/maintenance';
+
+const pesos = (cents: number) => `$${(cents / 100).toLocaleString('es-MX')}`;
 
 interface Booking {
   id: string;
@@ -96,6 +99,52 @@ function MembershipCard({
 
   const [portalLoading, setPortalLoading] = useState(false);
   const [portalError, setPortalError] = useState<string | null>(null);
+  const [maint, setMaint] = useState<MaintenanceState | null>(null);
+  const [payLoading, setPayLoading] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
+
+  // Carga el estado de la cuota de mantenimiento (solo suscripciones activas).
+  useEffect(() => {
+    if (isPack || !isActive || isExpired) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const p = new URLSearchParams({
+          email: membership.customer_email,
+          confirmation: membership.confirmation_number,
+        });
+        const r = await fetch(`/api/memberships/maintenance?${p}`);
+        if (!r.ok) return;
+        const d = await r.json();
+        if (!cancelled && d.state) setMaint(d.state);
+      } catch {
+        /* silencioso */
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [membership.customer_email, membership.confirmation_number, isPack, isActive, isExpired]);
+
+  // Manda al cliente a Stripe a pagar la cuota adeudada.
+  const payMaintenance = async () => {
+    setPayError(null);
+    setPayLoading(true);
+    try {
+      const res = await fetch('/api/memberships/maintenance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer_email: membership.customer_email,
+          confirmation_number: membership.confirmation_number,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error || 'No se pudo iniciar el pago');
+      window.location.href = data.url;
+    } catch (err) {
+      setPayError(err instanceof Error ? err.message : 'Error inesperado');
+      setPayLoading(false);
+    }
+  };
 
   // Abre el Stripe Billing Portal para administrar/cancelar la suscripción.
   const openPortal = async () => {
@@ -171,7 +220,25 @@ function MembershipCard({
         </div>
       </div>
 
-      {isActive && !isExpired && (
+      {/* Cuota de mantenimiento (solo suscripción con adeudo) */}
+      {maint && maint.applies && maint.owedCents > 0 && (
+        <div className={`membership-maint ${maint.blocked ? 'membership-maint--blocked' : ''}`} role={maint.blocked ? 'alert' : 'note'}>
+          <p className="membership-maint-title">
+            {maint.blocked ? '🚫 Reservas bloqueadas' : '🔧 Cuota de mantenimiento'}
+          </p>
+          <p className="membership-maint-text">
+            {maint.blocked
+              ? <>Tienes <strong>{pesos(maint.owedCents)}</strong> de cuota de mantenimiento pendiente. Págala para volver a reservar.</>
+              : <>Esta semana puedes pagar tu cuota de mantenimiento: <strong>{pesos(maint.owedCents)}</strong>. Puedes omitirla esta semana.</>}
+          </p>
+          <button className="btn btn-primary btn-block membership-maint-btn" onClick={payMaintenance} disabled={payLoading}>
+            {payLoading ? 'Abriendo pago…' : `Pagar cuota ${pesos(maint.owedCents)}`}
+          </button>
+          {payError && <p className="membership-manage-error" role="alert">{payError}</p>}
+        </div>
+      )}
+
+      {isActive && !isExpired && !(maint?.blocked) && (
         <button
           className="btn btn-primary btn-block membership-book-btn"
           onClick={() => onBook(membership)}

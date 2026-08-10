@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { sendBookingConfirmation } from '@/lib/email';
+import { computeMaintenance } from '@/lib/maintenance';
 
 export async function POST(req: NextRequest) {
   try {
@@ -49,6 +50,23 @@ export async function POST(req: NextRequest) {
     if (new Date(membership.expires_at) < new Date()) {
       await supabase.from('memberships').update({ status: 'expired' }).eq('id', membership_id);
       return NextResponse.json({ error: 'Tu membresía ha expirado' }, { status: 400 });
+    }
+
+    // 3b. Suscripción: bloquear si adeuda la cuota de mantenimiento.
+    if (membership.type === 'subscription') {
+      const maint = computeMaintenance(
+        membership.type,
+        membership.created_at,
+        membership.maintenance_semester_start,
+        membership.maintenance_paid_cents,
+      );
+      if (maint.blocked) {
+        return NextResponse.json({
+          error: 'Tienes una cuota de mantenimiento pendiente. Págala para volver a reservar.',
+          maintenance_blocked: true,
+          owed_cents: maint.owedCents,
+        }, { status: 402 });
+      }
     }
 
     // 4. Pack: check credits remaining
