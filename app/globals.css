@@ -5076,7 +5076,7 @@ section::before {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: 2000;
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -9742,23 +9742,21 @@ section::before {
 
 @media (max-width: 640px) {
   .modal-overlay:has(.membership-booking-modal) {
-    align-items: stretch;
-    padding: 0;
+    align-items: center;
+    padding: 14px;
   }
 
   .membership-booking-modal,
   .membership-booking-modal.modal--wide {
     width: 100%;
     max-width: none;
-    max-height: 100dvh;
-    min-height: 100dvh;
-    border-radius: 0;
-    border-right: 0;
-    border-left: 0;
+    max-height: 88dvh;
+    min-height: 0;
+    border-radius: 20px;
   }
 
   .membership-booking-modal .modal-header {
-    padding: 24px 58px 20px 20px;
+    padding: 22px 54px 18px 20px;
   }
 
   .membership-booking-modal .mem-date-grid {
