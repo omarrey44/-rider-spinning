@@ -20,9 +20,10 @@ export async function GET(req: NextRequest) {
 
   const { data: subs, error } = await supabase
     .from('memberships')
-    .select('id, customer_name, customer_email, type, status, created_at, expires_at, maintenance_semester_start, maintenance_paid_cents, maintenance_last_reminder_week')
+    .select('id, customer_name, customer_email, type, status, created_at, expires_at, maintenance_semester_start, maintenance_paid_cents, maintenance_last_reminder_week, maintenance_exempt')
     .eq('type', 'subscription')
     .eq('status', 'active')
+    .eq('maintenance_exempt', false)
     .gt('expires_at', nowIso);
 
   if (error) {

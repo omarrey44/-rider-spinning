@@ -59,6 +59,8 @@ export async function POST(req: NextRequest) {
         membership.created_at,
         membership.maintenance_semester_start,
         membership.maintenance_paid_cents,
+        new Date(),
+        membership.maintenance_exempt ?? false,
       );
       if (maint.blocked) {
         return NextResponse.json({

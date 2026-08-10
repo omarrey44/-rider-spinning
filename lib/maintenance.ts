@@ -66,6 +66,8 @@ export interface MaintenanceState {
   nextChargeISO: string | null;
   /** true si el semestre guardado difiere del vigente → hay que resetear pagos. */
   needsSemesterReset: boolean;
+  /** true si la membresía está exenta (paga en efectivo): sin cobro ni bloqueo. */
+  exempt: boolean;
 }
 
 /**
@@ -82,10 +84,30 @@ export function computeMaintenance(
   storedStartISO: string | null,
   paidCentsRaw: number,
   now: Date = new Date(),
+  exempt: boolean = false,
 ): MaintenanceState {
   const created = new Date(createdAtISO);
   const semStart = currentSemesterStart(created, now);
   const semStartISO = semStart.toISOString();
+
+  // Exenta (paga en efectivo): sin cobro, sin bloqueo, sin recordatorios.
+  if (exempt) {
+    return {
+      applies: type === 'subscription',
+      semesterStartISO: semStartISO,
+      weeksElapsed: 0,
+      dueWeeks: 0,
+      cumulativeDueCents: 0,
+      paidCents: 0,
+      owedCents: 0,
+      overdueCents: 0,
+      fullyPaid: true,
+      blocked: false,
+      nextChargeISO: null,
+      needsSemesterReset: false,
+      exempt: true,
+    };
+  }
 
   // Si el semestre vigente cambió respecto al guardado, los pagos previos no
   // cuentan para este semestre → resetear.
@@ -126,5 +148,6 @@ export function computeMaintenance(
     blocked,
     nextChargeISO,
     needsSemesterReset,
+    exempt: false,
   };
 }

@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const { membership_id } = await req.json();
+    const { membership_id, exempt } = await req.json();
     if (!membership_id) return NextResponse.json({ error: 'Falta membership_id' }, { status: 400 });
 
     const supabase = createAdminClient();
@@ -35,6 +35,22 @@ export async function POST(req: NextRequest) {
     if (!mem) return NextResponse.json({ error: 'Membresía no encontrada' }, { status: 404 });
     if (mem.type !== 'subscription') {
       return NextResponse.json({ error: 'La cuota solo aplica a mensualidades' }, { status: 400 });
+    }
+
+    // Si viene `exempt` (booleano) → alterna la exención permanente (paga en
+    // efectivo: sin cobro/​bloqueo/​recordatorio). Si no viene → marca el
+    // semestre vigente como pagado por completo.
+    if (typeof exempt === 'boolean') {
+      const { error } = await supabase
+        .from('memberships')
+        .update({ maintenance_exempt: exempt })
+        .eq('id', membership_id);
+      if (error) {
+        console.error('[admin/memberships/maintenance] exempt error:', error);
+        return NextResponse.json({ error: 'Error al actualizar la exención' }, { status: 500 });
+      }
+      console.log(`[admin/memberships/maintenance] exención=${exempt} para ${membership_id} por ${user.email}`);
+      return NextResponse.json({ success: true, exempt });
     }
 
     // Semestre vigente → marcar pagado completo.

@@ -21,6 +21,7 @@ interface Membership {
   created_at: string;
   maintenance_semester_start: string | null;
   maintenance_paid_cents: number | null;
+  maintenance_exempt: boolean | null;
 }
 
 function initials(name: string) {
@@ -65,7 +66,7 @@ export default function AdminMembershipsTable() {
 
   useEffect(() => { fetchMemberships(); }, [fetchMemberships]);
 
-  // Registra el pago EN EFECTIVO de la cuota → quita el bloqueo.
+  // Registra el pago EN EFECTIVO de la cuota del semestre → quita el bloqueo.
   const markMaintenancePaid = useCallback(async (id: string) => {
     if (!confirm('¿Registrar la cuota de mantenimiento como pagada en efectivo? Esto quita el bloqueo de reservas.')) return;
     setMaintBusyId(id);
@@ -80,6 +81,28 @@ export default function AdminMembershipsTable() {
       await fetchMemberships();
     } catch (e) {
       alert(e instanceof Error ? e.message : 'Error al registrar');
+    } finally {
+      setMaintBusyId(null);
+    }
+  }, [fetchMemberships]);
+
+  // Exención permanente (paga siempre en efectivo): sin cobro/bloqueo/recordatorio.
+  const toggleExempt = useCallback(async (id: string, exempt: boolean) => {
+    if (!confirm(exempt
+      ? '¿Exentar a este cliente de la cuota? No se le cobrará online, no se bloquea y no recibe recordatorios (paga en efectivo).'
+      : '¿Quitar la exención? Volverá al cobro normal de la cuota.')) return;
+    setMaintBusyId(id);
+    try {
+      const res = await fetch('/api/admin/memberships/maintenance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ membership_id: id, exempt }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error');
+      await fetchMemberships();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Error');
     } finally {
       setMaintBusyId(null);
     }
@@ -154,7 +177,7 @@ export default function AdminMembershipsTable() {
             const creditsLeft = isPack && m.credits_total !== null ? m.credits_total - m.credits_used : null;
             // Estado de la cuota de mantenimiento (solo suscripciones activas).
             const maint = !isPack && st === 'active'
-              ? computeMaintenance(m.type, m.created_at, m.maintenance_semester_start, m.maintenance_paid_cents ?? 0)
+              ? computeMaintenance(m.type, m.created_at, m.maintenance_semester_start, m.maintenance_paid_cents ?? 0, new Date(), m.maintenance_exempt ?? false)
               : null;
             return (
               <div key={m.id} className="px-5 py-3 flex items-center gap-4 flex-wrap">
@@ -208,30 +231,54 @@ export default function AdminMembershipsTable() {
                 {/* Cuota de mantenimiento (suscripciones) */}
                 {maint && (
                   <div className="flex items-center gap-2 w-full sm:w-auto sm:ml-auto">
-                    {maint.fullyPaid ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        <Wrench size={12} /> Cuota pagada
-                      </span>
-                    ) : maint.owedCents > 0 ? (
+                    {maint.exempt ? (
                       <>
-                        <span className={clsx(
-                          'inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold border',
-                          maint.blocked ? 'bg-red-50 text-red-700 border-red-200' : 'bg-amber-50 text-amber-700 border-amber-200',
-                        )}>
-                          <Wrench size={12} /> {maint.blocked ? 'Bloqueado' : 'Cuota'} {pesosFromCents(maint.owedCents)}
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                          <Wrench size={12} /> Exento · efectivo
                         </span>
                         <button
-                          onClick={() => markMaintenancePaid(m.id)}
+                          onClick={() => toggleExempt(m.id, false)}
                           disabled={maintBusyId === m.id}
-                          className="text-xs px-2 py-1 rounded-md border border-emerald-300 text-emerald-700 hover:bg-emerald-50 font-medium disabled:opacity-50"
+                          className="text-xs px-2 py-1 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50 font-medium disabled:opacity-50"
                         >
-                          {maintBusyId === m.id ? '…' : 'Pagó en efectivo'}
+                          {maintBusyId === m.id ? '…' : 'Quitar exención'}
                         </button>
                       </>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-gray-50 text-gray-400 border border-gray-200">
-                        <Wrench size={12} /> Cuota al día
-                      </span>
+                      <>
+                        {maint.fullyPaid ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <Wrench size={12} /> Cuota pagada
+                          </span>
+                        ) : maint.owedCents > 0 ? (
+                          <>
+                            <span className={clsx(
+                              'inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold border',
+                              maint.blocked ? 'bg-red-50 text-red-700 border-red-200' : 'bg-amber-50 text-amber-700 border-amber-200',
+                            )}>
+                              <Wrench size={12} /> {maint.blocked ? 'Bloqueado' : 'Cuota'} {pesosFromCents(maint.owedCents)}
+                            </span>
+                            <button
+                              onClick={() => markMaintenancePaid(m.id)}
+                              disabled={maintBusyId === m.id}
+                              className="text-xs px-2 py-1 rounded-md border border-emerald-300 text-emerald-700 hover:bg-emerald-50 font-medium disabled:opacity-50"
+                            >
+                              {maintBusyId === m.id ? '…' : 'Pagó en efectivo'}
+                            </button>
+                          </>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-gray-50 text-gray-400 border border-gray-200">
+                            <Wrench size={12} /> Cuota al día
+                          </span>
+                        )}
+                        <button
+                          onClick={() => toggleExempt(m.id, true)}
+                          disabled={maintBusyId === m.id}
+                          className="text-xs px-2 py-1 rounded-md border border-blue-300 text-blue-700 hover:bg-blue-50 font-medium disabled:opacity-50"
+                        >
+                          Exentar
+                        </button>
+                      </>
                     )}
                   </div>
                 )}

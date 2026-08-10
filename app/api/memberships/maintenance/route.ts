@@ -9,7 +9,7 @@ async function findSubscription(emailLc: string, code: string) {
   const supabase = createAdminClient();
   const { data } = await supabase
     .from('memberships')
-    .select('id, customer_name, customer_email, type, status, created_at, maintenance_semester_start, maintenance_paid_cents')
+    .select('id, customer_name, customer_email, type, status, created_at, maintenance_semester_start, maintenance_paid_cents, maintenance_exempt')
     .eq('customer_email', emailLc)
     .eq('confirmation_number', code)
     .eq('type', 'subscription')
@@ -42,6 +42,8 @@ export async function GET(req: NextRequest) {
     membership.created_at,
     membership.maintenance_semester_start,
     membership.maintenance_paid_cents,
+    new Date(),
+    membership.maintenance_exempt ?? false,
   );
 
   // Reset perezoso: si empezó un nuevo semestre, persistimos el nuevo inicio y
@@ -79,6 +81,8 @@ export async function POST(req: NextRequest) {
       membership.created_at,
       membership.maintenance_semester_start,
       membership.maintenance_paid_cents,
+      new Date(),
+      membership.maintenance_exempt ?? false,
     );
 
     if (state.owedCents <= 0) {
