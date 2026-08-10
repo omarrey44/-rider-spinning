@@ -4773,17 +4773,16 @@ section::before {
 }
 .price-card:hover::before { transform: scaleX(1); }
 .price-card:hover {
-  transform: translateY(-10px) rotateX(3deg) rotateY(-2deg);
+  transform: translateY(-10px);
   box-shadow:
     0 30px 60px -10px rgba(0, 0, 0, 0.12),
     0 0 0 1px rgba(29, 212, 232, 0.08);
   border-color: var(--text-dark);
 }
-/* Card del medio inclina al lado contrario para sentir simetría */
-.price-card.featured:hover { transform: scale(1.04) translateY(-10px) rotateX(3deg); }
-.pricing-grid .price-card:nth-child(3):hover {
-  transform: translateY(-10px) rotateX(3deg) rotateY(2deg);
-}
+/* Nota: se evitan rotaciones 3D (rotateX/rotateY) en el hover porque Firefox
+   rasteriza el texto de la capa transformada y lo desvanece. La 3ª tarjeta
+   (Mensualidad) hereda el hover normal (sin regla nth-child propia). */
+.price-card.featured:hover { transform: scale(1.04) translateY(-10px); }
 
 /* Cabecera: icono + título + descripción */
 .price-head {
