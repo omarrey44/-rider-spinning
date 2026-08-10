@@ -307,6 +307,15 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
           <p>Selecciona un día y reserva tu lugar antes de que se llene.</p>
         </div>
 
+        <a href="#mis-reservas" className="schedule-member-cta">
+          <span className="schedule-member-cta-icon" aria-hidden="true">🎟️</span>
+          <span className="schedule-member-cta-text">
+            <strong>¿Ya tienes Membresía o Pack?</strong>
+            Reserva tu bici y horario aquí
+          </span>
+          <span className="schedule-member-cta-arrow" aria-hidden="true">→</span>
+        </a>
+
         {isPrelaunch ? (
           <div className="sunday-banner prelaunch-banner" role="status">
             <CalendarDaysIcon size={20} />
