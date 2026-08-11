@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { DayKey, days, weekdaySlots, saturdaySlots, aug8EventSlots, EVENT_DATE, EVENT_DAY_LABEL, resolveClassDateISO, ScheduleSlot, BIKE_CONFIG } from '@/data/schedule';
 import { ArrowRight, ClockIcon, SignalIcon, MoonIcon, InfoIcon, CalendarDaysIcon } from './Icons';
 import { createClient } from '@/lib/supabase/client';
@@ -70,6 +70,9 @@ function dateForDayKey(dayKey: DayKey, prelaunch: boolean): Date {
 // "sábado 8 de agosto"
 function fmtFull(d: Date): string {
   return d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+function toISODate(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 // "8 de agosto"
 function fmtDayMonth(d: Date): string {
@@ -243,6 +246,8 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
     setAnimKey((k) => k + 1);
   }, [activeDay]);
 
+  const daySelectedRef = useRef(false);
+
   // Resolver baseSlots: si tenemos DB usamos eso (filtrado por día), si no fallback estático
   const baseSlots: ScheduleSlot[] = useMemo(() => {
     // Prelaunch: el sábado es la Gran Apertura (clases gratis, 8 ago). Forzamos
@@ -256,10 +261,61 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
     return activeDay === 'sab' ? saturdaySlots : weekdaySlots;
   }, [usingDb, slotsByDow, activeDay, isPrelaunch]);
 
-  // Fecha ISO real del slot (evento = su fecha fija; el resto según el día activo).
-  const slotDateISO = (slot: ScheduleSlot): string => slot.eventDate ?? resolveClassDateISO(activeDay);
-  // Un slot cuya fecha es HOY (Chihuahua) se oculta 5 min después de iniciar.
   const TOLERANCE_MIN = 5;
+
+  // ¿Ya terminaron las clases de HOY? (o es domingo / sin clases hoy) → rodamos
+  // la vista al día siguiente: cada día muestra su próxima ocurrencia desde mañana.
+  const rollToTomorrow = useMemo(() => {
+    if (isPrelaunch) return false;
+    if (nowMinChih === null || todayChihISO === null) return false; // SSR seguro
+    if (todayKey === null) return true; // domingo: rodar a mañana (lunes)
+    const dow = dayKeyToDow[todayKey];
+    const todaySlots = usingDb
+      ? (slotsByDow[dow] ?? [])
+      : (todayKey === 'sab' ? saturdaySlots : weekdaySlots);
+    if (todaySlots.length === 0) return true;
+    const lastStartMin = Math.max(...todaySlots.map((s) => slotTo24h(s) * 60));
+    return nowMinChih > lastStartMin + TOLERANCE_MIN;
+  }, [isPrelaunch, nowMinChih, todayChihISO, todayKey, usingDb, slotsByDow]);
+
+  // Fecha (Date) a mostrar para un día: próxima ocurrencia; si hoy ya terminó,
+  // se cuenta desde mañana (ventana rodante).
+  const rolledDate = useCallback((dayKey: DayKey): Date => {
+    const target = dayKeyToDow[dayKey];
+    const d = new Date();
+    if (rollToTomorrow) d.setDate(d.getDate() + 1);
+    const diff = (target - d.getDay() + 7) % 7;
+    d.setDate(d.getDate() + diff);
+    d.setHours(12, 0, 0, 0);
+    return d;
+  }, [rollToTomorrow]);
+
+  // Día con la fecha más temprana en la ventana (primer día reservable).
+  const firstUpcomingKey = useMemo<DayKey>(() => {
+    const keys: DayKey[] = ['lun', 'mar', 'mie', 'jue', 'vie', 'sab'];
+    return keys
+      .map((k) => ({ k, iso: toISODate(rolledDate(k)) }))
+      .sort((a, b) => (a.iso < b.iso ? -1 : 1))[0].k;
+  }, [rolledDate]);
+
+  // Fecha ISO real usada para reservar/comparar. Prelaunch conserva su lógica
+  // de semana de apertura / evento; operación regular usa la fecha rodante.
+  const activeDateISO = useCallback((dayKey: DayKey): string => {
+    if (isPrelaunch) return resolveClassDateISO(dayKey);
+    return toISODate(rolledDate(dayKey));
+  }, [isPrelaunch, rolledDate]);
+
+  // Día por defecto = primer día reservable (rueda a mañana si hoy ya terminó).
+  // Solo automático hasta que el usuario elige un día manualmente.
+  useEffect(() => {
+    if (daySelectedRef.current || isPrelaunch) return;
+    if (nowMinChih === null || isLoadingSlots) return; // esperar hidratación + slots
+    setActiveDay(firstUpcomingKey);
+  }, [isPrelaunch, nowMinChih, isLoadingSlots, firstUpcomingKey]);
+
+  // Fecha ISO real del slot (evento = su fecha fija; el resto según el día activo).
+  const slotDateISO = (slot: ScheduleSlot): string => slot.eventDate ?? activeDateISO(activeDay);
+  // Un slot cuya fecha es HOY (Chihuahua) se oculta 5 min después de iniciar.
   const isSlotPast = (slot: ScheduleSlot): boolean => {
     if (nowMinChih === null || todayChihISO === null) return false; // pre-hidratación: mostrar todo
     if (slotDateISO(slot) !== todayChihISO) return false;           // no es hoy → nunca "pasado"
@@ -283,7 +339,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
   const handleReserve = (slot: ScheduleSlot) => {
     // Ancla la fecha real de la clase (evento 8 ago / semana de apertura / próxima ocurrencia).
     // Los slots gratuitos ya traen su eventDate; a los de pago se la asignamos aquí.
-    const enriched = slot.isFree ? slot : { ...slot, eventDate: resolveClassDateISO(activeDay) };
+    const enriched = slot.isFree ? slot : { ...slot, eventDate: activeDateISO(activeDay) };
     onSelectSlot(enriched, activeDay);
     const el = document.getElementById('reservar');
     el?.scrollIntoView({ behavior: 'smooth' });
@@ -335,10 +391,12 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
               className={`day-tab ${activeDay === d.key ? 'active' : ''}`}
               role="tab"
               aria-selected={activeDay === d.key}
-              onClick={() => setActiveDay(d.key)}
+              onClick={() => { daySelectedRef.current = true; setActiveDay(d.key); }}
             >
               {d.label}
-              {d.key === (isPrelaunch ? 'sab' : todayKey) && <span className="today-dot" aria-label={isPrelaunch ? 'Próxima: Gran Apertura' : 'Hoy'} />}
+              {d.key === (isPrelaunch ? 'sab' : (rollToTomorrow ? firstUpcomingKey : todayKey)) && (
+                <span className="today-dot" aria-label={isPrelaunch ? 'Próxima: Gran Apertura' : (rollToTomorrow ? 'Próxima clase' : 'Hoy')} />
+              )}
             </button>
           ))}
           <span className="day-tab-indicator" />
@@ -348,9 +406,12 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
           <p className="week-hint">
             {isPrelaunch ? (
               <>🎉 <strong>{fmtFull(new Date(`${EVENT_DATE}T12:00:00`))}</strong>: clase gratis de Gran Apertura · reservas regulares del <strong>{fmtDayMonth(dateForDayKey('lun', true))}</strong> al <strong>{fmtDayMonth(dateForDayKey('vie', true))}</strong></>
-            ) : (
-              <>Reservando la semana del <strong>{fmtDayMonth(nextDateForDayKey('lun'))}</strong> al <strong>{fmtDayMonth(nextDateForDayKey('sab'))}</strong></>
-            )}
+            ) : (() => {
+              const dates = (['lun', 'mar', 'mie', 'jue', 'vie', 'sab'] as DayKey[]).map(rolledDate);
+              const start = dates.reduce((a, b) => (a < b ? a : b));
+              const end = dates.reduce((a, b) => (a > b ? a : b));
+              return <>Reservando la semana del <strong>{fmtDayMonth(start)}</strong> al <strong>{fmtDayMonth(end)}</strong></>;
+            })()}
           </p>
         )}
 
@@ -381,7 +442,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                 // Fecha de la card: evento usa su fecha fija; el resto la próxima ocurrencia del día.
                 const slotDate = slot.eventDate
                   ? fmtFull(new Date(slot.eventDate + 'T12:00:00'))
-                  : (currentHour24 !== null ? fmtFull(dateForDayKey(activeDay, isPrelaunch)) : '');
+                  : (currentHour24 !== null ? fmtFull(isPrelaunch ? dateForDayKey(activeDay, true) : rolledDate(activeDay)) : '');
                 return (
                   <article
                     key={`${activeDay}-${idx}`}
