@@ -201,6 +201,7 @@ export default function Home() {
             instructorClass: selectedSlot.slot.instructorClass,
             dayName: bookingDay,
             date: displayDate,
+            dateISO: isoDate,
             fullDateTime: fullDateTime,
             isFree: isFreeSlot,
           } : null}

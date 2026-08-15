@@ -20,9 +20,9 @@ const ROW_DESC = ['Principiantes · frente al instructor', 'Más espacio · atr�
 
 // Grid simple y táctil de bicis para el modal (sin la escena 3D pesada).
 function MemBikeGrid({
-  classTitle, day, hour, onSelect,
+  classTitle, day, hour, classDate, onSelect,
 }: {
-  classTitle: string; day: string; hour: string;
+  classTitle: string; day: string; hour: string; classDate: string;
   onSelect: (bikeNumber: number, bikeRow: number) => void;
 }) {
   const [taken, setTaken] = useState<number[]>([]);
@@ -34,7 +34,7 @@ function MemBikeGrid({
     (async () => {
       setLoading(true); setErr(false);
       try {
-        const p = new URLSearchParams({ class_title: classTitle, day, hour });
+        const p = new URLSearchParams({ class_title: classTitle, day, hour, class_date: classDate });
         const r = await fetch(`/api/bookings/available-bikes?${p}`);
         const d = await r.json();
         if (!cancelled) {
@@ -48,7 +48,7 @@ function MemBikeGrid({
       }
     })();
     return () => { cancelled = true; };
-  }, [classTitle, day, hour]);
+  }, [classTitle, day, hour, classDate]);
 
   const maintenance = BIKE_CONFIG.maintenance;
   const availableCount = BIKE_CONFIG.total - maintenance.length
@@ -456,6 +456,7 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
                 classTitle={bsSlot.className}
                 day={bsSlot.dayName}
                 hour={`${bsSlot.hour} ${bsSlot.period}`}
+                classDate={toDateKey(selectedDate!)}
                 onSelect={handleBikeSelected}
               />
             </div>

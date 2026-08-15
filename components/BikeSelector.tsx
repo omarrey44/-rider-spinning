@@ -14,6 +14,7 @@ interface BikeSelectorProps {
     instructorClass: string;
     dayName: string;
     date: string;
+    dateISO?: string;
     fullDateTime: string;
     isFree?: boolean;
   } | null;
@@ -98,6 +99,7 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
           class_title: selectedSlot.className,
           day: selectedSlot.dayName,
           hour: `${selectedSlot.hour} ${selectedSlot.period}`,
+          ...(selectedSlot.dateISO ? { class_date: selectedSlot.dateISO } : {}),
         });
         const res = await fetch(`/api/bookings/available-bikes?${params}`);
         if (!res.ok) throw new Error('Request failed');

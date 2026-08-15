@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
       .from('bookings')
       .select('id')
       .eq('class_title', class_title)
-      .eq('day', day)
+      .eq('class_date', class_date)
       .eq('hour', hour)
       .eq('bike_number', bike_number)
       .or(`status.eq.confirmed,and(status.eq.pending,created_at.gte.${pendingCutoff})`);

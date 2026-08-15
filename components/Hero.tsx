@@ -71,9 +71,13 @@ function slotsForDow(dow: number, byDow: Record<number, ScheduleSlot[]> | null):
   return weekdaySlots;
 }
 
+function toISODate(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 function getNextClass(
   byDow: Record<number, ScheduleSlot[]> | null
-): { slot: ScheduleSlot; whenLabel: string; dayName: string } | null {
+): { slot: ScheduleSlot; whenLabel: string; dayName: string; dateISO: string } | null {
   const now = new Date();
   const dow = now.getDay();
 
@@ -84,7 +88,7 @@ function getNextClass(
     .sort((a, b) => slotTo24h(a) - slotTo24h(b));
 
   if (remainingToday.length > 0) {
-    return { slot: remainingToday[0], whenLabel: 'Hoy', dayName: DAY_NAMES[dow] };
+    return { slot: remainingToday[0], whenLabel: 'Hoy', dayName: DAY_NAMES[dow], dateISO: toISODate(now) };
   }
 
   // Busca el próximo día con clases (hasta 7 días adelante).
@@ -94,7 +98,9 @@ function getNextClass(
       .slice()
       .sort((a, b) => slotTo24h(a) - slotTo24h(b));
     if (nextSlots.length > 0) {
-      return { slot: nextSlots[0], whenLabel: i === 1 ? 'Mañana' : DAY_NAMES[nextDow], dayName: DAY_NAMES[nextDow] };
+      const d = new Date(now);
+      d.setDate(d.getDate() + i);
+      return { slot: nextSlots[0], whenLabel: i === 1 ? 'Mañana' : DAY_NAMES[nextDow], dayName: DAY_NAMES[nextDow], dateISO: toISODate(d) };
     }
   }
   return null;
@@ -158,6 +164,7 @@ export default function Hero() {
           class_title: nextClass.slot.className,
           day: nextClass.dayName,
           hour: `${nextClass.slot.hour} ${nextClass.slot.period}`,
+          class_date: nextClass.dateISO,
         });
         const res = await fetch(`/api/bookings/available-bikes?${params}`);
         if (!res.ok) return;

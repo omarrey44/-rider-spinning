@@ -21,16 +21,20 @@ export async function GET(req: NextRequest) {
 
     const { data, error } = await supabase
       .from('bookings')
-      .select('class_title, day, hour')
+      .select('class_title, class_date, day, hour')
       .or(`status.eq.confirmed,and(status.eq.pending,created_at.gte.${pendingCutoff})`);
 
     if (error) {
       return NextResponse.json({ counts: {} });
     }
 
+    // Se llavea por FECHA real (class_date), no por día de la semana: así las
+    // reservas de un jueves no cuentan para otro jueves distinto. Fallback a
+    // `day` solo para filas antiguas sin class_date.
     const counts: Record<string, number> = {};
     for (const row of data || []) {
-      const key = `${row.class_title}|${row.day}|${row.hour}`;
+      const dateKey = row.class_date || row.day;
+      const key = `${row.class_title}|${dateKey}|${row.hour}`;
       counts[key] = (counts[key] || 0) + 1;
     }
 

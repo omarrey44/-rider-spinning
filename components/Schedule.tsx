@@ -433,8 +433,7 @@ export default function Schedule({ onSelectSlot }: ScheduleProps) {
                 const isNext = activeDayIsToday && nextSlot !== null && slot === nextSlot;
                 // Capacidad efectiva = total (o capacity) menos las bicis en mantenimiento.
                 const cap = Math.max(0, (slot.capacity ?? BIKE_CONFIG.total) - BIKE_CONFIG.maintenance.length);
-                const countDay = slot.isFree ? EVENT_DAY_LABEL : dayKeyToName[activeDay];
-                const countKey = `${slot.className}|${countDay}|${slot.hour} ${slot.period}`;
+                const countKey = `${slot.className}|${slotDateISO(slot)}|${slot.hour} ${slot.period}`;
                 const taken = slotCounts[countKey] ?? 0;
                 const available = Math.max(0, cap - taken);
                 const liveStatus: 'available' | 'few' | 'full' = available === 0 ? 'full' : available <= 3 ? 'few' : 'available';

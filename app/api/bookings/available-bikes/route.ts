@@ -13,15 +13,18 @@ export async function GET(req: NextRequest) {
     const classTitle = searchParams.get('class_title');
     const day = searchParams.get('day');
     const hour = searchParams.get('hour');
+    const classDate = searchParams.get('class_date'); // 'YYYY-MM-DD' (preferido)
 
-    if (!classTitle || !day || !hour) {
+    // Se requiere hora + (fecha exacta O día de la semana como respaldo).
+    if (!classTitle || !hour || (!classDate && !day)) {
       return NextResponse.json(
-        { error: 'Parámetros requeridos: class_title, day, hour' },
+        { error: 'Parámetros requeridos: class_title, hour y class_date (o day)' },
         { status: 400 }
       );
     }
 
-    if (classTitle.length > 200 || day.length > 20 || hour.length > 20) {
+    if (classTitle.length > 200 || (day && day.length > 20) || hour.length > 20 ||
+        (classDate && !/^\d{4}-\d{2}-\d{2}$/.test(classDate))) {
       return NextResponse.json(
         { error: 'Parámetros inválidos' },
         { status: 400 }
@@ -40,12 +43,17 @@ export async function GET(req: NextRequest) {
       .eq('status', 'pending')
       .lt('created_at', pendingCutoff);
 
-    const { data, error } = await supabase
+    // Filtra por la FECHA exacta (class_date) cuando se provee; así las reservas
+    // de un jueves no bloquean otro jueves distinto. Si no hay fecha, cae al
+    // día de la semana (compat).
+    let query = supabase
       .from('bookings')
       .select('bike_number')
       .eq('class_title', classTitle)
-      .eq('day', day)
-      .eq('hour', hour)
+      .eq('hour', hour);
+    query = classDate ? query.eq('class_date', classDate) : query.eq('day', day as string);
+
+    const { data, error } = await query
       .or(`status.eq.confirmed,and(status.eq.pending,created_at.gte.${pendingCutoff})`);
 
     if (error) {
