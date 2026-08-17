@@ -197,6 +197,7 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmationNumber, setConfirmationNumber] = useState<string | null>(null);
+  const [bookedCount, setBookedCount] = useState(0);
   const overlayRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const errorRef = useRef<HTMLDivElement>(null);
@@ -340,6 +341,7 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
       }
 
       setConfirmationNumber(data.confirmation_number);
+      setBookedCount((c) => c + 1);
       setStep('done');
       onBooked?.();
     } catch {
@@ -516,22 +518,47 @@ export default function MembershipBookingModal({ membership, onClose, onBooked }
         )}
 
         {/* Step: done */}
-        {step === 'done' && confirmationNumber && (
-          <div className="mem-success">
-            <div className="mem-success-icon">✓</div>
-            <h3>¡Reserva confirmada!</h3>
-            <p className="mem-success-code">{confirmationNumber}</p>
-            <p className="mem-success-sub">Tu clase quedó reservada. Llega 10 minutos antes.</p>
-            {membership.type === 'pack' && creditsLeft !== null && (
-              <p className="mem-success-credits">
-                Te quedan <strong>{creditsLeft - 1}</strong> crédito{(creditsLeft - 1) !== 1 ? 's' : ''} en tu pack.
-              </p>
-            )}
-            <button className="btn btn-primary btn-block" style={{ marginTop: 24 }} onClick={onClose}>
-              Cerrar
-            </button>
-          </div>
-        )}
+        {step === 'done' && confirmationNumber && (() => {
+          const remaining = creditsLeft !== null ? creditsLeft - bookedCount : null;
+          const canBookMore = membership.type === 'pack' && remaining !== null && remaining > 0;
+          return (
+            <div className="mem-success">
+              <div className="mem-success-icon">✓</div>
+              <h3>¡Reserva confirmada!</h3>
+              <p className="mem-success-code">{confirmationNumber}</p>
+              <p className="mem-success-sub">Tu clase quedó reservada. Llega 10 minutos antes.</p>
+              {membership.type === 'pack' && remaining !== null && (
+                <p className="mem-success-credits">
+                  Te quedan <strong>{remaining}</strong> crédito{remaining !== 1 ? 's' : ''} en tu pack.
+                </p>
+              )}
+              {canBookMore && (
+                <button
+                  className="btn btn-primary btn-block"
+                  style={{ marginTop: 24 }}
+                  onClick={() => {
+                    setSelectedDate(null);
+                    setSelectedSlot(null);
+                    setBikeNumber(null);
+                    setBikeRow(null);
+                    setConfirmationNumber(null);
+                    setError(null);
+                    setStep('date');
+                  }}
+                >
+                  Reservar otra (invitar amigo) →
+                </button>
+              )}
+              <button
+                className={canBookMore ? 'btn btn-outline btn-block' : 'btn btn-primary btn-block'}
+                style={{ marginTop: canBookMore ? 12 : 24 }}
+                onClick={onClose}
+              >
+                Cerrar
+              </button>
+            </div>
+          );
+        })()}
       </div>
     </div>,
     document.body,

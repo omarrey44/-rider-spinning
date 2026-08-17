@@ -78,22 +78,26 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 5. Enforce 1 class per day limit
-    const { data: sameDayBookings, error: sdError } = await supabase
-      .from('bookings')
-      .select('id')
-      .eq('customer_email', customer_email.toLowerCase())
-      .eq('class_date', class_date)
-      .in('status', ['confirmed', 'pending']);
+    // 5. Límite 1 clase por día — SOLO mensualidad. El pack puede usar varios
+    // créditos el mismo día/horario (p. ej. invitar a un amigo); queda limitado
+    // por sus créditos y por la unicidad de bici por slot.
+    if (membership.type === 'subscription') {
+      const { data: sameDayBookings, error: sdError } = await supabase
+        .from('bookings')
+        .select('id')
+        .eq('customer_email', customer_email.toLowerCase())
+        .eq('class_date', class_date)
+        .in('status', ['confirmed', 'pending']);
 
-    if (sdError) {
-      return NextResponse.json({ error: 'Error al verificar disponibilidad' }, { status: 500 });
-    }
+      if (sdError) {
+        return NextResponse.json({ error: 'Error al verificar disponibilidad' }, { status: 500 });
+      }
 
-    if (sameDayBookings && sameDayBookings.length > 0) {
-      return NextResponse.json({
-        error: 'Ya tienes una clase reservada ese día. Tu membresía permite 1 clase por día.',
-      }, { status: 409 });
+      if (sameDayBookings && sameDayBookings.length > 0) {
+        return NextResponse.json({
+          error: 'Ya tienes una clase reservada ese día. Tu mensualidad permite 1 clase por día.',
+        }, { status: 409 });
+      }
     }
 
     // 6. Check bike not already taken
