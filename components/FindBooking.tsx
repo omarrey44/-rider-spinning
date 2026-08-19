@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { MailIcon, BikeIcon, UserIcon, CalendarIcon, AlarmClockIcon, CheckIcon } from './Icons';
 import MembershipBookingModal, { MembershipData } from './MembershipBookingModal';
 import type { MaintenanceState } from '@/lib/maintenance';
@@ -428,7 +428,23 @@ export default function FindBooking() {
       .catch(() => {});
   };
 
-  const hasResults = bookings.length > 0 || memberships.length > 0;
+  // Packs: si el cliente tiene un pack usable (activo, vigente, con créditos),
+  // ocultamos los packs muertos (agotados/expirados) — el nuevo reemplaza al
+  // viejo en la vista. Si no hay ninguno usable, mostramos el más reciente para
+  // que vea el estado (agotado/expirado). Las mensualidades siempre se muestran.
+  const displayMemberships = useMemo(() => {
+    const now = Date.now();
+    const subs = memberships.filter((m) => m.type === 'subscription');
+    const packs = memberships.filter((m) => m.type === 'pack');
+    const usablePacks = packs.filter(
+      (p) => p.status === 'active' && new Date(p.expires_at).getTime() > now
+        && (p.credits_total ?? 0) - p.credits_used > 0,
+    );
+    const shownPacks = usablePacks.length > 0 ? usablePacks : packs.slice(0, 1);
+    return [...subs, ...shownPacks];
+  }, [memberships]);
+
+  const hasResults = bookings.length > 0 || displayMemberships.length > 0;
 
   return (
     <section className="find-booking" id="mis-reservas">
@@ -491,15 +507,15 @@ export default function FindBooking() {
           </div>
         )}
 
-        {memberships.length > 0 && (
+        {displayMemberships.length > 0 && (
           <div className="lookup-results">
             <div className="lookup-group-head">
               <h3 className="lookup-group-title">🎟️ Tus membresías · reserva tus clases aquí</h3>
               <p className="lookup-count">
-                {memberships.length === 1 ? '1 membresía activa' : `${memberships.length} membresías activas`}
+                {displayMemberships.length === 1 ? '1 membresía' : `${displayMemberships.length} membresías`}
               </p>
             </div>
-            {memberships.map((m) => (
+            {displayMemberships.map((m) => (
               <MembershipCard
                 key={m.id}
                 membership={m}
@@ -510,7 +526,7 @@ export default function FindBooking() {
         )}
 
         {bookings.length > 0 && (
-          <div className="lookup-results" style={{ marginTop: memberships.length > 0 ? 40 : 0 }}>
+          <div className="lookup-results" style={{ marginTop: displayMemberships.length > 0 ? 40 : 0 }}>
             <div className="lookup-group-head">
               <h3 className="lookup-group-title">🚴 Tus clases reservadas</h3>
               <p className="lookup-count">
