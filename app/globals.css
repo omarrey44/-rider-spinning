@@ -4431,6 +4431,7 @@ section::before {
   margin-bottom: 16px;
 }
 .membership-card--expired { opacity: 0.55; border-color: rgba(255,255,255,0.1); }
+.membership-card--exhausted { opacity: 0.7; border-color: rgba(255,255,255,0.12); }
 .membership-card-head { margin-bottom: 16px; }
 .membership-card-title { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
 .membership-badge { font-size: 15px; font-weight: 700; color: var(--white); }

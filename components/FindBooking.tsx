@@ -121,7 +121,13 @@ function MembershipCard({
     : null;
   const isActive = membership.status === 'active';
   const isExpired = new Date(membership.expires_at) < new Date();
-  const effectiveStatus = isExpired ? 'expired' : membership.status;
+  // Pack sin créditos = agotado (aunque siga 'active' y vigente).
+  const packExhausted = isPack && creditsLeft !== null && creditsLeft <= 0;
+  const effectiveStatus = isExpired
+    ? 'expired'
+    : packExhausted
+      ? 'exhausted'
+      : membership.status;
 
   const [portalLoading, setPortalLoading] = useState(false);
   const [portalError, setPortalError] = useState<string | null>(null);
@@ -201,8 +207,10 @@ function MembershipCard({
           <span className={`membership-badge membership-badge--${membership.type}`}>
             {isPack ? `🎟️ Pack ${membership.credits_total ?? ''} Clases` : '🚴 Membresía Ilimitada'}
           </span>
-          <span className={`status-pill status-pill--${effectiveStatus === 'active' ? 'confirmed' : 'cancelled'}`}>
-            {effectiveStatus === 'active' ? 'Activa' : effectiveStatus === 'expired' ? 'Expirada' : 'Cancelada'}
+          <span className={`status-pill status-pill--${effectiveStatus === 'active' ? 'confirmed' : effectiveStatus === 'exhausted' ? 'finished' : 'cancelled'}`}>
+            {effectiveStatus === 'active' ? 'Activa'
+              : effectiveStatus === 'exhausted' ? 'Créditos agotados'
+              : effectiveStatus === 'expired' ? 'Expirada' : 'Cancelada'}
           </span>
         </div>
         {membership.customer_name && (
@@ -264,13 +272,17 @@ function MembershipCard({
         </div>
       )}
 
-      {isActive && !isExpired && !(maint?.blocked) && (
+      {isActive && !isExpired && !packExhausted && !(maint?.blocked) && (
         <button
           className="btn btn-primary btn-block membership-book-btn"
           onClick={() => onBook(membership)}
         >
           Reservar clase con {isPack ? 'este pack' : 'membresía'}
         </button>
+      )}
+
+      {packExhausted && !isExpired && (
+        <p className="membership-expired-msg">Ya usaste las 3 clases de tu pack. Compra otro pack para seguir reservando.</p>
       )}
 
       {!isPack && isActive && !isExpired && (
