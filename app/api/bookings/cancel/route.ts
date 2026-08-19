@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     // Fetch booking and verify ownership
     const { data: booking, error: fetchError } = await supabase
       .from('bookings')
-      .select('id, customer_name, customer_email, customer_phone, status, class_date, class_title, instructor_name, hour, day, confirmation_number, amount_paid, stripe_payment_intent_id')
+      .select('id, customer_name, customer_email, customer_phone, status, class_date, class_title, instructor_name, hour, day, confirmation_number, amount_paid, stripe_payment_intent_id, membership_id')
       .eq('id', booking_id)
       .single();
 
@@ -98,25 +98,21 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Refund pack credit if booking was made with a membership (amount_paid = 0)
-    if (booking.amount_paid === 0 && ownerEmail) {
-      const { data: pack } = await supabase
+    // Restituir crédito SOLO si la reserva se hizo con un PACK (identificado por
+    // membership_id). Las reservas de mensualidad también tienen amount_paid = 0,
+    // así que sin este vínculo se regalaría un crédito que no se gastó.
+    if (booking.membership_id) {
+      const { data: mem } = await supabase
         .from('memberships')
-        .select('id, credits_used')
-        .eq('customer_email', ownerEmail)
-        .eq('type', 'pack')
-        .eq('status', 'active')
-        .gt('credits_used', 0)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (pack) {
+        .select('id, type, credits_used')
+        .eq('id', booking.membership_id)
+        .maybeSingle();
+      if (mem && mem.type === 'pack' && mem.credits_used > 0) {
         await supabase
           .from('memberships')
-          .update({ credits_used: pack.credits_used - 1 })
-          .eq('id', pack.id);
-        console.log(`[bookings/cancel] Refunded 1 credit to pack ${pack.id}`);
+          .update({ credits_used: mem.credits_used - 1 })
+          .eq('id', mem.id);
+        console.log(`[bookings/cancel] Refunded 1 credit to pack ${mem.id}`);
       }
     }
 

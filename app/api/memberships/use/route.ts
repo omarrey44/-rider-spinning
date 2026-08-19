@@ -71,12 +71,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 4. Pack: check credits remaining
-    if (membership.type === 'pack') {
-      if (membership.credits_used >= membership.credits_total) {
-        return NextResponse.json({ error: 'No tienes créditos disponibles en tu pack' }, { status: 400 });
-      }
-    }
+    // 4. Pack: el consumo de crédito es ATÓMICO y se hace más abajo (justo antes
+    //    de crear la reserva) con guard optimista, para evitar sobreventa cuando
+    //    se reservan varias bicis a la vez (invitar amigos).
 
     // 5. Límite 1 clase por día — SOLO mensualidad. El pack puede usar varios
     // créditos el mismo día/horario (p. ej. invitar a un amigo); queda limitado
@@ -115,6 +112,34 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Esta bici ya fue reservada. Selecciona otra.' }, { status: 409 });
     }
 
+    // 6b. Pack: consumir 1 crédito de forma ATÓMICA antes de crear la reserva.
+    // Guard optimista: el UPDATE solo aplica si credits_used no cambió desde que
+    // lo leímos → dos reservas simultáneas no pueden gastar el mismo crédito.
+    let creditConsumed = false;
+    if (membership.type === 'pack') {
+      for (let attempt = 0; attempt < 4 && !creditConsumed; attempt++) {
+        const { data: fresh } = await supabase
+          .from('memberships')
+          .select('credits_used, credits_total')
+          .eq('id', membership_id)
+          .single();
+        if (!fresh) break;
+        if (fresh.credits_used >= (fresh.credits_total ?? 0)) {
+          return NextResponse.json({ error: 'No tienes créditos disponibles en tu pack' }, { status: 400 });
+        }
+        const { data: upd } = await supabase
+          .from('memberships')
+          .update({ credits_used: fresh.credits_used + 1 })
+          .eq('id', membership_id)
+          .eq('credits_used', fresh.credits_used) // solo si nadie más lo movió
+          .select('id');
+        if (upd && upd.length > 0) creditConsumed = true;
+      }
+      if (!creditConsumed) {
+        return NextResponse.json({ error: 'No se pudo reservar, intenta de nuevo.' }, { status: 409 });
+      }
+    }
+
     // 7. Create confirmed booking
     const { data: booking, error: bError } = await supabase
       .from('bookings')
@@ -132,11 +157,20 @@ export async function POST(req: NextRequest) {
         amount_paid: 0,
         status: 'confirmed',
         goal: membership.goal || null,
+        membership_id,
       })
       .select()
       .single();
 
     if (bError || !booking) {
+      // La reserva falló → devolver el crédito consumido (no cobrar de más).
+      if (creditConsumed) {
+        const { data: cur } = await supabase
+          .from('memberships').select('credits_used').eq('id', membership_id).single();
+        if (cur && cur.credits_used > 0) {
+          await supabase.from('memberships').update({ credits_used: cur.credits_used - 1 }).eq('id', membership_id);
+        }
+      }
       if (bError?.code === '23505') {
         return NextResponse.json({ error: 'Esta bici ya fue reservada. Selecciona otra.' }, { status: 409 });
       }
@@ -151,13 +185,7 @@ export async function POST(req: NextRequest) {
       .update({ confirmation_number: confirmationNumber })
       .eq('id', booking.id);
 
-    // 8. Decrement pack credits
-    if (membership.type === 'pack') {
-      await supabase
-        .from('memberships')
-        .update({ credits_used: membership.credits_used + 1 })
-        .eq('id', membership_id);
-    }
+    // (El crédito del pack ya se consumió atómicamente en el paso 6b.)
 
     console.log(`[memberships/use] Booked ${class_title} ${day} ${hour} bike#${bike_number} for ${customer_email} via ${membership.type}`);
 
