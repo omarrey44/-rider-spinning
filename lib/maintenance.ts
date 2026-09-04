@@ -110,8 +110,12 @@ export function computeMaintenance(
   }
 
   // Si el semestre vigente cambió respecto al guardado, los pagos previos no
-  // cuentan para este semestre → resetear.
-  const needsSemesterReset = (storedStartISO ?? null) !== semStartISO;
+  // cuentan para este semestre → resetear. Se compara por INSTANTE (getTime),
+  // no por string: Postgres devuelve "...+00:00" y Date.toISOString() da "...Z",
+  // que son el mismo momento pero strings distintos (comparar strings reseteaba
+  // el pago en cada consulta).
+  const needsSemesterReset = storedStartISO == null
+    || new Date(storedStartISO).getTime() !== semStart.getTime();
   const paidCents = needsSemesterReset ? 0 : Math.max(0, paidCentsRaw || 0);
 
   const weeksElapsed = Math.max(0, Math.floor((now.getTime() - semStart.getTime()) / WEEK_MS));
