@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Search, RefreshCw, Ticket, Infinity as InfinityIcon, Banknote, CreditCard, Wrench } from 'lucide-react';
 import { clsx } from 'clsx';
-import { computeMaintenance, pesosFromCents } from '@/lib/maintenance';
+import { computeMaintenance, pesosFromCents, MAINTENANCE_TOTAL_CENTS } from '@/lib/maintenance';
 
 interface Membership {
   id: string;
@@ -86,6 +86,33 @@ export default function AdminMembershipsTable() {
       await fetchMemberships();
     } catch (e) {
       alert(e instanceof Error ? e.message : 'Error al registrar');
+    } finally {
+      setMaintBusyId(null);
+    }
+  }, [fetchMemberships]);
+
+  // Abono parcial en efectivo a la cuota (ej. paga $100 de $250). Solo suma y
+  // deja registro de lo que falta — no exenta ni liquida.
+  const addMaintenancePayment = useCallback(async (id: string, suggestedPesos: number, remainingPesos: number) => {
+    const input = prompt(
+      `¿Cuánto abonó en efectivo? (MXN)\n\nLe falta: $${remainingPesos.toLocaleString('es-MX')} de $250`,
+      String(suggestedPesos),
+    );
+    if (input === null) return;
+    const pesos = parseFloat(String(input).replace(/[^0-9.]/g, ''));
+    if (!pesos || pesos <= 0) { alert('Monto inválido'); return; }
+    setMaintBusyId(id);
+    try {
+      const res = await fetch('/api/admin/memberships/maintenance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ membership_id: id, amount_cents: Math.round(pesos * 100) }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error');
+      await fetchMemberships();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Error al registrar el abono');
     } finally {
       setMaintBusyId(null);
     }
@@ -350,27 +377,46 @@ export default function AdminMembershipsTable() {
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                             <Wrench size={12} /> Cuota pagada
                           </span>
-                        ) : maint.owedCents > 0 ? (
-                          <>
-                            <span className={clsx(
-                              'inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold border',
-                              maint.blocked ? 'bg-red-50 text-red-700 border-red-200' : 'bg-amber-50 text-amber-700 border-amber-200',
-                            )}>
-                              <Wrench size={12} /> {maint.blocked ? 'Bloqueado' : 'Cuota'} {pesosFromCents(maint.owedCents)}
-                            </span>
-                            <button
-                              onClick={() => markMaintenancePaid(m.id)}
-                              disabled={maintBusyId === m.id}
-                              className="text-xs px-2 py-1 rounded-md border border-emerald-300 text-emerald-700 hover:bg-emerald-50 font-medium disabled:opacity-50"
-                            >
-                              {maintBusyId === m.id ? '…' : 'Pagó en efectivo'}
-                            </button>
-                          </>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-gray-50 text-gray-400 border border-gray-200">
-                            <Wrench size={12} /> Cuota al día
-                          </span>
-                        )}
+                        ) : (() => {
+                          const remainingCents = MAINTENANCE_TOTAL_CENTS - maint.paidCents;
+                          const suggested = (maint.owedCents > 0 ? maint.owedCents : remainingCents) / 100;
+                          return (
+                            <>
+                              {maint.owedCents > 0 ? (
+                                <span className={clsx(
+                                  'inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold border',
+                                  maint.blocked ? 'bg-red-50 text-red-700 border-red-200' : 'bg-amber-50 text-amber-700 border-amber-200',
+                                )}>
+                                  <Wrench size={12} /> {maint.blocked ? 'Bloqueado' : 'Cuota'} {pesosFromCents(maint.owedCents)}
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-gray-50 text-gray-400 border border-gray-200">
+                                  <Wrench size={12} /> Cuota al día
+                                </span>
+                              )}
+                              {/* Progreso de abonos del semestre */}
+                              <span className="text-[11px] text-gray-500 whitespace-nowrap" title="Abonado de la cuota semestral">
+                                {pesosFromCents(maint.paidCents)}/{pesosFromCents(MAINTENANCE_TOTAL_CENTS)}
+                              </span>
+                              <button
+                                onClick={() => addMaintenancePayment(m.id, suggested, remainingCents / 100)}
+                                disabled={maintBusyId === m.id}
+                                className="text-xs px-2 py-1 rounded-md border border-emerald-300 text-emerald-700 hover:bg-emerald-50 font-medium disabled:opacity-50"
+                                title="Registrar un abono parcial en efectivo"
+                              >
+                                {maintBusyId === m.id ? '…' : 'Abonar'}
+                              </button>
+                              <button
+                                onClick={() => markMaintenancePaid(m.id)}
+                                disabled={maintBusyId === m.id}
+                                className="text-xs px-2 py-1 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50 font-medium disabled:opacity-50"
+                                title="Marcar la cuota completa como pagada"
+                              >
+                                Liquidar
+                              </button>
+                            </>
+                          );
+                        })()}
                         <button
                           onClick={() => toggleExempt(m.id, true)}
                           disabled={maintBusyId === m.id}

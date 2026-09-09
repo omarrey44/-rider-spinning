@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const { membership_id, exempt } = await req.json();
+    const { membership_id, exempt, amount_cents } = await req.json();
     if (!membership_id) return NextResponse.json({ error: 'Falta membership_id' }, { status: 400 });
 
     const supabase = createAdminClient();
@@ -53,9 +53,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, exempt });
     }
 
-    // Semestre vigente → marcar pagado completo.
     const state = computeMaintenance(mem.type, mem.created_at, mem.maintenance_semester_start, mem.maintenance_paid_cents);
 
+    // ABONO parcial en efectivo: se suma a lo ya abonado del semestre vigente
+    // (tope $250). No exenta ni liquida — solo deja registro de lo que falta.
+    if (typeof amount_cents === 'number' && Number.isFinite(amount_cents) && amount_cents > 0) {
+      const newPaid = Math.min(MAINTENANCE_TOTAL_CENTS, state.paidCents + Math.round(amount_cents));
+      const { error } = await supabase
+        .from('memberships')
+        .update({
+          maintenance_semester_start: state.semesterStartISO,
+          maintenance_paid_cents: newPaid,
+        })
+        .eq('id', membership_id);
+      if (error) {
+        console.error('[admin/memberships/maintenance] abono error:', error);
+        return NextResponse.json({ error: 'Error al registrar el abono' }, { status: 500 });
+      }
+      console.log(`[admin/memberships/maintenance] abono ${amount_cents}c → ${newPaid}c de ${MAINTENANCE_TOTAL_CENTS}c para ${membership_id} por ${user.email}`);
+      return NextResponse.json({
+        success: true,
+        paid_cents: newPaid,
+        remaining_cents: MAINTENANCE_TOTAL_CENTS - newPaid,
+      });
+    }
+
+    // Sin monto → liquidar el semestre vigente por completo.
     const { error } = await supabase
       .from('memberships')
       .update({
