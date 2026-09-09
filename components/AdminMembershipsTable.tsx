@@ -113,9 +113,17 @@ export default function AdminMembershipsTable() {
   // Origen del pago: efectivo (registrado por admin) vs en línea (Stripe).
   const isCashOrigin = (m: Membership) => !!m.stripe_session_id?.startsWith('admin:cash:');
 
+  // Rank para ordenar: 0 = vigente/usable, 1 = muerta (expirada, cancelada o
+  // pack agotado) → se manda al fondo para no estorbar con las activas.
+  const deadRank = (m: Membership): number => {
+    if (effectiveStatus(m) !== 'active') return 1;
+    if (m.type === 'pack' && m.credits_total !== null && (m.credits_total - m.credits_used) <= 0) return 1;
+    return 0;
+  };
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return memberships.filter((m) => {
+    const list = memberships.filter((m) => {
       if (typeFilter !== 'all' && m.type !== typeFilter) return false;
       if (originFilter === 'cash' && !isCashOrigin(m)) return false;
       if (originFilter === 'online' && isCashOrigin(m)) return false;
@@ -127,6 +135,8 @@ export default function AdminMembershipsTable() {
       )) return false;
       return true;
     });
+    // Sort estable: mantiene el orden por fecha (más reciente) dentro de cada grupo.
+    return list.sort((a, b) => deadRank(a) - deadRank(b));
   }, [memberships, search, originFilter, typeFilter]);
 
   const activeCount = useMemo(
