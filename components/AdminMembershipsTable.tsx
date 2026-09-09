@@ -42,6 +42,9 @@ function effectiveStatus(m: Membership): 'active' | 'expired' | 'cancelled' {
   return new Date(m.expires_at) < new Date() ? 'expired' : 'active';
 }
 
+// Columnas alineadas de la tabla (solo aplican en lg+; en móvil se apila).
+const ROW_COLS = 'lg:grid-cols-[minmax(0,1.7fr)_120px_110px_150px_132px_96px_minmax(0,1.6fr)] gap-x-3';
+
 export default function AdminMembershipsTable() {
   const [memberships, setMemberships] = useState<Membership[]>([]);
   const [loading, setLoading] = useState(true);
@@ -227,100 +230,111 @@ export default function AdminMembershipsTable() {
           {search ? 'Sin resultados para esa búsqueda.' : 'Aún no hay membresías registradas.'}
         </div>
       ) : (
-        <div className="divide-y divide-gray-50">
-          {filtered.map((m) => {
-            const st = effectiveStatus(m);
-            const isPack = m.type === 'pack';
-            const isCash = m.stripe_session_id?.startsWith('admin:cash:');
-            const creditsLeft = isPack && m.credits_total !== null ? m.credits_total - m.credits_used : null;
-            // Estado de la cuota de mantenimiento (solo suscripciones activas).
-            const maint = !isPack && st === 'active'
-              ? computeMaintenance(m.type, m.created_at, m.maintenance_semester_start, m.maintenance_paid_cents ?? 0, new Date(), m.maintenance_exempt ?? false)
-              : null;
-            return (
-              <div key={m.id} className="px-5 py-3 flex items-center gap-4 flex-wrap">
-                <div className="w-9 h-9 rounded-full bg-violet-500 text-white text-xs font-semibold flex items-center justify-center shrink-0">
-                  {initials(m.customer_name || '?')}
-                </div>
+        <>
+          {/* Encabezados (solo desktop) */}
+          <div className={clsx('hidden lg:grid', ROW_COLS, 'px-5 py-2 border-b border-gray-100 text-[11px] font-semibold uppercase tracking-wide text-gray-400')}>
+            <span>Cliente</span>
+            <span>Tipo</span>
+            <span>Código</span>
+            <span>Pago</span>
+            <span className="text-right">Próx. pago</span>
+            <span className="text-center">Estado</span>
+            <span className="text-right">Cuota / Acciones</span>
+          </div>
 
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-gray-900 truncate">{m.customer_name}</p>
-                  <p className="text-xs text-gray-400 truncate">{m.customer_email}{m.customer_phone ? ` · ${m.customer_phone}` : ''}</p>
-                </div>
+          <div className="divide-y divide-gray-50">
+            {filtered.map((m) => {
+              const st = effectiveStatus(m);
+              const isPack = m.type === 'pack';
+              const isCash = m.stripe_session_id?.startsWith('admin:cash:');
+              const creditsLeft = isPack && m.credits_total !== null ? m.credits_total - m.credits_used : null;
+              const maint = !isPack && st === 'active'
+                ? computeMaintenance(m.type, m.created_at, m.maintenance_semester_start, m.maintenance_paid_cents ?? 0, new Date(), m.maintenance_exempt ?? false)
+                : null;
+              const nextLabel = !isPack ? (isCash ? 'Próx. pago' : 'Renueva') : 'Vence';
+              const nextEmphasize = !isPack && isCash && st === 'active';
+              return (
+                <div key={m.id} className={clsx('grid grid-cols-1', ROW_COLS, 'px-5 py-3 gap-y-2 lg:items-center')}>
+                  {/* Cliente */}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-full bg-violet-500 text-white text-xs font-semibold flex items-center justify-center shrink-0">
+                      {initials(m.customer_name || '?')}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 truncate">{m.customer_name}</p>
+                      <p className="text-xs text-gray-400 truncate">{m.customer_email}{m.customer_phone ? ` · ${m.customer_phone}` : ''}</p>
+                    </div>
+                  </div>
 
-                <div className="flex items-center gap-1.5">
-                  {isPack ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-violet-50 text-violet-700 border border-violet-200">
-                      <Ticket size={12} /> Pack {m.credits_total}
+                  {/* Tipo (+ créditos si pack) */}
+                  <div className="flex flex-col items-start gap-1">
+                    {isPack ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-violet-50 text-violet-700 border border-violet-200">
+                        <Ticket size={12} /> Pack {m.credits_total}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                        <InfinityIcon size={12} /> Mensualidad
+                      </span>
+                    )}
+                    {creditsLeft !== null && (
+                      <span className="text-[11px] text-gray-500 font-medium">{creditsLeft}/{m.credits_total} créd.</span>
+                    )}
+                  </div>
+
+                  {/* Código */}
+                  <div className="min-w-0">
+                    <code className="inline-block text-xs font-bold tracking-wide text-gray-700 bg-gray-50 border border-gray-200 rounded px-2 py-1">
+                      {m.confirmation_number ?? '—'}
+                    </code>
+                  </div>
+
+                  {/* Pago */}
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <span className={clsx(
+                      'inline-flex items-center gap-1 px-1.5 py-0.5 rounded border font-semibold',
+                      isCash ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-blue-50 text-blue-700 border-blue-200',
+                    )}>
+                      {isCash ? <Banknote size={11} /> : <CreditCard size={11} />}
+                      {isCash ? 'Efectivo' : 'En línea'}
                     </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                      <InfinityIcon size={12} /> Mensualidad
-                    </span>
-                  )}
-                </div>
+                    <span className="text-gray-500">${((m.amount_paid ?? 0) / 100).toLocaleString('es-MX')}</span>
+                  </div>
 
-                {creditsLeft !== null && (
-                  <span className="text-xs text-gray-500 font-medium w-20 text-center">
-                    {creditsLeft}/{m.credits_total} créd.
+                  {/* Próximo pago */}
+                  <span className={clsx('text-xs lg:text-right', nextEmphasize ? 'text-amber-700 font-semibold' : 'text-gray-400')}>
+                    <span className="lg:hidden text-gray-400">{nextLabel}: </span>{fmtDate(m.expires_at)}
                   </span>
-                )}
 
-                <code className="text-xs font-bold tracking-wide text-gray-700 bg-gray-50 border border-gray-200 rounded px-2 py-1">
-                  {m.confirmation_number ?? '—'}
-                </code>
-
-                <span className="inline-flex items-center gap-1.5 text-xs w-40">
-                  <span className={clsx(
-                    'inline-flex items-center gap-1 px-1.5 py-0.5 rounded border font-semibold',
-                    isCash ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-blue-50 text-blue-700 border-blue-200',
-                  )}>
-                    {isCash ? <Banknote size={11} /> : <CreditCard size={11} />}
-                    {isCash ? 'Efectivo' : 'En línea'}
-                  </span>
-                  <span className="text-gray-500">${((m.amount_paid ?? 0) / 100).toLocaleString('es-MX')}</span>
-                </span>
-
-                {(() => {
-                  // Suscripción: la fecha de vencimiento = próximo pago. Efectivo →
-                  // la dueña debe cobrar (resaltado ámbar). En línea → renueva sola.
-                  const label = !isPack ? (isCash ? 'Próx. pago' : 'Renueva') : 'Vence';
-                  const emphasize = !isPack && isCash && st === 'active';
-                  return (
-                    <span className={clsx('text-xs w-32 text-right', emphasize ? 'text-amber-700 font-semibold' : 'text-gray-400')}>
-                      {label} {fmtDate(m.expires_at)}
+                  {/* Estado */}
+                  <div className="lg:flex lg:justify-center">
+                    <span className={clsx(
+                      'inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold border justify-center',
+                      st === 'active' && 'text-emerald-700 bg-emerald-50 border-emerald-200',
+                      st === 'expired' && 'text-gray-500 bg-gray-50 border-gray-200',
+                      st === 'cancelled' && 'text-red-700 bg-red-50 border-red-200',
+                    )}>
+                      {st === 'active' ? 'Activa' : st === 'expired' ? 'Expirada' : 'Cancelada'}
                     </span>
-                  );
-                })()}
+                  </div>
 
-                <span className={clsx(
-                  'inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold border w-20 justify-center',
-                  st === 'active' && 'text-emerald-700 bg-emerald-50 border-emerald-200',
-                  st === 'expired' && 'text-gray-500 bg-gray-50 border-gray-200',
-                  st === 'cancelled' && 'text-red-700 bg-red-50 border-red-200',
-                )}>
-                  {st === 'active' ? 'Activa' : st === 'expired' ? 'Expirada' : 'Cancelada'}
-                </span>
+                  {/* Cuota / Acciones */}
+                  <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                    {!isPack && isCash && (
+                      <button
+                        onClick={() => renewCash(m.id)}
+                        disabled={maintBusyId === m.id}
+                        className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border border-emerald-300 text-emerald-700 hover:bg-emerald-50 font-medium disabled:opacity-50"
+                        title="Registrar renovación pagada en efectivo (+30 días)"
+                      >
+                        <Banknote size={12} /> {maintBusyId === m.id ? '…' : (st === 'active' ? 'Renovó (efectivo)' : 'Reactivar (efectivo)')}
+                      </button>
+                    )}
 
-                {/* Renovación en efectivo (solo mensualidades registradas en efectivo) */}
-                {!isPack && isCash && (
-                  <button
-                    onClick={() => renewCash(m.id)}
-                    disabled={maintBusyId === m.id}
-                    className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border border-emerald-300 text-emerald-700 hover:bg-emerald-50 font-medium disabled:opacity-50"
-                    title="Registrar renovación pagada en efectivo (+30 días)"
-                  >
-                    <Banknote size={12} /> {maintBusyId === m.id ? '…' : (st === 'active' ? 'Renovó (efectivo)' : 'Reactivar (efectivo)')}
-                  </button>
-                )}
-
-                {/* Cuota de mantenimiento (suscripciones) */}
-                {maint && (
-                  <div className="flex items-center gap-2 w-full sm:w-auto sm:ml-auto">
-                    {maint.exempt ? (
+                    {maint && (maint.exempt ? (
                       <>
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                          <Wrench size={12} /> Exento · efectivo
+                          <Wrench size={12} /> Exento
                         </span>
                         <button
                           onClick={() => toggleExempt(m.id, false)}
@@ -365,13 +379,13 @@ export default function AdminMembershipsTable() {
                           Exentar
                         </button>
                       </>
-                    )}
+                    ))}
                   </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
     </section>
   );
