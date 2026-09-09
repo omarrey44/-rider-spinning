@@ -88,6 +88,26 @@ export default function AdminMembershipsTable() {
     }
   }, [fetchMemberships]);
 
+  // Renovación en efectivo: extiende +30 días y reactiva la mensualidad.
+  const renewCash = useCallback(async (id: string) => {
+    if (!confirm('¿Registrar la renovación pagada en efectivo? Extiende la mensualidad +30 días y la reactiva.')) return;
+    setMaintBusyId(id);
+    try {
+      const res = await fetch('/api/admin/memberships/renew', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ membership_id: id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error');
+      await fetchMemberships();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Error al renovar');
+    } finally {
+      setMaintBusyId(null);
+    }
+  }, [fetchMemberships]);
+
   // Exención permanente (paga siempre en efectivo): sin cobro/bloqueo/recordatorio.
   const toggleExempt = useCallback(async (id: string, exempt: boolean) => {
     if (!confirm(exempt
@@ -281,6 +301,18 @@ export default function AdminMembershipsTable() {
                 )}>
                   {st === 'active' ? 'Activa' : st === 'expired' ? 'Expirada' : 'Cancelada'}
                 </span>
+
+                {/* Renovación en efectivo (solo mensualidades registradas en efectivo) */}
+                {!isPack && isCash && (
+                  <button
+                    onClick={() => renewCash(m.id)}
+                    disabled={maintBusyId === m.id}
+                    className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border border-emerald-300 text-emerald-700 hover:bg-emerald-50 font-medium disabled:opacity-50"
+                    title="Registrar renovación pagada en efectivo (+30 días)"
+                  >
+                    <Banknote size={12} /> {maintBusyId === m.id ? '…' : (st === 'active' ? 'Renovó (efectivo)' : 'Reactivar (efectivo)')}
+                  </button>
+                )}
 
                 {/* Cuota de mantenimiento (suscripciones) */}
                 {maint && (
