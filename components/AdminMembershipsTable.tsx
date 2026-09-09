@@ -47,6 +47,8 @@ export default function AdminMembershipsTable() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [originFilter, setOriginFilter] = useState<'all' | 'online' | 'cash'>('all');
+  const [typeFilter, setTypeFilter] = useState<'all' | 'subscription' | 'pack'>('all');
   const [maintBusyId, setMaintBusyId] = useState<string | null>(null);
 
   const fetchMemberships = useCallback(async () => {
@@ -108,16 +110,24 @@ export default function AdminMembershipsTable() {
     }
   }, [fetchMemberships]);
 
+  // Origen del pago: efectivo (registrado por admin) vs en línea (Stripe).
+  const isCashOrigin = (m: Membership) => !!m.stripe_session_id?.startsWith('admin:cash:');
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return memberships;
-    return memberships.filter((m) =>
-      m.customer_name?.toLowerCase().includes(q) ||
-      m.customer_email?.toLowerCase().includes(q) ||
-      (m.customer_phone ?? '').toLowerCase().includes(q) ||
-      (m.confirmation_number ?? '').toLowerCase().includes(q)
-    );
-  }, [memberships, search]);
+    return memberships.filter((m) => {
+      if (typeFilter !== 'all' && m.type !== typeFilter) return false;
+      if (originFilter === 'cash' && !isCashOrigin(m)) return false;
+      if (originFilter === 'online' && isCashOrigin(m)) return false;
+      if (q && !(
+        m.customer_name?.toLowerCase().includes(q) ||
+        m.customer_email?.toLowerCase().includes(q) ||
+        (m.customer_phone ?? '').toLowerCase().includes(q) ||
+        (m.confirmation_number ?? '').toLowerCase().includes(q)
+      )) return false;
+      return true;
+    });
+  }, [memberships, search, originFilter, typeFilter]);
 
   const activeCount = useMemo(
     () => memberships.filter((m) => effectiveStatus(m) === 'active').length,
@@ -146,9 +156,9 @@ export default function AdminMembershipsTable() {
         </button>
       </div>
 
-      {/* Search */}
-      <div className="px-5 py-3 border-b border-gray-100">
-        <div className="relative max-w-md">
+      {/* Search + filtros */}
+      <div className="px-5 py-3 border-b border-gray-100 flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[200px]">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             value={search}
@@ -157,6 +167,24 @@ export default function AdminMembershipsTable() {
             className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 focus:border-violet-400 focus:ring-1 focus:ring-violet-400 outline-none"
           />
         </div>
+        <select
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value as typeof typeFilter)}
+          className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-600 focus:border-violet-400 focus:ring-1 focus:ring-violet-400 outline-none"
+        >
+          <option value="all">Todos los tipos</option>
+          <option value="subscription">Mensualidad</option>
+          <option value="pack">Pack</option>
+        </select>
+        <select
+          value={originFilter}
+          onChange={(e) => setOriginFilter(e.target.value as typeof originFilter)}
+          className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-600 focus:border-violet-400 focus:ring-1 focus:ring-violet-400 outline-none"
+        >
+          <option value="all">Todo el pago</option>
+          <option value="online">💳 En línea (Stripe)</option>
+          <option value="cash">💵 Efectivo</option>
+        </select>
       </div>
 
       {/* Body */}
@@ -212,12 +240,28 @@ export default function AdminMembershipsTable() {
                   {m.confirmation_number ?? '—'}
                 </code>
 
-                <span className="inline-flex items-center gap-1 text-xs text-gray-400 w-24" title={isCash ? 'Efectivo' : 'Stripe'}>
-                  {isCash ? <Banknote size={13} /> : <CreditCard size={13} />}
-                  ${((m.amount_paid ?? 0) / 100).toLocaleString('es-MX')}
+                <span className="inline-flex items-center gap-1.5 text-xs w-40">
+                  <span className={clsx(
+                    'inline-flex items-center gap-1 px-1.5 py-0.5 rounded border font-semibold',
+                    isCash ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-blue-50 text-blue-700 border-blue-200',
+                  )}>
+                    {isCash ? <Banknote size={11} /> : <CreditCard size={11} />}
+                    {isCash ? 'Efectivo' : 'En línea'}
+                  </span>
+                  <span className="text-gray-500">${((m.amount_paid ?? 0) / 100).toLocaleString('es-MX')}</span>
                 </span>
 
-                <span className="text-xs text-gray-400 w-28 text-right">Vence {fmtDate(m.expires_at)}</span>
+                {(() => {
+                  // Suscripción: la fecha de vencimiento = próximo pago. Efectivo →
+                  // la dueña debe cobrar (resaltado ámbar). En línea → renueva sola.
+                  const label = !isPack ? (isCash ? 'Próx. pago' : 'Renueva') : 'Vence';
+                  const emphasize = !isPack && isCash && st === 'active';
+                  return (
+                    <span className={clsx('text-xs w-32 text-right', emphasize ? 'text-amber-700 font-semibold' : 'text-gray-400')}>
+                      {label} {fmtDate(m.expires_at)}
+                    </span>
+                  );
+                })()}
 
                 <span className={clsx(
                   'inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold border w-20 justify-center',
