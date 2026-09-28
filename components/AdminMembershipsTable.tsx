@@ -93,10 +93,20 @@ export default function AdminMembershipsTable() {
 
   // Abono parcial en efectivo a la cuota (ej. paga $100 de $250). Solo suma y
   // deja registro de lo que falta — no exenta ni liquida.
-  const addMaintenancePayment = useCallback(async (id: string, suggestedPesos: number, remainingPesos: number) => {
+  const addMaintenancePayment = useCallback(async (id: string, owedPesos: number, remainingPesos: number) => {
+    const suggested = owedPesos > 0 ? owedPesos : remainingPesos;
     const input = prompt(
-      `¿Cuánto abonó en efectivo? (MXN)\n\nLe falta: $${remainingPesos.toLocaleString('es-MX')} de $250`,
-      String(suggestedPesos),
+      [
+        'ABONO EN EFECTIVO (MXN)',
+        '',
+        owedPesos > 0
+          ? `Debe ahora: $${owedPesos.toLocaleString('es-MX')}`
+          : 'Al corriente esta semana',
+        `Falta del semestre: $${remainingPesos.toLocaleString('es-MX')} de $250`,
+        '',
+        'Escribe el monto que entregó:',
+      ].join('\n'),
+      String(suggested),
     );
     if (input === null) return;
     const pesos = parseFloat(String(input).replace(/[^0-9.]/g, ''));
@@ -379,19 +389,13 @@ export default function AdminMembershipsTable() {
                           </span>
                         ) : (() => {
                           const remainingCents = MAINTENANCE_TOTAL_CENTS - maint.paidCents;
-                          const suggested = (maint.owedCents > 0 ? maint.owedCents : remainingCents) / 100;
                           return (
                             <>
-                              {maint.owedCents > 0 ? (
-                                <span className={clsx(
-                                  'inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold border',
-                                  maint.blocked ? 'bg-red-50 text-red-700 border-red-200' : 'bg-amber-50 text-amber-700 border-amber-200',
-                                )}>
-                                  <Wrench size={12} /> {maint.blocked ? 'Bloqueado' : 'Cuota'} {pesosFromCents(maint.owedCents)}
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-gray-50 text-gray-400 border border-gray-200">
-                                  <Wrench size={12} /> Cuota al día
+                              {/* Solo se marca el bloqueo; el detalle del adeudo
+                                  se muestra al dar clic en Abonar (menos texto). */}
+                              {maint.blocked && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold border bg-red-50 text-red-700 border-red-200">
+                                  <Wrench size={12} /> Bloqueado
                                 </span>
                               )}
                               {/* Progreso de abonos del semestre */}
@@ -399,12 +403,12 @@ export default function AdminMembershipsTable() {
                                 {pesosFromCents(maint.paidCents)}/{pesosFromCents(MAINTENANCE_TOTAL_CENTS)}
                               </span>
                               <button
-                                onClick={() => addMaintenancePayment(m.id, suggested, remainingCents / 100)}
+                                onClick={() => addMaintenancePayment(m.id, maint.owedCents / 100, remainingCents / 100)}
                                 disabled={maintBusyId === m.id}
-                                className="text-xs px-2 py-1 rounded-md border border-emerald-300 text-emerald-700 hover:bg-emerald-50 font-medium disabled:opacity-50"
-                                title="Registrar un abono parcial en efectivo"
+                                className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold shadow-sm hover:bg-emerald-700 active:bg-emerald-800 transition-colors disabled:opacity-50"
+                                title="Registrar un abono en efectivo"
                               >
-                                {maintBusyId === m.id ? '…' : 'Abonar'}
+                                <Banknote size={14} /> {maintBusyId === m.id ? '…' : 'Abonar'}
                               </button>
                               <button
                                 onClick={() => markMaintenancePaid(m.id)}
