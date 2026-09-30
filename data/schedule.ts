@@ -113,13 +113,13 @@ export const days: Array<{ key: DayKey; label: string }> = [
 ];
 
 /* Studio: 11 bicis. Fila 1: 6 (principiantes, frente al instructor),
-   Fila 2: 5 (atrás, más cerca de la cámara). Popular = 09 (centro fila 2) y 04. */
+   Fila 2: 5 (atrás, más cerca de la cámara). Favorita = 04. */
 export const BIKE_CONFIG = {
   rows: 2,
   rowConfig: [6, 5] as number[], // bikes per row
   total: 11,
   taken: [] as number[],
-  popular: [9, 4],
+  popular: [4],
   // Bicis fuera de servicio (mantenimiento): no se pueden reservar.
   maintenance: [1] as number[],
 };

@@ -40,3 +40,6 @@ coverage/
 next-env.d.ts
 
 .vercel
+
+# Capturas de verificación generadas por scripts/verify-bike-selector.cjs
+output/

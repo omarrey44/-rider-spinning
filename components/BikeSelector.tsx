@@ -1,7 +1,10 @@
+'use client';
+
 import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import BikeRoom from './BikeRoom';
+import { useBikeAvailability } from '@/hooks/useBikeAvailability';
 import { BIKE_CONFIG } from '@/data/schedule';
-import { BoltIcon, UserIcon, CalendarIcon, CalendarDaysIcon, AlarmClockIcon, StopwatchIcon, FanIcon, EyeIcon, StarIcon } from './Icons';
+import { BoltIcon, UserIcon, CalendarIcon, CalendarDaysIcon, AlarmClockIcon, StopwatchIcon } from './Icons';
 
 interface BikeSelectorProps {
   selectedSlot: {
@@ -23,28 +26,6 @@ interface BikeSelectorProps {
   compact?: boolean;
 }
 
-/* Filas del salón derivadas de BIKE_CONFIG.rowConfig — [inicio, fin] por fila.
-   Fila 1 (frente al instructor, más lejos de la cámara) se renderiza más chica;
-   Fila 2 (atrás, más cerca de la cámara) más grande. Perspectiva 3/4 trasera. */
-function getRowRanges(): { start: number; end: number }[] {
-  let cursor = 1;
-  return BIKE_CONFIG.rowConfig.map((count) => {
-    const start = cursor;
-    const end = cursor + count - 1;
-    cursor = end + 1;
-    return { start, end };
-  });
-}
-const ROW_RANGES = getRowRanges();
-
-function LockIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 14 14" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-      <path d="M11 6H10V4.5C10 3.12 8.88 2 7.5 2S5 3.12 5 4.5V6H4C3.45 6 3 6.45 3 7V11C3 11.55 3.45 12 4 12H11C11.55 12 12 11.55 12 11V7C12 6.45 11.55 6 11 6ZM7.5 9.5C6.67 9.5 6 8.83 6 8S6.67 6.5 7.5 6.5 9 7.17 9 8 8.33 9.5 7.5 9.5ZM9 6H6V4.5C6 3.67 6.67 3 7.5 3S9 3.67 9 4.5V6Z"/>
-    </svg>
-  );
-}
-
 function getBikePosition(num: number): { row: number; col: number; rowCount: number } {
   const { rowConfig } = BIKE_CONFIG;
   let count = 0;
@@ -58,78 +39,27 @@ function getBikePosition(num: number): { row: number; col: number; rowCount: num
 }
 
 export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, compact }: BikeSelectorProps) {
-  const [selectedBike, setSelectedBike] = useState<number | null>(null);
-  const [takenBikes, setTakenBikes] = useState<number[]>([]);
-  const [isLoadingBikes, setIsLoadingBikes] = useState(false);
-  const [bikesError, setBikesError] = useState(false);
+  const [selection, setSelection] = useState<{ slotKey: string; bike: number } | null>(null);
+  const { slotKey, status, takenBikes, availableCount, retry } = useBikeAvailability(selectedSlot);
+  const isLoadingBikes = status === 'loading';
+  const bikesError = status === 'error';
+  const selectedBike = selection?.slotKey === slotKey && !takenBikes.includes(selection.bike)
+    ? selection.bike : null;
+  const canCheckout = status === 'ready' && selectedBike !== null && !BIKE_CONFIG.maintenance.includes(selectedBike);
   const totalBikes = BIKE_CONFIG.total;
-  const bikeRoomRef = useRef<HTMLDivElement>(null);
+  const checkoutBarRef = useRef<HTMLDivElement>(null);
 
-  // On mobile or compact (modal) mode, scroll the checkout bar into view after bike selection.
+  // Compact dialogs keep the footer visible, so selecting a bike must not move the map.
   useEffect(() => {
-    if (selectedBike === null || typeof window === 'undefined') return;
-    if (!compact && window.innerWidth > 768) return;
+    if (compact || selectedBike === null || window.innerWidth > 768) return;
     const timer = setTimeout(() => {
-      const bar = document.querySelector('.sticky-checkout-bar') as HTMLElement | null;
+      const bar = checkoutBarRef.current;
       if (!bar) return;
-      if (compact) {
-        const modal = bar.closest('.modal') as HTMLElement | null;
-        if (modal) modal.scrollTop = modal.scrollHeight + 200;
-      } else {
-        bar.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
+      const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth';
+      bar.scrollIntoView({ behavior, block: 'nearest' });
     }, 80);
     return () => clearTimeout(timer);
   }, [selectedBike, compact]);
-
-  useEffect(() => {
-    if (!selectedSlot) {
-      setTakenBikes([]);
-      setBikesError(false);
-      return;
-    }
-
-    let cancelled = false;
-
-    const fetchTakenBikes = async () => {
-      setIsLoadingBikes(true);
-      setBikesError(false);
-      try {
-        const params = new URLSearchParams({
-          class_title: selectedSlot.className,
-          day: selectedSlot.dayName,
-          hour: `${selectedSlot.hour} ${selectedSlot.period}`,
-          ...(selectedSlot.dateISO ? { class_date: selectedSlot.dateISO } : {}),
-        });
-        const res = await fetch(`/api/bookings/available-bikes?${params}`);
-        if (!res.ok) throw new Error('Request failed');
-        const data = await res.json();
-        if (cancelled) return;
-        setTakenBikes(data.takenBikes || []);
-      } catch (err) {
-        if (cancelled) return;
-        console.error('Error fetching taken bikes:', err);
-        // No asumir disponibilidad en error — el usuario podría reservar una bici ya ocupada
-        setBikesError(true);
-      } finally {
-        if (!cancelled) setIsLoadingBikes(false);
-      }
-    };
-
-    fetchTakenBikes();
-    return () => { cancelled = true; };
-  }, [selectedSlot]);
-
-  // Descontar bicis ocupadas + en mantenimiento (sin doble conteo).
-  const unavailableCount = new Set([...takenBikes, ...BIKE_CONFIG.maintenance]).size;
-  const availableCount = totalBikes - unavailableCount;
-
-  // Solo resetear bici si está ocupada en nueva clase. Si sigue disponible, mantener selección.
-  useEffect(() => {
-    if (selectedBike !== null && takenBikes.includes(selectedBike)) {
-      setSelectedBike(null);
-    }
-  }, [takenBikes, selectedBike]);
 
   const scrollToHorarios = () => {
     const el = document.getElementById('horarios');
@@ -142,12 +72,12 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
       scrollToHorarios();
       return;
     }
-    if (isLoadingBikes || bikesError || takenBikes.includes(num) || BIKE_CONFIG.maintenance.includes(num)) return;
-    setSelectedBike(num);
+    if (status !== 'ready' || takenBikes.includes(num) || BIKE_CONFIG.maintenance.includes(num)) return;
+    setSelection({ slotKey, bike: num });
   };
 
   const handleCheckout = () => {
-    if (selectedBike !== null) {
+    if (canCheckout && selectedBike !== null) {
       const { row } = getBikePosition(selectedBike);
       onCheckout(selectedBike, row);
     }
@@ -159,11 +89,11 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
     const { row } = getBikePosition(num);
     const isPopular = BIKE_CONFIG.popular.includes(num);
     if (row === 1) return isPopular
-      ? 'Fila 1 · Principiantes · Posición popular ⭐'
-      : 'Fila 1 · Principiantes · Frente al instructor';
+      ? 'Fila 1 · Frente al instructor · Favorita'
+      : 'Fila 1 · Frente al instructor';
     if (row === 2) return isPopular
-      ? 'Fila 2 · Centro · Posición popular ⭐'
-      : 'Fila 2 · Espacio amplio · Cerca de salida';
+      ? 'Fila 2 · Fondo del salón · Favorita'
+      : 'Fila 2 · Fondo del salón';
     return null;
   };
 
@@ -173,7 +103,7 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
   const stepPay = selectedSlot && selectedBike ? 'active' : 'pending';
 
   return (
-    <section className={`bike-selector${compact ? ' bike-selector--compact' : ''}`} id="reservar">
+    <section className={`bike-selector${compact ? ' bike-selector--compact' : ''}`} id={compact ? undefined : "reservar"}>
       {!hideHeader && (
         <div className="container">
           {/* Step indicator del flujo de reserva */}
@@ -202,7 +132,9 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
             <h2>Tu bici, <span className="text-red">tu posición</span></h2>
             {selectedSlot && (
               <div className="stock-indicator">
-                {availableCount > 0 ? (
+                {availableCount === null ? (
+                  <span className="stock-badge">{bikesError ? 'Sin verificar' : 'Consultando…'}</span>
+                ) : availableCount > 0 ? (
                   <span className="stock-badge available">🟢 {availableCount} disponibles</span>
                 ) : (
                   <span className="stock-badge sold-out">⚠️ Sin disponibilidad</span>
@@ -210,13 +142,17 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
               </div>
             )}
           </div>
-          <p>Vista del salón en tiempo real. Las primeras filas tienen mejor visibilidad del instructor; las laterales reciben más aire.</p>
+          <p>Elige tu lugar en el salón. Consulta las filas, identifica al instructor y selecciona una bicicleta disponible.</p>
 
           <div className="bike-summary">
             {!selectedSlot ? (
               <p className="summary-empty summary-empty-noclass">
                 Elige tu clase primero
               </p>
+            ) : isLoadingBikes ? (
+              <p className="summary-empty">Consultando disponibilidad…</p>
+            ) : bikesError ? (
+              <p className="summary-empty">Reintenta la consulta para elegir tu bici.</p>
             ) : availableCount === 0 ? (
               <div className="summary-full">
                 <p className="summary-full-title">😔 Clase llena</p>
@@ -240,7 +176,7 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
                   <button
                     type="button"
                     className="change-bike-btn"
-                    onClick={() => setSelectedBike(null)}
+                    onClick={() => setSelection(null)}
                     aria-label="Cambiar selección de bici"
                   >
                     Cambiar bici
@@ -272,6 +208,7 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
                   <strong className="summary-price">{selectedSlot.price}</strong>
                   <button
                     className="btn btn-primary btn-confirm-reservation"
+                    disabled={!canCheckout}
                     onClick={handleCheckout}
                   >
                     {selectedSlot.isFree ? 'Reservar gratis' : 'Confirmar reserva'}
@@ -282,7 +219,7 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
           </div>
         </div>
 
-        <div ref={bikeRoomRef} className={`bike-room ${!selectedSlot ? 'bike-room-locked' : ''}`}>
+        <div className={`bike-room ${!selectedSlot ? 'bike-room-locked' : ''}`}>
           {/* Overlay cuando no hay clase: la sala se ve pero está bloqueada */}
           {!selectedSlot && (
             <div className="bike-room-locked-overlay">
@@ -333,7 +270,7 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
               <div className="class-info-divider"></div>
               <div className="class-info-item class-info-item--price">
                 <div>
-                  <span className="class-info-label">Precio</span>
+                  <span className="class-info-label">{compact ? 'Tu acceso' : 'Precio'}</span>
                   <span className="class-info-value">{selectedSlot.price}</span>
                 </div>
               </div>
@@ -345,7 +282,7 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
             <li><span className="dot dot-free"></span> Disponible</li>
             <li><span className="dot dot-selected"></span> Tu selección</li>
             <li><span className="dot dot-taken"></span> Ocupada</li>
-            <li><span className="dot dot-popular"></span> Popular</li>
+            <li><span className="dot dot-popular"></span> Favorita</li>
             <li><span className="dot dot-maintenance"></span> Mantenimiento</li>
           </ul>
 
@@ -353,9 +290,12 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
           {selectedSlot && bikesError ? (
             <div className="availability-counter critical" role="alert">
               <span className="availability-dot" aria-hidden="true"></span>
-              No se pudo verificar disponibilidad — intenta de nuevo
+              No se pudo verificar disponibilidad.
+              <button type="button" className="bike-retry" onClick={retry}>Reintentar</button>
             </div>
-          ) : selectedSlot && !isLoadingBikes && (
+          ) : selectedSlot && isLoadingBikes ? (
+            <div className="availability-counter" role="status">Consultando disponibilidad…</div>
+          ) : selectedSlot && availableCount !== null && (
             <div
               className={`availability-counter ${availableCount <= 3 ? 'critical' : availableCount <= 5 ? 'low' : ''}`}
               role="status"
@@ -367,143 +307,37 @@ export default function BikeSelector({ selectedSlot, onCheckout, hideHeader, com
             </div>
           )}
 
-          {/* Cinematic 3D Studio */}
-          <div className="studio-scene">
-            {/* Atmospheric floor plane */}
-            <div className="studio-floor-bg" aria-hidden="true" />
-            <div className="stage-beam" aria-hidden="true" />
-
-            {/* Instructor platform — neon pedestal con bici 3D centrada */}
-            <div className="studio-instructor-area">
-              <p className="s3d-instructor-label" aria-hidden="true">INSTRUCTOR</p>
-              <div className="s3d-stage-wrap" aria-hidden="true">
-                <div className="s3d-beam-l" />
-                <div className="s3d-beam-r" />
-                <div className="s3d-platform">
-                  <img
-                    src="/Instructor-Bike.png"
-                    alt=""
-                    className="s3d-platform-bike"
-                    draggable={false}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Row labels — absolutely positioned left */}
-            <div className="s3d-row-labels" aria-hidden="true">
-              <div className="s3d-rl s3d-rl--1"><span className="s3d-fila">FILA 1</span><span className="s3d-desc">Principiantes</span></div>
-              <div className="s3d-rl s3d-rl--2"><span className="s3d-fila">FILA 2</span><span className="s3d-desc">Más espacio</span></div>
-            </div>
-
-            {/* Mobile-only row strips — labels above each row */}
-            <div className="s3d-mobile-rows" aria-hidden="true">
-              <div className="s3d-mrow s3d-mrow--1">
-                <span className="s3d-mfila">FILA 1 · Principiantes</span>
-                <span className="s3d-mperk"><EyeIcon size={12} />Mejor vista</span>
-              </div>
-              <div className="s3d-mrow s3d-mrow--2">
-                <span className="s3d-mfila">FILA 2 · Más espacio</span>
-                <span className="s3d-mperk"><StarIcon size={12} />Popular</span>
-              </div>
-            </div>
-
-            {/* Iso 3D floor — 2 filas en perspectiva, misma bici 3/4 trasera reutilizada */}
-            <div className="s3d-floor">
-              {ROW_RANGES.map(({ start, end }, rowIdx) => (
-                <div key={rowIdx} className={`s3d-row s3d-row--${rowIdx + 1}`}>
-                  {Array.from({ length: end - start + 1 }, (_, i) => {
-                    const num = start + i;
-                    const row = rowIdx + 1;
-                    const count = end - start + 1;
-                    const maintenance = BIKE_CONFIG.maintenance.includes(num);
-                    const taken = takenBikes.includes(num);
-                    const pending = isLoadingBikes || bikesError;
-                    const popular = BIKE_CONFIG.popular.includes(num);
-                    const selected = selectedBike === num;
-                    const tooltip = getBikeTooltip(num);
-                    /* Lado derecho de la fila volteado — todas miran al instructor */
-                    const flip = i + 1 > Math.ceil(count / 2);
-                    const cls = [
-                      'b3d',
-                      `b3d--row${row}`,
-                      flip && 'b3d--flip',
-                      maintenance && 'b3d--maintenance',
-                      taken && !maintenance && 'b3d--taken',
-                      pending && !taken && !maintenance && 'b3d--pending',
-                      popular && !taken && !maintenance && !selected && 'b3d--popular',
-                      selected && 'b3d--selected',
-                    ].filter(Boolean).join(' ');
-                    const isDisabled = taken || pending || maintenance;
-
-                    return (
-                      <motion.button
-                        key={num}
-                        className={cls}
-                        disabled={isDisabled}
-                        title={maintenance ? `Bicicleta ${num} - En mantenimiento` : taken ? `Bicicleta ${num} - Ocupada` : pending ? `Bicicleta ${num} - Verificando disponibilidad` : tooltip || `Bicicleta ${num}`}
-                        aria-label={maintenance ? `Bicicleta ${num}, en mantenimiento, no disponible` : taken ? `Bicicleta ${num}, ocupada` : pending ? `Bicicleta ${num}, verificando disponibilidad` : `Bicicleta ${num}`}
-                        aria-pressed={selected}
-                        onClick={() => handleBikeClick(num)}
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{
-                          opacity: 1,
-                          y: 0,
-                          scale: selected ? 1.05 : 1,
-                          rotate: selected ? 2.5 : 0,
-                        }}
-                        transition={{ delay: num * 0.04, type: 'spring', stiffness: 260, damping: 22 }}
-                        whileHover={isDisabled ? undefined : { y: -5, scale: selected ? 1.05 : 1.04 }}
-                        whileTap={isDisabled ? undefined : { scale: 0.97 }}
-                      >
-                        <img
-                          src="/bike-3d.png"
-                          alt=""
-                          className="b3d-img"
-                          draggable={false}
-                        />
-                        <div className="b3d-platform" aria-hidden="true">
-                          <span className="b3d-num">{String(num).padStart(2, '0')}</span>
-                        </div>
-                        <div className="b3d-glow" aria-hidden="true" />
-                        {maintenance && <span className="b3d-wrench" aria-hidden="true">🔧</span>}
-                        {taken && !maintenance && <LockIcon className="b3d-lock" />}
-                        {popular && !taken && !maintenance && <span className="b3d-star" aria-hidden="true">★</span>}
-                      </motion.button>
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
-
-            {/* Icons — right */}
-            <div className="s3d-icons" aria-hidden="true">
-              <div className="s3d-icon"><EyeIcon size={15} /><span>Mejor vista</span></div>
-              <div className="s3d-icon"><FanIcon size={15} /><span>Más aire</span></div>
-            </div>
-
-            <p className="s3d-bottom" aria-hidden="true">↓ FONDO · SALIDA</p>
-          </div>
+          <BikeRoom
+            selectedBike={selectedBike}
+            takenBikes={takenBikes}
+            locked={!selectedSlot}
+            pending={status !== 'ready'}
+            compact={compact}
+            onSelect={handleBikeClick}
+          />
         </div>
       </div>
 
-      {/* Sticky CTA bar para mobile cuando ya se eligió clase + bici */}
-      {selectedSlot && selectedBike !== null && (
-        <div className="sticky-checkout-bar" role="region" aria-label="Tu reserva">
+      {/* Compact footer reserves its space before selection and never covers the map. */}
+      {selectedSlot && (compact || canCheckout) && (
+        <div ref={checkoutBarRef} className="sticky-checkout-bar" role="region" aria-label="Tu reserva">
           <div className="sticky-checkout-info">
-            <span className="sticky-bike">#{String(selectedBike).padStart(2, '0')}</span>
-            <div className="sticky-text">
-              <span className="sticky-class">{selectedSlot.className}</span>
-              <span className="sticky-position">{getBikeTooltip(selectedBike)}</span>
-              <span className="sticky-meta">{selectedSlot.hour} {selectedSlot.period} · {selectedSlot.price}</span>
+            {!compact && <span className="sticky-bike">#{String(selectedBike).padStart(2, '0')}</span>}
+            <div className="sticky-text" aria-live={compact ? 'polite' : undefined}>
+              <span className="sticky-class">{compact
+                ? selectedBike !== null ? `Bici ${String(selectedBike).padStart(2, '0')} · Fila ${getBikePosition(selectedBike).row}` : 'Elige tu bici'
+                : selectedSlot.className}</span>
+              <span className="sticky-position">{compact ? selectedSlot.price : selectedBike !== null && getBikeTooltip(selectedBike)}</span>
+              {!compact && <span className="sticky-meta">{selectedSlot.hour} {selectedSlot.period} · {selectedSlot.price}</span>}
             </div>
           </div>
           <button
             type="button"
             className="btn btn-primary sticky-checkout-cta"
             onClick={handleCheckout}
+            disabled={!canCheckout}
           >
-            Continuar reserva →
+            {compact ? 'Continuar →' : 'Continuar reserva →'}
           </button>
         </div>
       )}

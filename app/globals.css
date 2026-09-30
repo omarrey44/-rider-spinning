@@ -2311,7 +2311,9 @@ section::before {
 }
 .bike-selector--compact .sticky-checkout-bar {
   display: flex;
-  position: static;
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
   margin: 12px 0 8px;
   background: rgba(18, 24, 32, 0.6);
   border: 1px solid rgba(29, 212, 232, 0.22);
@@ -2322,7 +2324,7 @@ section::before {
 }
 .bike-layout {
   display: grid;
-  grid-template-columns: 1fr 1.2fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
   gap: 60px;
   align-items: center;
 }
@@ -3158,8 +3160,6 @@ section::before {
    3D BIKE ROOM — Cinematic Studio Scene
    ===================================================== */
 
-/* Locked: also dim the new studio-scene */
-.bike-room-locked .studio-scene { opacity: 0.3; filter: grayscale(40%); pointer-events: none; user-select: none; }
 .bike-room-locked .bike-legend--room { opacity: 0.32; filter: grayscale(35%); }
 
 /* Leyenda dentro del panel — como la referencia */
@@ -3172,626 +3172,26 @@ section::before {
 }
 .bike-legend--room .dot { width: 11px; height: 11px; border-radius: 50%; }
 
-/* =====================================================
-   STUDIO SCENE — cinematic 3D with perspective depth
-   ===================================================== */
+.bike-selector .dot-free { background: #78dbaa; box-shadow: none; }
+.bike-selector .dot-selected { background: #37e4ed; box-shadow: none; }
+.bike-selector .dot-taken { background: #9cabb3; box-shadow: none; }
+.bike-selector .dot-maintenance { background: #f1bb76; box-shadow: none; }
+.bike-selector .dot-popular { color: #78dbaa; text-shadow: none; }
+.bike-retry { min-height: 44px; padding: 6px 12px; border: 1px solid currentColor; border-radius: 8px; color: inherit; background: transparent; font: inherit; font-weight: 700; cursor: pointer; }
+.bike-selector .availability-counter { flex-wrap: wrap; }
 
-.studio-scene {
-  position: relative;
-  height: 464px;
-  overflow: hidden;
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(0,45,58,0.9) 0%, transparent 55%),
-    radial-gradient(ellipse at 18% 90%, rgba(29,212,232,0.05) 0%, transparent 40%),
-    radial-gradient(ellipse at 82% 90%, rgba(29,212,232,0.05) 0%, transparent 40%),
-    linear-gradient(180deg, rgba(0,10,14,1) 0%, rgba(2,18,24,1) 100%);
-  border-radius: 16px;
-  margin-top: 8px;
-  perspective: 620px;
-  perspective-origin: 50% 5%;
-}
-
-/* === FLOOR GRID === */
-.studio-floor-bg {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.studio-floor-bg::before {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: -65%;
-  right: -65%;
-  height: 64%;
-  transform: rotateX(60deg);
-  transform-origin: bottom center;
-  background:
-    repeating-linear-gradient(90deg,
-      rgba(29,212,232,0.09) 0, rgba(29,212,232,0.09) 1px,
-      transparent 1px, transparent 50px),
-    repeating-linear-gradient(0deg,
-      rgba(29,212,232,0.09) 0, rgba(29,212,232,0.09) 1px,
-      transparent 1px, transparent 40px),
-    linear-gradient(to top, rgba(1,12,16,1) 0%, rgba(4,22,28,0.9) 50%, transparent 100%);
-  border-top: 1px solid rgba(29,212,232,0.14);
-}
-
-/* Vignette overlay */
-.studio-floor-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 50% 90%, rgba(29,212,232,0.07) 0%, transparent 55%),
-    linear-gradient(to bottom, rgba(0,10,14,0.55) 0%, transparent 28%, rgba(0,8,12,0.65) 80%, rgba(0,8,12,1) 100%);
-}
-
-/* === SPOTLIGHT FROM STAGE === */
-.stage-beam {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 110%;
-  height: 74%;
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(29,212,232,0.18) 0%, rgba(29,212,232,0.06) 38%, transparent 65%);
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* === INSTRUCTOR STAGE === */
-.studio-instructor-area {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 14px;
-}
-
-.s3d-instructor-label {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 3px;
-  color: rgba(29,212,232,0.75);
-  text-transform: uppercase;
-  margin: 0 0 7px;
-}
-
-.s3d-stage-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.s3d-beam-l,
-.s3d-beam-r {
-  position: absolute;
-  top: 10px;
-  width: 120px;
-  height: 160px;
-  pointer-events: none;
-}
-
-.s3d-beam-l {
-  right: 50%;
-  background: linear-gradient(to bottom left, rgba(29,212,232,0.24), transparent 70%);
-  transform-origin: right top;
-  transform: rotate(-10deg);
-}
-
-.s3d-beam-r {
-  left: 50%;
-  background: linear-gradient(to bottom right, rgba(29,212,232,0.24), transparent 70%);
-  transform-origin: left top;
-  transform: rotate(10deg);
-}
-
-.s3d-platform {
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  z-index: 2;
-  padding-bottom: 10px;
-}
-
-/* Plataforma oval del instructor — borde neón como la referencia */
-.s3d-platform::before {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 215px;
-  height: 54px;
-  border-radius: 50%;
-  background: radial-gradient(ellipse at 50% 28%, rgba(22,32,40,0.98) 0%, rgba(8,14,18,0.99) 72%);
-  border: 1px solid rgba(29,212,232,0.4);
-  box-shadow:
-    0 0 16px rgba(29,212,232,0.55),
-    0 0 38px rgba(29,212,232,0.22),
-    0 10px 22px rgba(0,0,0,0.7),
-    inset 0 -8px 16px rgba(29,212,232,0.28);
-  z-index: 0;
-}
-
-/* Cono de luz hacia el salón */
-.s3d-stage-wrap::after {
-  content: '';
-  position: absolute;
-  top: 82%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 330px;
-  height: 140px;
-  clip-path: polygon(37% 0, 63% 0, 100% 100%, 0 100%);
-  background: linear-gradient(to bottom, rgba(29,212,232,0.18) 0%, transparent 82%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.s3d-platform-bike {
-  display: block;
-  width: 160px;
-  height: auto;
-  position: relative;
-  z-index: 1;
-  filter:
-    drop-shadow(0 0 14px rgba(29,212,232,0.5))
-    drop-shadow(0 8px 14px rgba(0,0,0,0.85));
-  pointer-events: none;
-  user-select: none;
-}
-
-/* === ROW LABELS — alineados a los mismos % que BIKE_COORDS y por fila === */
-.s3d-row-labels {
-  position: absolute;
-  left: 10px;
-  z-index: 20;
-  pointer-events: none;
-  /* misma extensión vertical que .s3d-floor */
-  top: 152px;
-  bottom: 32px;
-}
-
-.s3d-rl {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  transform: translateY(-50%);
-}
-.s3d-rl--1 { top: 21%; }
-.s3d-rl--2 { top: 76%; }
-
-.s3d-fila {
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 1.2px;
-  color: rgba(29,212,232,0.9);
-  text-transform: uppercase;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.s3d-desc {
-  font-size: 8px;
-  color: rgba(255,255,255,0.95);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  white-space: nowrap;
-}
-
-/* === ISO FLOOR — 2 filas flex en perspectiva; cámara detrás del usuario === */
-.s3d-floor {
-  position: absolute;
-  left: 56px; right: 56px;
-  top: 148px; bottom: 26px;
-  z-index: 5;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-}
-
-.s3d-row {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 6px;
-  padding: 0 14px 8px;
-}
-/* Losa de piso — plataforma escalonada con celdas, como la referencia */
-.s3d-row::before {
-  content: '';
-  position: absolute;
-  left: -10px; right: -10px;
-  top: 42%; bottom: -6px;
-  background-image:
-    linear-gradient(90deg, transparent calc(100% - 1px), rgba(29,212,232,0.12) calc(100% - 1px)),
-    linear-gradient(180deg, rgba(17,27,34,0.94) 0%, rgba(7,13,17,0.97) 100%);
-  background-repeat: repeat-x, no-repeat;
-  border-top: 1px solid rgba(29,212,232,0.22);
-  border-radius: 4px;
-  transform: perspective(700px) rotateX(24deg);
-  transform-origin: 50% 100%;
-  box-shadow: 0 16px 26px rgba(0,0,0,0.55);
-  pointer-events: none;
-  z-index: 0;
-}
-/* Cara frontal del escalón */
-.s3d-row::after {
-  content: '';
-  position: absolute;
-  left: -10px; right: -10px;
-  bottom: -15px;
-  height: 10px;
-  background: linear-gradient(180deg, rgba(22,34,42,0.92) 0%, rgba(3,7,9,0.96) 100%);
-  border-radius: 0 0 6px 6px;
-  pointer-events: none;
-  z-index: 0;
-}
-.s3d-row--1::before { background-size: calc(100%/6) 100%, 100% 100%; }
-.s3d-row--2::before { background-size: calc(100%/5) 100%, 100% 100%; }
-/* Filas: mismo tamaño de bici en ambas.
-   Fila 1 leve boost — 6 bicis juntas se perciben más chicas que las 5 de atrás */
-.s3d-row--1 { z-index: 3; }
-.s3d-row--1 .b3d-img { width: 93px; height: 115px; }
-.s3d-row--2 { z-index: 6; }
-
-/* === BIKE OBJECT — un solo asset 3/4 trasero reutilizado; objeto físico en el salón === */
-.b3d {
-  position: relative;
-  z-index: 1;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  outline: none;
-}
-
-.b3d:focus-visible {
-  outline: 2px solid rgba(29,212,232,0.9);
-  outline-offset: 4px;
-  border-radius: 10px;
-}
-
-.b3d-img {
-  /* Asset 3/4 trasero recortado (700x868) — proporción vertical.
-     El PNG ya trae glow/reflexión de piso integrados. */
-  width: 88px;
-  height: 109px;
-  object-fit: contain;
-  display: block;
-  position: relative;
-  z-index: 2;
-  margin-bottom: -18px; /* la bici "asienta" sobre la plataforma */
-  pointer-events: none;
-  user-select: none;
-  filter:
-    brightness(1.45) contrast(1.06)
-    drop-shadow(0 8px 14px rgba(0,0,0,0.8))
-    drop-shadow(0 0 8px rgba(29,212,232,0.45));
-  transition: filter 0.25s ease;
-}
-
-/* Orientación hacia el instructor (centro-arriba):
-   izquierdas miran a la derecha con leve giro; derechas espejadas simétricas */
-.b3d .b3d-img { transform: rotate(-7deg); transform-origin: 50% 78%; }
-.b3d--flip .b3d-img { transform: scaleX(-1) rotate(-7deg); }
-
-.b3d:hover:not(:disabled) .b3d-img {
-  filter:
-    brightness(1.6) contrast(1.08)
-    drop-shadow(0 10px 16px rgba(0,0,0,0.8))
-    drop-shadow(0 0 12px rgba(29,212,232,0.7));
-}
-
-/* Plataforma de cristal — losa con perspectiva, glow según estado */
-.b3d-platform {
-  position: relative;
-  z-index: 1;
-  width: 94%;
-  height: 30px;
-  border-radius: 11px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform: perspective(300px) rotateX(30deg);
-  transform-origin: 50% 100%;
-  background: linear-gradient(180deg, rgba(34,197,94,0.34) 0%, rgba(8,38,22,0.55) 100%);
-  border: 1.5px solid rgba(74,222,128,0.75);
-  box-shadow:
-    0 10px 20px rgba(0,0,0,0.55),
-    0 0 14px rgba(34,197,94,0.45),
-    inset 0 1px 0 rgba(255,255,255,0.18),
-    inset 0 0 12px rgba(34,197,94,0.22);
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
-  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
-}
-
-.b3d-num {
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.9px;
-  line-height: 1;
-  color: rgba(255,255,255,0.96);
-  text-shadow: 0 0 8px rgba(34,197,94,0.7), 0 1px 3px rgba(0,0,0,0.9);
-  transition: color 0.2s;
-}
-
-/* Aro de luz bajo la plataforma */
-.b3d-glow {
-  position: absolute;
-  bottom: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 82%;
-  height: 14px;
-  border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(34,197,94,0.45) 0%, transparent 70%);
-  filter: blur(5px);
-  pointer-events: none;
-  animation: b3dAvailPulse 2.6s ease-in-out infinite;
-  transition: background 0.3s;
-}
-
-@keyframes b3dAvailPulse {
-  0%, 100% { opacity: 0.65; }
-  50%      { opacity: 1.0; }
-}
-
-.b3d-lock {
-  position: absolute;
-  top: 2px; right: 4px;
-  width: 13px; height: 13px;
-  z-index: 3;
-  opacity: 0.9;
-  color: rgba(255,90,90,0.95);
-  filter: drop-shadow(0 0 4px rgba(0,0,0,0.7));
-}
-
-.b3d-star {
-  position: absolute;
-  top: -2px; right: 6px;
-  z-index: 3;
-  font-size: 12px;
-  color: #1dd4e8;
-  line-height: 1;
-  text-shadow: 0 0 6px rgba(29,212,232,0.85);
-}
-
-/* Selected — plataforma cian, aro pulsante lento, bici iluminada */
-.b3d--selected { z-index: 20; }
-.b3d--selected .b3d-img {
-  filter:
-    brightness(1.7) contrast(1.08)
-    drop-shadow(0 10px 16px rgba(0,0,0,0.85))
-    drop-shadow(0 0 16px rgba(29,212,232,0.9));
-}
-.b3d--selected .b3d-num {
-  color: #0b1418;
-  text-shadow: none;
-}
-.b3d--selected .b3d-platform {
-  background: linear-gradient(180deg, rgba(29,212,232,0.9) 0%, rgba(29,212,232,0.55) 100%);
-  border-color: rgba(29,212,232,1);
-  box-shadow:
-    0 10px 22px rgba(0,0,0,0.55),
-    0 0 18px rgba(29,212,232,0.75),
-    0 0 36px rgba(29,212,232,0.35),
-    inset 0 1px 0 rgba(255,255,255,0.35);
-}
-.b3d--selected .b3d-glow {
-  background: radial-gradient(ellipse, rgba(29,212,232,0.75) 0%, transparent 72%);
-  animation: b3dSelectedPulse 2s ease-in-out infinite;
-}
-
-@keyframes b3dSelectedPulse {
-  0%, 100% { opacity: 0.6; transform: translateX(-50%) scaleX(0.92); }
-  50%      { opacity: 1.0; transform: translateX(-50%) scaleX(1.08); }
-}
-
-/* Taken — bici desaturada roja, plataforma roja, sin animación */
-.b3d--taken { cursor: not-allowed; }
-.b3d--taken .b3d-img {
-  filter:
-    brightness(0.55) sepia(1) saturate(4.5) hue-rotate(-40deg) opacity(0.85)
-    drop-shadow(0 0 8px rgba(230,57,70,0.7));
-}
-.b3d--taken .b3d-num {
-  color: rgba(255,140,140,1);
-  text-shadow: 0 0 6px rgba(230,57,70,0.55), 0 1px 3px rgba(0,0,0,0.9);
-}
-.b3d--taken .b3d-platform {
-  background: linear-gradient(180deg, rgba(230,57,70,0.16) 0%, rgba(255,255,255,0.02) 100%);
-  border-color: rgba(230,57,70,0.6);
-  box-shadow:
-    0 10px 20px rgba(0,0,0,0.55),
-    0 0 10px rgba(230,57,70,0.3),
-    inset 0 0 10px rgba(230,57,70,0.14);
-}
-.b3d--taken .b3d-glow {
-  background: radial-gradient(ellipse, rgba(230,57,70,0.35) 0%, transparent 70%);
-  animation: none;
-}
-
-/* Maintenance — bici fuera de servicio: gris/ámbar, no seleccionable, ícono de llave */
-.b3d--maintenance { cursor: not-allowed; }
-.b3d--maintenance .b3d-img {
-  filter: brightness(0.5) saturate(0.25) opacity(0.7);
-}
-.b3d--maintenance .b3d-num {
-  color: rgba(255, 200, 120, 0.95);
-  text-shadow: 0 1px 3px rgba(0,0,0,0.9);
-}
-.b3d--maintenance .b3d-platform {
-  background: linear-gradient(180deg, rgba(245, 179, 66, 0.14) 0%, rgba(255,255,255,0.02) 100%);
-  border-color: rgba(245, 179, 66, 0.55);
-  box-shadow:
-    0 10px 20px rgba(0,0,0,0.55),
-    0 0 10px rgba(245, 179, 66, 0.25),
-    inset 0 0 10px rgba(245, 179, 66, 0.12);
-}
-.b3d--maintenance .b3d-glow {
-  background: radial-gradient(ellipse, rgba(245, 179, 66, 0.3) 0%, transparent 70%);
-  animation: none;
-}
-.b3d-wrench {
-  position: absolute;
-  top: -2px;
-  right: 4px;
-  z-index: 3;
-  font-size: 13px;
-  line-height: 1;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));
-}
-
-/* Pending — verificando disponibilidad (loading/error): dim, sin animación, sin marcar rojo */
-.b3d--pending { cursor: wait; }
-.b3d--pending .b3d-img { filter: brightness(0.6) saturate(0.5); }
-.b3d--pending .b3d-platform {
-  background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
-  border-color: rgba(255,255,255,0.18);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.55);
-}
-.b3d--pending .b3d-num { color: rgba(255,255,255,0.4); text-shadow: none; }
-.b3d--pending .b3d-glow { animation: none; opacity: 0.25; }
-
-/* Popular — hereda plataforma verde disponible, solo agrega estrella */
-
-/* === RIGHT ICONS — alineados a los mismos % que las filas === */
-.s3d-icons {
-  position: absolute;
-  right: 10px;
-  z-index: 20;
-  pointer-events: none;
-  top: 152px;
-  bottom: 32px;
-  align-items: center;
-}
-
-.s3d-icon {
-  position: absolute;
-  right: 0;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  color: rgba(29,212,232,0.65);
-}
-.s3d-icon:nth-child(1) { top: 21%; } /* Mejor vista — Fila 1 */
-.s3d-icon:nth-child(2) { top: 76%; } /* Más aire — Fila 2 */
-.s3d-icon span {
-  font-size: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  color: rgba(255,255,255,0.95);
-  font-weight: 600;
-  text-align: center;
-  line-height: 1.2;
-}
-
-/* === BOTTOM TEXT === */
-.s3d-bottom {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: rgba(255,255,255,0.18);
-  text-transform: uppercase;
-  white-space: nowrap;
-  margin: 0;
-  z-index: 20;
-}
-
-/* Mobile-only row strips — hidden on desktop */
-.s3d-mobile-rows { display: none; }
-
-/* === MOBILE === */
-@media (max-width: 480px) {
-  .studio-scene { height: 520px; }
-  /* Hide side labels/icons — replaced by inline mobile strips above each row */
-  .s3d-row-labels, .s3d-icons { display: none; }
-  /* Floor uses near-full width */
-  .s3d-floor { top: 138px; left: 14px; right: 14px; bottom: 28px; }
-
-  /* Mobile row label strips — positioned above each row's y center */
-  .s3d-mobile-rows {
-    display: block;
-    position: absolute;
-    left: 14px;
-    right: 14px;
-    top: 138px;
-    bottom: 28px;
-    z-index: 18;
-    pointer-events: none;
-  }
-  .s3d-mrow {
-    position: absolute;
-    left: 0;
-    right: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 4px;
-    font-family: var(--font-display);
-  }
-  .s3d-mrow--1 { top: 0; }
-  .s3d-mrow--2 { top: 54%; }
-  .s3d-mfila {
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--teal-primary);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-  .s3d-mperk {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 9px;
-    font-weight: 600;
-    color: rgba(29, 212, 232, 0.65);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-
-  /* Bicis compactas para 6 por fila sin traslape */
-  .s3d-row { gap: 3px; padding: 0 6px 6px; }
-  .s3d-row::before { left: -4px; right: -4px; }
-  .s3d-row::after { left: -4px; right: -4px; bottom: -12px; height: 8px; }
-  .s3d-platform::before { width: 150px; height: 40px; }
-  .s3d-stage-wrap::after { width: 240px; height: 100px; }
-  .b3d-img {
-    width: 54px;
-    height: 67px;
-    margin-bottom: -12px;
-  }
-  .s3d-row--1 .b3d-img { width: 57px; height: 71px; }
-  .b3d-platform { height: 19px; border-radius: 7px; }
-  .b3d-num { font-size: 9px; }
-  .b3d-star { font-size: 10px; top: -1px; right: 3px; }
-  .b3d-lock { width: 11px; height: 11px; top: 1px; right: 2px; }
-
-  .s3d-platform-bike { width: 130px; }
+/* The same room fits a full page and the membership dialog. */
+.bike-selector.bike-selector--compact { padding: 0; }
+.bike-selector--compact .bike-layout { padding: 0; }
+.bike-selector--compact::before { display: none; }
+.bike-selector .sticky-checkout-bar { flex-wrap: wrap; }
+.bike-selector .sticky-checkout-info { flex-basis: 180px; }
+.bike-selector .sticky-checkout-cta { min-height: 44px; }
+@media (max-width: 768px) {
+  .bike-selector > .container { padding-inline: 0; }
+  .bike-selector .bike-room { padding: 16px 8px; }
+  .bike-selector .bike-legend--room { gap: 8px 12px; font-size: 11px; }
+  .bike-selector .sticky-checkout-cta { flex-grow: 1; }
 }
 
 /* =====================================================
@@ -9563,204 +8963,122 @@ section::before {
 }
 
 /* ============================================================
-   MEMBERSHIP BOOKING MODAL — readable message + visible bike room
+   MEMBERSHIP BOOKING MODAL — compact room with a separate footer
    ============================================================ */
-.membership-booking-modal {
-  overscroll-behavior: contain;
-  scrollbar-gutter: stable;
-}
-
-.membership-booking-modal.modal--wide {
-  width: min(960px, calc(100vw - 48px));
-  max-width: 960px;
-  max-height: min(92dvh, 920px);
-  padding-bottom: 0;
-}
-
-.membership-booking-modal .modal-close {
-  position: sticky;
-  top: 12px;
-  z-index: 20;
-  display: flex;
-  margin: 12px 12px -48px auto;
-}
-
-.membership-booking-modal .modal-header {
-  padding-right: 72px;
-}
-
-.membership-booking-modal .mem-date-grid {
-  margin: 18px 28px 28px;
-}
-
-.membership-booking-modal > .mem-back-btn {
-  margin: 20px 28px 14px;
-}
-
-.membership-booking-modal > .mem-slot-list {
-  margin: 0 28px 28px;
-}
-
-.membership-booking-modal > .mem-no-slots {
-  margin: 0 28px 28px;
-}
-
-.membership-booking-modal > .mem-confirm-summary {
-  margin: 24px 28px 20px;
-}
-
+.membership-booking-modal { overscroll-behavior: contain; scrollbar-gutter: stable; }
+.membership-booking-modal .modal-close { position: sticky; top: 12px; z-index: 20; display: flex; margin: 12px 12px -48px auto; }
+.membership-booking-modal .modal-header { padding-right: 72px; }
+.membership-booking-modal .mem-date-grid { margin: 18px 28px 28px; }
+.membership-booking-modal > .mem-back-btn { margin: 20px 28px 14px; }
+.membership-booking-modal > .mem-slot-list,
+.membership-booking-modal > .mem-no-slots { margin: 0 28px 28px; }
+.membership-booking-modal > .mem-confirm-summary { margin: 24px 28px 20px; }
 .membership-booking-modal > .mem-confirm-actions,
-.membership-booking-modal > .form-error {
-  margin-right: 28px;
-  margin-left: 28px;
-}
+.membership-booking-modal > .form-error { margin-right: 28px; margin-left: 28px; }
+.membership-booking-modal > .mem-confirm-actions { margin-bottom: 28px; }
 
-.membership-booking-modal > .mem-confirm-actions {
-  margin-bottom: 28px;
-}
-
-.mem-bike-header {
-  position: sticky;
-  top: 0;
-  z-index: 8;
-  padding-top: 24px;
-  padding-bottom: 18px;
-  background: linear-gradient(180deg, rgba(18, 24, 29, 0.99), rgba(12, 17, 21, 0.98));
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
-}
-
-.mem-bike-header h3 {
-  margin-bottom: 8px;
-  font-size: 30px;
-}
-
-.mem-bike-guidance {
-  max-width: 680px;
-  margin: 0;
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 14px;
-  line-height: 1.55;
-}
-
-.mem-included-note {
-  display: inline-flex;
-  align-items: center;
-  margin-top: 12px;
-  padding: 7px 11px;
-  border: 1px solid rgba(29, 212, 232, 0.28);
-  border-radius: 9px;
-  background: rgba(29, 212, 232, 0.09);
-  color: #9af2f7;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.mem-bike-body {
-  padding: 18px 24px 28px;
-}
-
-.mem-bike-body .mem-back-btn {
-  margin-bottom: 14px;
-}
-
-.mem-bike-body .mem-bike-error {
-  margin: 0 0 14px;
-  padding: 12px 14px;
-  color: #ffd0cd;
-  background: rgba(230, 57, 70, 0.17);
-  border-color: rgba(230, 57, 70, 0.5);
-}
-
-/* ── Grid simple de bicis para el modal de membresía ──────────────── */
-.mem-grid { display: flex; flex-direction: column; gap: 14px; }
-.mem-grid-status { text-align: center; color: rgba(255,255,255,0.65); font-size: 14px; padding: 24px 0; }
-.mem-grid-status--err { color: #ffb3ae; }
-.mem-grid-instructor {
-  text-align: center;
-  font-family: var(--font-display);
-  font-size: 11px;
-  letter-spacing: 3px;
-  color: var(--teal-primary);
-  background: rgba(29, 212, 232, 0.08);
-  border: 1px solid rgba(29, 212, 232, 0.22);
-  border-radius: 10px;
-  padding: 8px;
-}
-.mem-grid-rowblock { display: flex; flex-direction: column; gap: 8px; }
-.mem-grid-rowlabel { font-size: 12px; color: rgba(255,255,255,0.6); }
-.mem-grid-rowlabel em { color: rgba(255,255,255,0.4); font-style: normal; }
-.mem-grid-bikes {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 8px;
-}
-.mem-bike {
-  position: relative;
-  aspect-ratio: 1;
-  min-height: 44px;
-  border-radius: 12px;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 15px;
+.membership-booking-modal.membership-booking-modal--bike {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1.5px solid transparent;
-  transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease;
+  flex-direction: column;
+  width: min(760px, 100%);
+  max-width: 760px;
+  max-height: calc(100dvh - 48px);
+  padding: 0;
+  overflow: hidden;
+  scrollbar-gutter: auto;
+}
+.membership-booking-modal--bike .modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+}
+.membership-booking-modal--bike .mem-bike-header {
+  flex-shrink: 0;
+  padding: 10px 64px 12px 18px;
+  background: #111c21;
+}
+.mem-bike-heading { display: flex; align-items: center; gap: 10px; }
+.mem-bike-heading h3 { margin: 0; font-size: 24px; line-height: 1.2; }
+.mem-bike-back {
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid #34515a;
+  border-radius: 10px;
+  background: #16272e;
+  color: #c9f6f5;
+  font-size: 21px;
   cursor: pointer;
 }
-.mem-bike--free {
-  background: rgba(29, 212, 232, 0.12);
-  border-color: rgba(29, 212, 232, 0.4);
-  color: #d6fbff;
-}
-.mem-bike--free:hover {
-  transform: translateY(-2px);
-  background: rgba(29, 212, 232, 0.22);
-  box-shadow: 0 6px 18px rgba(29, 212, 232, 0.25);
-}
-.mem-bike--popular {
-  background: rgba(244, 162, 97, 0.16);
-  border-color: rgba(244, 162, 97, 0.55);
-  color: #ffe2c4;
-}
-.mem-bike--popular:hover { background: rgba(244, 162, 97, 0.28); box-shadow: 0 6px 18px rgba(244, 162, 97, 0.28); }
-.mem-bike-star { position: absolute; top: 3px; right: 5px; font-size: 9px; color: #f4a261; }
-.mem-bike--taken {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.28);
-  cursor: not-allowed;
-}
-.mem-bike--maint {
-  background: rgba(230, 57, 70, 0.1);
-  border-color: rgba(230, 57, 70, 0.28);
-  color: rgba(255, 150, 150, 0.5);
-  cursor: not-allowed;
-}
-.mem-grid-legend {
+.mem-bike-back:hover { background: #25444d; }
+.mem-bike-class { margin: 6px 0 4px; color: #c1d0d5; font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.mem-bike-class strong { color: #fff; }
+.mem-included-note { display: block; color: #92e2dd; font-size: 12px; line-height: 1.5; }
+.mem-bike-body { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.mem-bike-body .mem-bike-error { flex-shrink: 0; margin: 8px 12px 0; padding: 10px 12px; color: #ffd0cd; background: #3a1e24; border: 1px solid #a74a56; border-radius: 8px; font-size: 12px; }
+.membership-booking-modal--bike .bike-selector--compact {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px 14px;
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.7);
-  margin-top: 2px;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 0;
 }
-.mem-grid-legend span { display: inline-flex; align-items: center; gap: 5px; }
-.mem-dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
-.mem-dot--free { background: rgba(29, 212, 232, 0.6); }
-.mem-dot--popular { background: rgba(244, 162, 97, 0.7); }
-.mem-dot--taken { background: rgba(255, 255, 255, 0.18); }
-.mem-dot--maint { background: rgba(230, 57, 70, 0.5); }
-.mem-grid-count { text-align: center; font-size: 13px; color: rgba(255,255,255,0.65); margin: 2px 0 0; }
-.mem-grid-count strong { color: var(--teal-primary); }
-.mem-grid-count.low strong { color: #f4a261; }
+.membership-booking-modal--bike .bike-layout {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 12px 18px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #385e64 #081216;
+}
+.membership-booking-modal--bike .bike-room { width: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.membership-booking-modal--bike .class-info-banner { display: none; }
+.membership-booking-modal--bike .bike-legend--room { gap: 6px 14px; margin: 0 0 6px; color: #c3d3d8; font-size: 11px; line-height: 16px; }
+.membership-booking-modal--bike .bike-legend li { gap: 5px; }
+.membership-booking-modal--bike .availability-counter { gap: 5px; margin: 0 0 8px; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; font-size: 12px; line-height: 18px; }
+.membership-booking-modal--bike .bike-selector--compact .sticky-checkout-bar {
+  position: static;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  gap: 12px;
+  width: 100%;
+  max-width: none;
+  min-height: 70px;
+  margin: 0;
+  padding: 12px 18px;
+  border: 0;
+  border-top: 1px solid #2b464e;
+  border-radius: 0;
+  background: #101e24;
+  box-shadow: none;
+  backdrop-filter: none;
+  animation: none;
+}
+.membership-booking-modal--bike .sticky-checkout-info { flex: 1 1 0; align-items: center; }
+.membership-booking-modal--bike .sticky-class { white-space: normal; font-size: 15px; line-height: 1.4; }
+.membership-booking-modal--bike .sticky-position { color: #a9ccd3; font-size: 12px; }
+.membership-booking-modal--bike .sticky-checkout-cta { flex: 0 0 auto; min-height: 44px; padding: 12px 18px !important; }
+.membership-booking-modal--bike .sticky-checkout-cta:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
 
 @media (max-width: 640px) {
-  .mem-grid-bikes { gap: 7px; }
-  .mem-bike { min-height: 46px; font-size: 16px; border-radius: 11px; }
-
-  /* Horarios compactos que quepan en pantalla móvil */
+  .modal-overlay:has(.membership-booking-modal) { align-items: center; padding: 8px; }
+  .membership-booking-modal { width: 100%; max-width: none; max-height: calc(100dvh - 16px); min-height: 0; border-radius: 18px; }
+  .membership-booking-modal .modal-header { padding: 22px 54px 18px 20px; }
+  .membership-booking-modal .mem-date-grid { margin: 18px 18px 24px; }
+  .membership-booking-modal > .mem-back-btn { margin: 18px 18px 14px; }
+  .membership-booking-modal > .mem-slot-list,
+  .membership-booking-modal > .mem-no-slots { margin-right: 18px; margin-left: 18px; }
   .membership-booking-modal .mem-slot-list { gap: 8px; }
   .membership-booking-modal .mem-slot-btn { padding: 11px 12px; gap: 10px; border-radius: 12px; }
   .membership-booking-modal .mem-slot-time { font-size: 16px; min-width: 56px; }
@@ -9768,145 +9086,15 @@ section::before {
   .membership-booking-modal .mem-slot-info strong { font-size: 14px; }
   .membership-booking-modal .mem-slot-info span { font-size: 12px; }
   .membership-booking-modal .mem-slot-dur { font-size: 11px; }
-
-  /* Selección de bici compacta en móvil */
-  .membership-booking-modal .mem-bike-header { padding: 16px 50px 10px 18px; }
-  .membership-booking-modal .mem-bike-header h3 { font-size: 20px; }
-  .membership-booking-modal .mem-bike-guidance { font-size: 12px; margin: 4px 0 4px; }
-  .membership-booking-modal .mem-included-note { font-size: 10px; }
-  .membership-booking-modal .mem-bike-body { padding: 12px 14px 18px; }
-  .membership-booking-modal .mem-bike-body .mem-back-btn { margin-bottom: 10px; }
-  .membership-booking-modal .mem-grid { gap: 10px; }
-  .membership-booking-modal .mem-grid-instructor { padding: 6px; font-size: 10px; letter-spacing: 2px; }
-  .membership-booking-modal .mem-grid-rowblock { gap: 6px; }
-  .membership-booking-modal .mem-grid-rowlabel { font-size: 11px; }
-  .membership-booking-modal .mem-bike { min-height: 42px; font-size: 15px; border-radius: 10px; }
-  .membership-booking-modal .mem-grid-legend { font-size: 10px; gap: 5px 10px; }
-  .membership-booking-modal .mem-grid-count { font-size: 12px; }
-}
-
-.membership-booking-modal .bike-selector--compact .container {
-  width: 100%;
-  max-width: none;
-  padding: 0;
-}
-
-.membership-booking-modal .bike-selector--compact .bike-room {
-  padding: 20px;
-  border-color: rgba(29, 212, 232, 0.2);
-  background: linear-gradient(180deg, #101a20 0%, #070c0f 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-/* La barra de info es redundante: el header del modal ya muestra clase/fecha/hora. */
-.membership-booking-modal .class-info-banner { display: none; }
-
-.membership-booking-modal .bike-legend--room {
-  flex-wrap: wrap;
-  gap: 6px 14px;
-  margin-bottom: 10px;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.78);
-}
-
-.membership-booking-modal .availability-counter {
-  margin-bottom: 10px;
-  font-size: 12px;
-  padding: 6px 12px;
-}
-
-.membership-booking-modal .studio-scene {
-  height: 360px;
-  border: 1px solid rgba(29, 212, 232, 0.12);
-}
-
-.membership-booking-modal .b3d:not(:disabled) .b3d-img {
-  filter: brightness(1.12) saturate(1.12);
-}
-
-.membership-booking-modal .bike-selector--compact .sticky-checkout-bar {
-  margin-top: 14px;
-  padding: 14px 16px;
-  background: linear-gradient(135deg, rgba(15, 30, 38, 0.98), rgba(8, 15, 20, 0.99));
-  border-color: rgba(29, 212, 232, 0.38);
-}
-
-@media (max-width: 640px) {
-  .modal-overlay:has(.membership-booking-modal) {
-    align-items: center;
-    padding: 14px;
-  }
-
-  .membership-booking-modal,
-  .membership-booking-modal.modal--wide {
-    width: 100%;
-    max-width: none;
-    max-height: 88dvh;
-    min-height: 0;
-    border-radius: 20px;
-  }
-
-  .membership-booking-modal .modal-header {
-    padding: 22px 54px 18px 20px;
-  }
-
-  .membership-booking-modal .mem-date-grid {
-    margin: 18px 18px 24px;
-  }
-
-  .membership-booking-modal > .mem-back-btn {
-    margin: 18px 18px 14px;
-  }
-
-  .membership-booking-modal > .mem-slot-list,
-  .membership-booking-modal > .mem-no-slots {
-    margin-right: 18px;
-    margin-left: 18px;
-  }
-
-  .mem-bike-header {
-    padding-top: 20px;
-  }
-
-  .mem-bike-header h3 {
-    font-size: 26px;
-  }
-
-  .mem-bike-guidance {
-    font-size: 13px;
-  }
-
-  .mem-included-note {
-    font-size: 11px;
-    line-height: 1.35;
-  }
-
-  .mem-bike-body {
-    padding: 14px 12px 22px;
-  }
-
-  .membership-booking-modal .bike-selector--compact .bike-room {
-    padding: 14px 10px;
-    border-radius: 14px;
-  }
-
-  .membership-booking-modal .class-info-banner {
-    margin-bottom: 10px;
-  }
-
-  .membership-booking-modal .bike-legend--room {
-    gap: 7px 11px;
-    font-size: 10px;
-  }
-
-  .membership-booking-modal .studio-scene {
-    height: 420px;
-    border-radius: 12px;
-  }
-
-  .membership-booking-modal .bike-selector--compact .sticky-checkout-bar {
-    padding: 12px;
-  }
+  .membership-booking-modal.membership-booking-modal--bike { max-height: calc(100dvh - 16px); }
+  .membership-booking-modal--bike .mem-bike-header { padding: 8px 58px 10px 12px; }
+  .membership-booking-modal--bike .modal-close { top: 8px; right: 8px; }
+  .mem-bike-heading { gap: 8px; }
+  .mem-bike-heading h3 { font-size: 22px; }
+  .mem-bike-class, .mem-included-note { font-size: 11px; }
+  .membership-booking-modal--bike .bike-layout { padding: 8px 6px; }
+  .membership-booking-modal--bike .bike-legend--room { gap: 4px 10px; }
+  .membership-booking-modal--bike .bike-selector--compact .sticky-checkout-bar { padding: 10px 12px; }
 }
 
 /* ============================================================
