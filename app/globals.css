@@ -9974,3 +9974,15 @@ section::before {
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Resalte del aviso "cancelar tu suscripción" en el subtítulo de Mis reservas */
+.lookup-cancel-hl {
+  display: inline-block;
+  color: #f4a261;
+  font-weight: 800;
+  background: rgba(244, 162, 97, 0.14);
+  border: 1px solid rgba(244, 162, 97, 0.4);
+  border-radius: 999px;
+  padding: 2px 12px;
+  white-space: nowrap;
+}
