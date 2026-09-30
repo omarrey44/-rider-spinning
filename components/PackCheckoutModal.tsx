@@ -1,5 +1,7 @@
 'use client';
 
+import { CANCELLATION_COPY } from '@/data/cancellation-policy';
+
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { suggestEmail } from '@/lib/email-suggest';
 
@@ -217,7 +219,7 @@ export default function PackCheckoutModal({
             <span className="booking-banner-bike">3 clases · 7 días</span>
           </div>
           <div className="booking-banner-row">
-            <span className="booking-banner-datetime">Cancela hasta 2h antes</span>
+            <span className="booking-banner-datetime">{CANCELLATION_COPY.deadline}</span>
             <span className="booking-banner-price">$300 MXN</span>
           </div>
         </div>
@@ -327,7 +329,7 @@ export default function PackCheckoutModal({
 
           <div className="trust-badges">
             <span className="trust-badge">🔒 Pago seguro</span>
-            <span className="trust-badge">↩️ Cancelable hasta 2h antes</span>
+            <span className="trust-badge">↩️ {CANCELLATION_COPY.deadline}</span>
           </div>
 
           <button

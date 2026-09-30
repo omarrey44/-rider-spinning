@@ -106,7 +106,7 @@ function getNextClass(
   return null;
 }
 
-// Featured bike (popular center, fila 2). Highlighted only when not taken.
+// The favorite and its row share the room selector's configuration.
 const FEATURED_BIKE = BIKE_CONFIG.popular[0] ?? 6;
 
 export default function Hero() {
@@ -197,6 +197,7 @@ export default function Hero() {
     cursor = end + 1;
     return { start, end };
   });
+  const featuredRow = rowRanges.findIndex(({ start, end }) => FEATURED_BIKE >= start && FEATURED_BIKE <= end) + 1;
   const rawPrice = (nextClass?.slot.price ?? '$200 MXN').replace(/\s*MXN\s*$/i, '').trim();
 
   return (
@@ -313,7 +314,7 @@ export default function Hero() {
               </div>
 
               <div className="hero-card-footer">
-                <span>Bike #{String(FEATURED_BIKE).padStart(2, '0')} · Fila 2 centro</span>
+                <span>Bici #{String(FEATURED_BIKE).padStart(2, '0')} · Fila {featuredRow}</span>
                 <strong>{rawPrice} MXN</strong>
               </div>
 

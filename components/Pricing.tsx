@@ -1,3 +1,5 @@
+import { CANCELLATION_COPY } from '@/data/cancellation-policy';
+
 interface PricingProps {
   onPackClick?: () => void;
   onSubscribeClick?: () => void;
@@ -32,7 +34,8 @@ export default function Pricing({ onPackClick, onSubscribeClick }: PricingProps)
               <li>1 clase a tu ritmo</li>
               <li>Sin compromiso mensual</li>
               <li>Reserva con 1 día de anticipación</li>
-              <li>Cancela hasta 4h antes</li>
+              <li>{CANCELLATION_COPY.deadline}</li>
+              <li>{CANCELLATION_COPY.singleRefund}</li>
             </ul>
             <a href="#horarios" className="btn btn-outline btn-block">Reservar</a>
           </article>
@@ -57,7 +60,7 @@ export default function Pricing({ onPackClick, onSubscribeClick }: PricingProps)
             <ul className="price-features">
               <li>3 clases · vigencia 7 días</li>
               <li>Reserva con 7 días de anticipación</li>
-              <li>Cancela hasta 2h antes</li>
+              <li>{CANCELLATION_COPY.deadline}</li>
               <li>Comparte con un amigo</li>
             </ul>
             <button onClick={onPackClick || (() => {})} className="btn btn-primary btn-block">Comprar pack</button>

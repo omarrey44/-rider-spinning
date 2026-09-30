@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { suggestEmail } from '@/lib/email-suggest';
+import { CANCELLATION_COPY } from '@/data/cancellation-policy';
 
 const COUNTRIES = [
   { flag: '🇲🇽', name: 'México', code: '+52' },
@@ -379,8 +380,15 @@ export default function CheckoutModal({
 
           <div className="trust-badges">
             <span className="trust-badge">{isFree ? '🎁 Clase sin costo' : '🔒 Pago seguro'}</span>
-            <span className="trust-badge">↩️ Cancelable hasta 1h antes</span>
+            <span className="trust-badge">↩️ {CANCELLATION_COPY.deadline}</span>
           </div>
+
+          {!isFree && (
+            <p className="checkout-policy">
+              {CANCELLATION_COPY.singleRefund}.{' '}
+              <a href="/politica-de-cancelacion" target="_blank" rel="noopener noreferrer">Ver política</a>
+            </p>
+          )}
 
           <button
             type="submit"
